@@ -2,13 +2,14 @@
 #' @import Rcpp
 #' @import RcppArmadillo
 #' @import dplyr
-#' @import tibble
-#' @import tidyr
-#' @import purrr
-#' @import matrixStats
 #' @import tsibble
-#' @import rlang
 #' @import ggplot2
+#' @import fabletools
+#' @importFrom purrr map_dfr invoke
+#' @importFrom tidyr gather spread
+#' @importFrom matrixStats colCumsums colDiffs colMins colMaxs
+#' @importFrom Matrix rsparsematrix
+#' @importFrom bestNormalize orderNorm
 #' @useDynLib echos, .registration = TRUE
 #' @name echos
 NULL
