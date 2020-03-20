@@ -26,6 +26,8 @@
 #' @param size_paths Line width of simulated future sample paths.
 #' 
 #' @return p An object of class ggplot.
+#' 
+#' @export
 
 plot_forecast <- function(object,
                           include = NULL,
