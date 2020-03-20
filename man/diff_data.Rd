@@ -7,12 +7,14 @@
 diff_data(data, n_diff, na_rm = TRUE)
 }
 \arguments{
-\item{data}{}
+\item{data}{Numeric matrix}
 
-\item{na_rm}{}
+\item{n_diff}{Integer value. The number of differences}
+
+\item{na_rm}{Logical value. If TRUE}
 }
 \value{
-
+y_diff Numeric matrix with differenced data.
 }
 \description{
 This function takes a numeric matrix and calculates n-th differences for each column. Leading NAs are padded.

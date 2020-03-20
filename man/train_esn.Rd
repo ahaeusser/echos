@@ -24,7 +24,7 @@ train_esn(
 )
 }
 \arguments{
-\item{data}{A tibble containing the time series data. Must have column "time" with time index (date or date-time).}
+\item{data}{A tsibble containing the time series data. Must have column "time" with time index (date or date-time).}
 
 \item{lags}{A list containing integer vectors with the lags associated with each output variable.}
 
