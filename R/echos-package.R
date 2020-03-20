@@ -8,6 +8,7 @@
 #' @import matrixStats
 #' @import tsibble
 #' @import rlang
+#' @import ggplot2
 #' @useDynLib echos, .registration = TRUE
 #' @name echos
 NULL
