@@ -21,7 +21,7 @@ trans_data <- function(data) {
   
   # Perform OQR transformation column wise
   trans_obj <- lapply(seq_len(n_outputs), function(n) {
-    bestNormalize::orderNorm(data[, n], warn = FALSE)
+    orderNorm(data[, n], warn = FALSE)
   })
   
   # Extract transformed data and concatenate column wise

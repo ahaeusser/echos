@@ -3,11 +3,11 @@
 #' 
 #' This function takes a numeric matrix and calculates n-th differences for each column. Leading NAs are padded.
 #'
-#' @param data 
-#' @param n_diff
-#' @param na_rm
+#' @param data Numeric matrix
+#' @param n_diff Integer value. The number of differences
+#' @param na_rm Logical value. If TRUE
 #'
-#' @return
+#' @return y_diff Numeric matrix with differenced data.
 #' @export
 
 diff_data <- function(data, n_diff, na_rm = TRUE) {
@@ -15,7 +15,7 @@ diff_data <- function(data, n_diff, na_rm = TRUE) {
   names_outputs <- colnames(data)
   n_outputs <- ncol(data)
   
-  y_diff <- matrixStats::colDiffs(
+  y_diff <- colDiffs(
     data,
     lag = 1L,
     differences = n_diff)

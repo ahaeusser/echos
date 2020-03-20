@@ -23,7 +23,7 @@ create_wres <- function(n_res,
     ncol = n_res)
   
   # Create a random sparse pattern matrix with defined density
-  wsparse <- Matrix::rsparsematrix(
+  wsparse <- rsparsematrix(
     nrow = n_res,
     ncol = n_res,
     density = density,
