@@ -22,8 +22,8 @@ scale_data <- function(data, new_range = c(-1, 1)) {
   n_cols <- ncol(data)
   
   # Calculate minimum and maximum by column
-  min <- matrixStats::colMins(data, na.rm = TRUE)
-  max <- matrixStats::colMaxs(data, na.rm = TRUE)
+  min <- colMins(data, na.rm = TRUE)
+  max <- colMaxs(data, na.rm = TRUE)
   old_range <- rbind(min, max)
   rownames(old_range) <- c("min", "max")
   colnames(old_range) <- colnames(data)
