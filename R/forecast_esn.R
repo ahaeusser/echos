@@ -202,7 +202,7 @@ forecast_esn <- function(object,
   
   # Inverse differencing
   if (diff == TRUE) {
-    fcst_cumsum <- matrixStats::colCumsums(fcst)
+    fcst_cumsum <- colCumsums(fcst)
     
     last_value <- matrix(
       data = as.numeric(data[nrow(data), -c(1)]),
@@ -257,7 +257,7 @@ forecast_esn <- function(object,
     # Inverse differencing
     if (diff == TRUE) {
       sim_cumsum <- lapply(sim, function(sim) {
-        matrixStats::colCumsums(sim)
+        colCumsums(sim)
       })
       
       last_value <- matrix(
