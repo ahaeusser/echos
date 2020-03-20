@@ -3,7 +3,7 @@
 #' 
 #' This function trains an Echo State Network to a univariate or multivariate time series for forecasting
 #' 
-#' @param data A tibble containing the time series data. Must have column "time" with time index (date or date-time).
+#' @param data A tsibble containing the time series data. Must have column "time" with time index (date or date-time).
 #' @param lags A list containing integer vectors with the lags associated with each output variable.
 #' @param season Integer vector. The number of seasonal cycles per period.
 #' @param period Integer vector. The periodicity of the time series (e.g. for monthly data period = c(12), for hourly data period = c(24, 168)).
