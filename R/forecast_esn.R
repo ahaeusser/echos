@@ -1,7 +1,7 @@
 
-#' Forecast an Echo State Network
+#' @title Forecast a trained Echo State Network (ESN).
 #' 
-#' Forecast an Echo State Network from a trained model (univariate and multivariate ESNs)
+#' @description Forecast an Echo State Network from a trained model (univariate and multivariate ESNs).
 #' 
 #' @param object An object of class "esn". The result of a call to train_esn(...).
 #' @param n_ahead Integer value. The number of periods for forecasting (forecast horizon).

@@ -2,7 +2,7 @@
 % Please edit documentation in R/forecast_esn.R
 \name{forecast_esn}
 \alias{forecast_esn}
-\title{Forecast an Echo State Network}
+\title{Forecast a trained Echo State Network (ESN).}
 \usage{
 forecast_esn(object, n_ahead = 12, n_sim = 100, n_seed = 42)
 }
@@ -29,5 +29,5 @@ states_fcst A tibble containing the internal states with the columns time, id, t
 method A list containing several objects and information of the trained ESN (weight matrices, hyperparameters, etc.).
 }
 \description{
-Forecast an Echo State Network from a trained model (univariate and multivariate ESNs)
+Forecast an Echo State Network from a trained model (univariate and multivariate ESNs).
 }
