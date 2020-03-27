@@ -2,7 +2,7 @@
 % Please edit documentation in R/ESN.R
 \name{ESN}
 \alias{ESN}
-\title{Automatic training of ESNs}
+\title{Automatic training of ESNs.}
 \usage{
 ESN(formula, ...)
 }
@@ -12,8 +12,8 @@ ESN(formula, ...)
 \item{...}{Further arguments passed to \code{echos::auto_esn(...)}.}
 }
 \value{
-esn_model An object of class \code{fbl_esn}.
+esn_model An object of class \code{ESN}.
 }
 \description{
-Automatic training of ESNs
+Automatic training of ESNs.
 }
