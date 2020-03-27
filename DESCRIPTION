@@ -10,4 +10,4 @@ License: What license is it under?
 Encoding: UTF-8
 Imports: Rcpp (>= 1.0.3)
 LinkingTo: Rcpp, RcppArmadillo
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0
