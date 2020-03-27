@@ -2,7 +2,7 @@
 % Please edit documentation in R/ESN.R
 \name{train}
 \alias{train}
-\title{Train ESN.}
+\title{Train an Echo State Network (ESN).}
 \usage{
 train(.data, specials, ...)
 }
@@ -14,7 +14,7 @@ train(.data, specials, ...)
 \item{...}{Further arguments passed to \code{echos::auto_esn(...)}.}
 }
 \value{
-An object of class \code{fbl_esn}.
+An object of class \code{ESN}.
 }
 \description{
 Train an Echo State Network (ESN).
