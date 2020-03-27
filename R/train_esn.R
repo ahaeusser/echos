@@ -1,7 +1,7 @@
 
-#' Train an Echo State Network
+#' @title Train an Echo State Network (ESN).
 #' 
-#' This function trains an Echo State Network to a univariate or multivariate time series for forecasting
+#' @description This function trains an Echo State Network (ESN) to a univariate or multivariate time series.
 #' 
 #' @param data A tsibble containing the time series data. Must have column "time" with time index (date or date-time).
 #' @param lags A list containing integer vectors with the lags associated with each output variable.
@@ -339,9 +339,18 @@ train_esn <- function(data,
     wres = wres,
     wout = wout)
   
+  # Create model specification (short summary)
+  model_spec <- create_spec(
+    n_layers = n_layers,
+    pars = pars,
+    season = season,
+    period = period)
+
   # Store results
   method <- list(
     model_inputs = model_inputs,
+    model_metrics = model_metrics,
+    model_spec = model_spec,
     pars = pars,
     n_layers = n_layers,
     weights = weights,
@@ -349,7 +358,6 @@ train_esn <- function(data,
     trans_inputs = trans_inputs,
     scale_inputs = scale_inputs,
     scale_runif = scale_runif,
-    model_metrics = model_metrics,
     res = res)
   
   # Output model

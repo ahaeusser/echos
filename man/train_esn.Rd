@@ -2,7 +2,7 @@
 % Please edit documentation in R/train_esn.R
 \name{train_esn}
 \alias{train_esn}
-\title{Train an Echo State Network}
+\title{Train an Echo State Network (ESN).}
 \usage{
 train_esn(
   data,
@@ -72,5 +72,5 @@ states_train A tibble containing the internal states with the columns time, id, 
 method A list containing several objects and information of the trained ESN (weight matrices, hyperparameters, error and model metrics, etc.).
 }
 \description{
-This function trains an Echo State Network to a univariate or multivariate time series for forecasting
+This function trains an Echo State Network (ESN) to a univariate or multivariate time series.
 }
