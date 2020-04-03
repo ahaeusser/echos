@@ -10,12 +10,11 @@ auto_esn(
   n_initial = 10,
   n_samples = 200,
   n_seed = 42,
-  max_lag = 18,
-  max_cycles = c(12, 12),
+  max_lag = 6,
+  max_cycles = 6,
   diff = FALSE,
   scale_inputs = c(-2, 2),
-  scale_runif = c(-2, 2),
-  trans_inputs = FALSE
+  scale_runif = c(-2, 2)
 )
 }
 \arguments{
@@ -33,12 +32,10 @@ auto_esn(
 
 \item{scale_runif}{Numeric vector. The lower and upper bound of the uniform distribution.}
 
-\item{trans_inputs}{Logical value. If TRUE, the data are transformed using ordered quantile normalizing transformation (OQR).}
-
 \item{max_cycle}{Integer vector. The maximum number of trigonometric terms per season.}
 }
 \value{
-An object of class \code{esn}.
+An object of class \code{ESN}.
 }
 \description{
 auto_esn ...

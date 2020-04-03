@@ -11,9 +11,8 @@
 #' @param diff Logical value. If \code{TRUE}, the time series is modeled in first difference.
 #' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data.
 #' @param scale_runif Numeric vector. The lower and upper bound of the uniform distribution.
-#' @param trans_inputs Logical value. If TRUE, the data are transformed using ordered quantile normalizing transformation (OQR).
 #'
-#' @return An object of class \code{esn}.
+#' @return An object of class \code{ESN}.
 #' 
 #' @export
 
@@ -22,12 +21,11 @@ auto_esn <- function(data,
                      n_initial = 10,
                      n_samples = 200,
                      n_seed = 42,
-                     max_lag = 18,
-                     max_cycles = c(12, 12),
+                     max_lag = 6,
+                     max_cycles = 6,
                      diff = FALSE,
                      scale_inputs = c(-2, 2),
-                     scale_runif = c(-2, 2),
-                     trans_inputs = FALSE) {
+                     scale_runif = c(-2, 2)) {
   
   # Span grid with random parameters ............................................
   
@@ -93,6 +91,9 @@ auto_esn <- function(data,
   scale_inputs_min = runif(n = n_samples, min = scale_inputs[1], max = 0)
   scale_inputs_max = runif(n = n_samples, min = 0, max = scale_inputs[2])
   
+  # scale_inputs_min = rep(-0.5, times = n_samples)
+  # scale_inputs_max = rep(0.5, times = n_samples)
+  
   scale_inputs <- lapply(seq_len(n_samples), function(n) {
     c(scale_inputs_min[n], scale_inputs_max[n])
   })
@@ -139,8 +140,7 @@ auto_esn <- function(data,
       lambda = train_grid$lambda[n],
       density = train_grid$density[n],
       scale_inputs = train_grid$scale_inputs[[n]],
-      scale_runif = train_grid$scale_runif[[n]],
-      trans_inputs = trans_inputs)$method$model_metrics
+      scale_runif = train_grid$scale_runif[[n]])$method$model_metrics
   })
   
   train_grid <- bind_cols(
@@ -168,8 +168,7 @@ auto_esn <- function(data,
     lambda = train_grid$lambda[n_opt],
     density = train_grid$density[n_opt],
     scale_inputs = train_grid$scale_inputs[[n_opt]],
-    scale_runif = train_grid$scale_runif[[n_opt]],
-    trans_inputs = trans_inputs)
+    scale_runif = train_grid$scale_runif[[n_opt]])
   
   return(fit_esn)
 }
