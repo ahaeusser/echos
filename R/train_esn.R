@@ -18,7 +18,6 @@
 #' @param density Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).
 #' @param scale_runif Numeric vector. The lower and upper bound of the uniform distribution.
 #' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data.
-#' @param trans_inputs Logical value. If TRUE, the data are transformed using ordered quantile normalizing transformation (OQR).
 #' 
 #' @return data The original input data as tibble.
 #' @return actual A tibble containing the actual values with the columns time, id, type, variable, and value.
@@ -44,16 +43,9 @@ train_esn <- function(data,
                       lambda = 12,
                       density = 0.1,
                       scale_runif = c(-0.5, 0.5),
-                      scale_inputs = c(-1, 1),
-                      trans_inputs = FALSE) {
+                      scale_inputs = c(-1, 1)) {
   
   # Pre-processing ============================================================
-  
-  # if (length(input_layer) != ncol(y)) {stop("Please specify a correct input layer")}
-  # if (n_res < 0) {stop("Number of internal states must be positive")}
-  # if (n_initial < 0) {stop("Number of initial observations to throw-off must be positive")}
-  # if (alpha < 0 || alpha > 1) {stop("The leakage rate alpha must be within the interval [0, 1]")}
-  # if (density < 0 || density > 1) {stop("The density must be within the interval [0, 1]")}
   
   # Prepare contants as integers
   n_res <- as.integer(n_res)
@@ -66,7 +58,6 @@ train_esn <- function(data,
   
   # Get response variables (convert tsibble to numeric matrix)
   y <- invoke(cbind, unclass(data)[measured_vars(data)])
-  
   
   # Nameas of output variables
   names_outputs <- colnames(y)
@@ -82,13 +73,6 @@ train_esn <- function(data,
       data = y,
       n_diff = 1,
       na_rm = FALSE)
-  }
-  
-  # Transform data via ORQ transform
-  if (trans_inputs == TRUE) {
-    transformed <- trans_data(data = y)
-    y <- transformed$data
-    trans_obj <- transformed$trans_obj
   }
   
   # Scale data to the specified interval
@@ -236,17 +220,6 @@ train_esn <- function(data,
     old_range = old_range,
     new_range = scale_inputs)
   
-  # Inverse transform of actual and fitted values
-  if (trans_inputs == TRUE) {
-    actual <- inv_trans_data(
-      object = trans_obj,
-      new_data = actual)
-    
-    fitted <- inv_trans_data(
-      object = trans_obj,
-      new_data = fitted)
-  }
-  
   # Inverse differencing
   if (diff == TRUE) {
     actual_cumsum <- matrixStats::colCumsums(actual)
@@ -266,7 +239,6 @@ train_esn <- function(data,
   
   # Calculate residuals (errors)
   resid <- actual - fitted
-  
   
   # Convert data from numeric matrix to tsibble
   actual <- bind_cols(
@@ -295,7 +267,7 @@ train_esn <- function(data,
     gather(
       key = ".variable",
       value = ".value") %>%
-    mutate(.type = "residuals") %>%
+    mutate(.type = "resid") %>%
     update_tsibble(
       key = c(".variable", ".type"))
 
@@ -355,7 +327,6 @@ train_esn <- function(data,
     n_layers = n_layers,
     weights = weights,
     diff = diff,
-    trans_inputs = trans_inputs,
     scale_inputs = scale_inputs,
     scale_runif = scale_runif,
     res = res)

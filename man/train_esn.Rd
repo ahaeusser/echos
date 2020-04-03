@@ -19,8 +19,7 @@ train_esn(
   lambda = 12,
   density = 0.1,
   scale_runif = c(-0.5, 0.5),
-  scale_inputs = c(-1, 1),
-  trans_inputs = FALSE
+  scale_inputs = c(-1, 1)
 )
 }
 \arguments{
@@ -53,8 +52,6 @@ train_esn(
 \item{scale_runif}{Numeric vector. The lower and upper bound of the uniform distribution.}
 
 \item{scale_inputs}{Numeric vector. The lower and upper bound for scaling the time series data.}
-
-\item{trans_inputs}{Logical value. If TRUE, the data are transformed using ordered quantile normalizing transformation (OQR).}
 }
 \value{
 data The original input data as tibble.
