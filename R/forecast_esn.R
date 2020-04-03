@@ -24,17 +24,6 @@ forecast_esn <- function(object,
   
   # Pre-processing ============================================================
   
-  # Check arguments
-  # if (class(object) != "esn") {stop("Object should be of class esn")}
-  # if (n_ahead < 0) {stop("Forecast horizon n_ahead must be positive")}
-  # if (interval == TRUE) {
-  #   if (min(level) < 0 || max(level) > 99.99) {stop("Confidence levels out of range")}
-  #   if (n_sim < 0) {stop("Number of simulations n_sim must be positive")}
-  # }
-  
-  # n_ahead <- as.integer(n_ahead)
-  # n_sim <- as.integer(n_sim)
-  
   # Original time series data (wide format tibble)
   data <- object$data
   
@@ -56,9 +45,8 @@ forecast_esn <- function(object,
   wres <- method$weights$wres
   wout <- method$weights$wout
   
-  # Arguments for differencing, transforming and scaling the time series data
+  # Arguments for differencing and scaling the time series data
   scale_inputs <- method$scale_inputs
-  trans_inputs <- method$trans_inputs
   diff <- method$diff
   
   # Extract residuals
@@ -94,20 +82,12 @@ forecast_esn <- function(object,
   
   states_train <- invoke(cbind, unclass(states_train)[measured_vars(states_train)])
   
-  
   # Calculate first differences
   if (diff == TRUE) {
     y <- diff_data(
       data = y,
       n_diff = 1,
       na_rm = FALSE)
-  }
-  
-  # Transform data via ORQ transform
-  if (trans_inputs == TRUE) {
-    transformed <- trans_data(data = y)
-    y <- transformed$data
-    trans_obj <- transformed$trans_obj
   }
   
   # Scale data to the specified interval
@@ -191,15 +171,6 @@ forecast_esn <- function(object,
     old_range = old_range,
     new_range = scale_inputs)
   
-  # Inverse transform point forecasts
-  if (trans_inputs == TRUE) {
-    fcst <- inv_trans_data(
-      object = trans_obj,
-      new_data = fcst)
-  }
-  
-  
-  
   # Inverse differencing
   if (diff == TRUE) {
     fcst_cumsum <- colCumsums(fcst)
@@ -245,15 +216,6 @@ forecast_esn <- function(object,
         new_range = scale_inputs)
     })
     
-    # Inverse transform simulated sample path
-    if (trans_inputs == TRUE) {
-      sim <- lapply(sim, function(sim) {
-        inv_trans_data(
-          object = trans_obj,
-          new_data = sim)
-      })
-    }
-    
     # Inverse differencing
     if (diff == TRUE) {
       sim_cumsum <- lapply(sim, function(sim) {
@@ -281,7 +243,6 @@ forecast_esn <- function(object,
           value = ".value") %>%
         mutate(.sim = n) %>%
         update_tsibble(
-          index = "date_time",
           key = c(
             ".variable",
             ".sim"))
@@ -302,7 +263,9 @@ forecast_esn <- function(object,
       value = ".value") %>%
     mutate(.type = "mean") %>%
     update_tsibble(
-      key = c(".variable", ".type"))
+      key = c(
+        ".variable",
+        ".type"))
   
   states_fcst <- bind_cols(
     dttm_fcst,
