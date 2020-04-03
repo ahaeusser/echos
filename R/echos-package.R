@@ -1,7 +1,7 @@
 
 #' @importFrom purrr map_dfr invoke
 #' @importFrom tidyr gather spread
-#' @importFrom matrixStats colCumsums colDiffs colMins colMaxs
+#' @importFrom matrixStats colCumsums colDiffs colMins colMaxs rowSds
 #' @importFrom Matrix rsparsematrix
 #' @importFrom bestNormalize orderNorm
 #' @import Rcpp
