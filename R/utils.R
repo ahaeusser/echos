@@ -359,38 +359,6 @@ diff_data <- function(data, n_diff, na_rm = TRUE) {
 
 
 
-#' @title Inverse transforms the columns of a numeric matrix.
-#' 
-#' @description Inverse transforms the columns of a numeric matrix using inverse ordered quantile normalizing transformation (OQR).
-#'
-#' @param object List with objects of class \code{orderNorm}.
-#' @param new_data Numeric vector. New data for inverse transforming.
-#'
-#' @return data Numeric matrix. Inverse transformed data.
-
-inv_trans_data <- function(object, new_data) {
-  
-  # Check y for missing values
-  if (anyNA(new_data) == TRUE) {
-    stop("data contains at least one missing value")
-  }
-  
-  names_outputs <- colnames(new_data)
-  n_outputs <- ncol(new_data)
-  
-  data <- sapply(seq_len(n_outputs), function(n) {
-    cbind(predict(
-      object = object[[n]],
-      newdata = new_data[, n],
-      inverse = TRUE,
-      warn = FALSE))
-  })
-  colnames(data) <- names_outputs
-  return(data)
-}
-
-
-
 #' @title Forecast a fitted ESN.
 #' 
 #' @description Calculate point forecasts for a fitted ESN (internally).
@@ -433,8 +401,7 @@ predict_esn <- function(win,
     data = NA_real_,
     nrow = (n_ahead + 1),
     ncol = (n_res),
-    dimnames = list(c(), colnames(states_train))
-  )
+    dimnames = list(c(), colnames(states_train)))
   
   # Create copy and fill first row with last values from states_train
   states_fcst <- states_fcst_upd
@@ -661,43 +628,4 @@ simulate_esn <- function(win,
       innov = innov)$fcst
   })
   return(sim)
-}
-
-
-
-#' @title Transform the columns of a numeric matrix.
-#' 
-#' @description Transform the columns of a numeric matrix using ordered quantile normalizing transformation (OQR).
-#' 
-#' @param data Numeric matrix containing the values to be transformed. Each column is a variable and each row an observation.
-#' 
-#' @return result List with the transformed data as numeric matrix and objects of class \code{orderNorm} (for inverse transform).
-
-trans_data <- function(data) {
-  
-  # # Check y for missing values
-  # if (anyNA(data) == TRUE) {
-  #   stop("data contains at least one missing value")
-  # }
-  
-  names_outputs <- colnames(data)
-  n_outputs <- ncol(data)
-  
-  # Perform OQR transformation column wise
-  trans_obj <- lapply(seq_len(n_outputs), function(n) {
-    orderNorm(data[, n], warn = FALSE)
-  })
-  
-  # Extract transformed data and concatenate column wise
-  data <- sapply(seq_len(n_outputs), function(n) {
-    cbind(predict(trans_obj[[n]]))
-  })
-  
-  colnames(data) <- names_outputs
-  
-  result <- list(
-    data = data,
-    trans_obj = trans_obj)
-  
-  return(result)
 }
