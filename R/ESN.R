@@ -19,7 +19,7 @@ train <- function(.data, specials, ...){
   model_data <- .data
   
   if(any(is.na(model_data))){
-    abort("ELM does not support missing values.")
+    abort("ESN does not support missing values.")
   }
   
   # Train model
@@ -121,3 +121,59 @@ residuals.ESN <- function(object, ...){
 model_sum.ESN <- function(x){
   x$spec
 }
+
+
+
+
+
+#' @title Forecast a trained ESN
+#' 
+#' @description Forecast a trained ESN
+#' 
+#' @param object Trained model
+#' @param new_data Forecast horizon
+#' @param specials NULL
+#' @param ... Further arguments passed toi bla
+#' 
+#' @return A fable
+#' @export
+
+forecast.ESN <- function(object,
+                         new_data,
+                         specials = NULL,
+                         ...) {
+  # Extract model
+  mdl <- object$model
+  
+  # Forecast model
+  fcst <- forecast_esn(
+    object = mdl,
+    n_ahead = nrow(new_data))
+  
+  # Extract point forecasts
+  mean <- fcst$forecast$.value
+  
+  # Extract simulations
+  sim <- fcst$simulation %>%
+    select(-.variable) %>%
+    spread(
+      key = .sim,
+      value = .value)
+  
+  sim <- invoke(cbind, unclass(sim)[measured_vars(sim)])
+  sd <- rowSds(sim, na.rm = TRUE)
+  
+  # Return forecast
+  construct_fc(
+    point = mean,
+    sd = sd,
+    dist = dist_normal(
+      mean = mean,
+      sd = sd))
+}
+
+
+
+
+
+
