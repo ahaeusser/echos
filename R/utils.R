@@ -139,12 +139,14 @@ create_revolved <- function(data, lags, n_ahead) {
 #' @description This function creates the trigonometric terms for the design matrix as numeric matrix.
 #'
 #' @param times Integer value. The number of observations.
-#' @param k Integer vector. The number of seasonal cycles per period.
+#' @param n_trig Integer vector. The number of seasonal cycles per period (i.e. the number of sines and cosines for each frequency).
 #' @param period Integer vector. The periodicity of the time series.
 #' 
 #' @return
 
-create_season <- function(times, k, period) {
+create_trig <- function(times,
+                        n_trig,
+                        period) {
   
   # Patch for older versions of R that do not have sinpi and cospi functions.
   if (!exists("sinpi")) {
@@ -156,11 +158,11 @@ create_season <- function(times, k, period) {
     }
   }
   
-  if (length(period) != length(k)) {
+  if (length(period) != length(n_trig)) {
     stop("Number of periods does not match number of orders")
   }
-  if (any(2 * k > period)) {
-    stop("k must be not be greater than period/2")
+  if (any(2 * n_trig > period)) {
+    stop("n_trig must be not be greater than period/2")
   }
   
   # Compute periods of all Fourier terms
@@ -168,26 +170,26 @@ create_season <- function(times, k, period) {
   labels <- character(0)
   for (j in seq_along(period))
   {
-    if (k[j] > 0) {
-      p <- c(p, (1:k[j]) / period[j])
+    if (n_trig[j] > 0) {
+      p <- c(p, (1:n_trig[j]) / period[j])
       labels <- c(labels, paste0(
-        paste0(c("sin(", "cos("), rep(1:k[j], rep(2, k[j]))),
+        paste0(c("sin(", "cos("), rep(1:n_trig[j], rep(2, n_trig[j]))),
         "-", round(period[j]), ")"))
     }
   }
   # Remove equivalent seasonal periods due to multiple seasonality
-  k <- duplicated(p)
-  p <- p[!k]
-  labels <- labels[!rep(k, rep(2, length(k)))]
+  n_trig <- duplicated(p)
+  p <- p[!n_trig]
+  labels <- labels[!rep(n_trig, rep(2, length(n_trig)))]
   
   # Remove columns where sinpi = 0
-  k <- abs(2 * p - round(2 * p)) > .Machine$double.eps
+  n_trig <- abs(2 * p - round(2 * p)) > .Machine$double.eps
   
   # Compute matrix of Fourier terms
   X <- matrix(NA_real_, nrow = length(times), ncol = 2L * length(p))
   for (j in seq_along(p))
   {
-    if (k[j]) {
+    if (n_trig[j]) {
       X[, 2L * j - 1L] <- sinpi(2 * p[j] * times)
     }
     X[, 2L * j] <- cospi(2 * p[j] * times)
@@ -207,14 +209,14 @@ create_season <- function(times, k, period) {
 #'
 #' @param n_layers List containing the number of inputs (n_inputs), reservoir size (n_res) and the number of outputs (n_outputs).
 #' @param pars List containing the hyperparameters alpha, rho, lambda and density.
-#' @param season Integer vector. The number of seasonal cycles per period.
+#' @param n_trig Integer vector. The number of seasonal cycles per period.
 #' @param period Integer vector. The periodicity of the time series.
 #'
 #' @return model_spec Character value. The model specification as string.
 
 create_spec <- function(n_layers,
                         pars,
-                        season,
+                        n_trig,
                         period) {
   
   # Number of inputs and outputs and reservoir size
@@ -234,12 +236,12 @@ create_spec <- function(n_layers,
     "}")
   
   # Seasonality and periodicity
-  if (is.null(season)) {
-    season <- 0}
+  if (is.null(n_trig)) {
+    n_trig <- 0}
   
   str_season <- paste(
     "{",
-    paste("(", period, "-", season, ")",
+    paste("(", period, "-", n_trig, ")",
           collapse = ",",
           sep = ""), "}",
     sep = "")
