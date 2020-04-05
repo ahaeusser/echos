@@ -3,7 +3,6 @@
 #' @importFrom tidyr gather spread
 #' @importFrom matrixStats colCumsums colDiffs colMins colMaxs rowSds
 #' @importFrom Matrix rsparsematrix
-#' @importFrom bestNormalize orderNorm
 #' @import Rcpp
 #' @import RcppArmadillo
 #' @import dplyr
