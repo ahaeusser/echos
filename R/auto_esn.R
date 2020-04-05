@@ -4,7 +4,7 @@
 #' auto_esn ...
 #'
 #' @param data A tsibble containing the time series data. Must have column "time" with time index (date or date-time).
-#' @param n_samples Integer value. The number of samples for the random grid.
+#' @param n_sample Integer value. The number of samples for the random grid.
 #' @param n_seed Integer value. The seed for the random number generator (for reproducibility).
 #' @param max_lag Integer value. The maximum number of non-seasonal lags.
 #' @param max_cycle Integer vector. The maximum number of trigonometric terms per season.
@@ -17,49 +17,63 @@
 #' @export
 
 auto_esn <- function(data,
-                     n_res = 200,
-                     n_initial = 10,
-                     n_samples = 200,
-                     n_seed = 42,
+                     n_res = 100,
+                     n_sample = 200,
                      max_lag = 6,
-                     max_cycles = 6,
-                     diff = FALSE,
-                     scale_inputs = c(-2, 2),
-                     scale_runif = c(-2, 2)) {
+                     max_trig = c(3, 3),
+                     n_diff = 1) {
   
-  # Span grid with random parameters ............................................
+  # Preparation =================================================================
   
-  # For reproducibility
-  set.seed(n_seed)
+  # Fixed parameters
+  n_seed <- 42
+  n_initial <- 10
+  const <- TRUE
+  scale_inputs <- c(-1, 1)
+  scale_runif <- c(-0.5, 0.5)
+  
   # Number of response variables (outputs)
   n_outputs <- length(measured_vars(data))
+  # Number of observations
+  n_obs <- nrow(data)
+  
+  # Identify common periods
+  period <- common_periods(data)
+  # Exclude periods which are longer then sample size
+  period <- period[period < n_obs]
+  # Sort periods ascending
+  period <- sort(as.numeric(period))
+  # Number of periods
+  n_period <- length(period)
+  
+  
+  # Span grid with random parameters ============================================
+  
+  # Set seed for reproducibility
+  set.seed(n_seed)
   
   # Hyperparameters
-  lambda <- runif(n = n_samples, min = 0, max = 2)
-  alpha <- runif(n = n_samples, min = 0.1, max = 1)
-  rho <- runif(n = n_samples, min = 0.1, max = 1.5)
-  density <- sample(c(0.1, 0.2), n_samples, replace = TRUE)
+  lambda <- runif(n = n_sample, min = 0.00001, max = 10)
+  alpha <- runif(n = n_sample, min = 0.5, max = 1)
+  rho <- runif(n = n_sample, min = 0.5, max = 1.5)
+  density <- sample(c(0.1, 0.2), n_sample, replace = TRUE)
   
   # Create lags
-  # Prepare seasonal lags
-  seas_lags <- common_periods(data)
-  n_obs <- nrow(data)
-  seas_lags <- sort(as.numeric(seas_lags[seas_lags < n_obs]))
-  n_periods <- length(seas_lags)
   rnd_seas_lags <- replicate(
-    (n_periods + 1),
-    sample(c(seas_lags, NA_integer_),
-           n_samples,
-           replace = TRUE))
+    (n_period + 1),
+    sample(
+      c(period, NA_integer_),
+      n_sample,
+      replace = TRUE))
   
   # Prepare non-seasonal lags
   rnd_lags <- sample(
     max_lag,
-    size = n_samples,
+    size = n_sample,
     replace = TRUE)
   
   # Combine random lags as list
-  lags <- lapply(seq_len(n_samples), function(n) {
+  lags <- lapply(seq_len(n_sample), function(n) {
     non_seas_lags <- c(seq(from = 1, to = rnd_lags[n], by = 1))
     seas_lags <- na.omit(rnd_seas_lags[n, ])
     seas_lags <- seas_lags[!duplicated(seas_lags)]
@@ -67,71 +81,46 @@ auto_esn <- function(data,
     rep(list(c(non_seas_lags, seas_lags)), n_outputs)
   })
   
-  
-  # Create seasonal terms
-  rnd_seas_terms <- matrix(
+  # Create trigonometric terms
+  rnd_n_trig <- matrix(
     data = NA_integer_,
-    nrow = n_samples,
-    ncol = n_periods)
+    nrow = n_sample,
+    ncol = n_period)
   
-  for (n in seq_len(n_periods)) {
-    rnd_seas_terms[, n] <- sample(max_cycles[n], n_samples, replace = TRUE)
+  
+  for (n in seq_len(n_period)) {
+    rnd_n_trig[, n] <- sample(
+      x = seq(0, max_trig[n]),
+      size = n_sample,
+      replace = TRUE)
   }
   
-  seas_terms <- lapply(seq_len(n_samples), function(n) {
-    rnd_seas_terms[n, ]
+  n_trig <- lapply(seq_len(n_sample), function(n) {
+    rnd_n_trig[n, ]
   })
-  
-  
-  # Intercept term (constant)
-  const <- sample(c(TRUE, FALSE), n_samples, replace = TRUE)
-  
-  
-  # Scale inputs
-  scale_inputs_min = runif(n = n_samples, min = scale_inputs[1], max = 0)
-  scale_inputs_max = runif(n = n_samples, min = 0, max = scale_inputs[2])
-  
-  # scale_inputs_min = rep(-0.5, times = n_samples)
-  # scale_inputs_max = rep(0.5, times = n_samples)
-  
-  scale_inputs <- lapply(seq_len(n_samples), function(n) {
-    c(scale_inputs_min[n], scale_inputs_max[n])
-  })
-  
-  
-  # Scale uniform distribution
-  scale_runif_min = runif(n = n_samples, min = scale_runif[1], max = 0)
-  scale_runif_max = runif(n = n_samples, min = 0, max = scale_runif[2])
-  
-  scale_runif <- lapply(seq_len(n_samples), function(n) {
-    c(scale_runif_min[n], scale_runif_max[n])
-  })
-  
   
   # Prepare random grid for training
   train_grid <- tibble(
-    n_samples = seq(1, n_samples, 1),
+    n_sample = seq(1, n_sample, 1),
     lambda = lambda,
     alpha = alpha,
     rho = rho,
     density = density,
     lags = lags,
-    seas_terms = seas_terms,
-    const = const,
-    scale_inputs = scale_inputs,
-    scale_runif = scale_runif)
+    n_trig = n_trig)
   
   # Train ESNs on random grid .................................................
   
-  models <- map_dfr(seq_len(n_samples), function(n) {
+  models <- map_dfr(seq_len(n_sample), function(n) {
     # Train ESN on random grid parameters
     train_esn(
       data = data,
-      lags = train_grid$lags[[n]],
-      season = train_grid$seas_terms[[n]],
-      period = seas_lags,
-      const = train_grid$const[n],
-      diff = diff,
+      # lags = train_grid$lags[[n]],
+      lags = list(seq(1, 24, 1)),
+      n_trig = train_grid$n_trig[[n]],
+      period = period,
+      const = const,
+      n_diff = n_diff,
       n_res = n_res,
       n_initial = n_initial,
       n_seed = n_seed,
@@ -139,8 +128,9 @@ auto_esn <- function(data,
       alpha = train_grid$alpha[n],
       lambda = train_grid$lambda[n],
       density = train_grid$density[n],
-      scale_inputs = train_grid$scale_inputs[[n]],
-      scale_runif = train_grid$scale_runif[[n]])$method$model_metrics
+      # density = 1,
+      scale_inputs = scale_inputs,
+      scale_runif = scale_runif)$method$model_metrics
   })
   
   train_grid <- bind_cols(
@@ -149,17 +139,22 @@ auto_esn <- function(data,
   
   # Train ESN on optimal parameters ...........................................
   
+  # n_opt <- train_grid %>%
+  #   filter(rss == min(rss)) %>%
+  #   pull(n_sample)
+  
   n_opt <- train_grid %>%
-    filter(rss == min(rss)) %>%
-    pull(n_samples)
+    filter(aic == min(aic)) %>%
+    pull(n_sample)
   
   fit_esn <- train_esn(
     data = data,
-    lags = train_grid$lags[[n_opt]],
-    season = train_grid$seas_terms[[n_opt]],
-    period = seas_lags,
-    const = train_grid$const[n_opt],
-    diff = diff,
+    # lags = train_grid$lags[[n_opt]],
+    lags = list(seq(1, 24, 1)),
+    n_trig = train_grid$n_trig[[n_opt]],
+    period = period,
+    const = const,
+    n_diff = n_diff,
     n_res = n_res,
     n_initial = n_initial,
     n_seed = n_seed,
@@ -167,8 +162,13 @@ auto_esn <- function(data,
     alpha = train_grid$alpha[n_opt],
     lambda = train_grid$lambda[n_opt],
     density = train_grid$density[n_opt],
-    scale_inputs = train_grid$scale_inputs[[n_opt]],
-    scale_runif = train_grid$scale_runif[[n_opt]])
+    # density = 1,
+    scale_inputs = scale_inputs,
+    scale_runif = scale_runif)
   
-  return(fit_esn)
+  list(
+    fit_esn = fit_esn,
+    train_grid = train_grid)
+  
+  # return(fit_esn)
 }

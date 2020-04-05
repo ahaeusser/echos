@@ -6,33 +6,29 @@
 \usage{
 auto_esn(
   data,
-  n_res = 200,
-  n_initial = 10,
-  n_samples = 200,
-  n_seed = 42,
+  n_res = 100,
+  n_sample = 200,
   max_lag = 6,
-  max_cycles = 6,
-  diff = FALSE,
-  scale_inputs = c(-2, 2),
-  scale_runif = c(-2, 2)
+  max_trig = c(3, 3),
+  n_diff = 1
 )
 }
 \arguments{
 \item{data}{A tsibble containing the time series data. Must have column "time" with time index (date or date-time).}
 
-\item{n_samples}{Integer value. The number of samples for the random grid.}
+\item{n_sample}{Integer value. The number of samples for the random grid.}
+
+\item{max_lag}{Integer value. The maximum number of non-seasonal lags.}
 
 \item{n_seed}{Integer value. The seed for the random number generator (for reproducibility).}
 
-\item{max_lag}{Integer value. The maximum number of non-seasonal lags.}
+\item{max_cycle}{Integer vector. The maximum number of trigonometric terms per season.}
 
 \item{diff}{Logical value. If \code{TRUE}, the time series is modeled in first difference.}
 
 \item{scale_inputs}{Numeric vector. The lower and upper bound for scaling the time series data.}
 
 \item{scale_runif}{Numeric vector. The lower and upper bound of the uniform distribution.}
-
-\item{max_cycle}{Integer vector. The maximum number of trigonometric terms per season.}
 }
 \value{
 An object of class \code{ESN}.
