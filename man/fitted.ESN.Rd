@@ -4,7 +4,7 @@
 \alias{fitted.ESN}
 \title{Extract fitted values from a trained ESN.}
 \usage{
-\method{fitted}{ESN}(object, ...)
+fitted.ESN(object, ...)
 }
 \arguments{
 \item{object}{The time series model used to produce the forecast.}
