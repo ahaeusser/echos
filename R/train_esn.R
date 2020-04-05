@@ -5,7 +5,7 @@
 #' 
 #' @param data A tsibble containing the time series data. Must have column "time" with time index (date or date-time).
 #' @param lags A list containing integer vectors with the lags associated with each output variable.
-#' @param season Integer vector. The number of seasonal cycles per period.
+#' @param n_trig Integer vector. The number of seasonal cycles per period.
 #' @param period Integer vector. The periodicity of the time series (e.g. for monthly data period = c(12), for hourly data period = c(24, 168)).
 #' @param const Logical value. If TRUE, a constant term (intercept) is used.
 #' @param diff Logical value. If TRUE, the time series is modeled in first difference.
@@ -31,10 +31,10 @@
 
 train_esn <- function(data,
                       lags,
-                      season,
+                      n_trig,
                       period,
                       const = TRUE,
-                      diff = FALSE,
+                      n_diff = 0,
                       n_res = 200,
                       n_initial = 10,
                       n_seed = 42,
@@ -68,7 +68,7 @@ train_esn <- function(data,
     "state","(", formatC(1:n_res, width = nchar(max(n_res)), flag = "0"), ")")
   
   # Calculate first differences
-  if (diff == TRUE) {
+  if (n_diff == 1) {
     y <- diff_data(
       data = y,
       n_diff = 1,
@@ -92,15 +92,16 @@ train_esn <- function(data,
       lags = lags)
   }
   
-  # Create seasonal terms (fourier terms) as matrix
-  if (is.null(season)) {
+  # Create seasonal terms (trigonometric terms) as matrix
+  if (all(n_trig == 0)) {
     y_seas <- NULL
   } else {
-    y_seas <- create_season(
+    y_seas <- create_trig(
       times = 1:nrow(y),
-      k = season,
+      n_trig = n_trig,
       period = period)
   }
+  
   
   # Create constant term (intercept term) as matrix
   if (const == FALSE) {
@@ -221,7 +222,7 @@ train_esn <- function(data,
     new_range = scale_inputs)
   
   # Inverse differencing
-  if (diff == TRUE) {
+  if (n_diff == 1) {
     actual_cumsum <- matrixStats::colCumsums(actual)
     fitted_cumsum <- matrixStats::colCumsums(fitted)
     
@@ -239,6 +240,25 @@ train_esn <- function(data,
   
   # Calculate residuals (errors)
   resid <- actual - fitted
+  
+  df <- ncol(Xt)
+  # Number of observations used in estimation
+  n_obs <- nrow(resid)
+  # Residual sum of squares (RSS)
+  # rss <- sum(diag(crossprod(resid)))
+  rss <- mean(as.numeric(resid^2))
+  # Akaike information criterion (AIC)
+  aic <- n_obs * log(rss) + 2 * df
+  # Bayesian information criterion (BIC)
+  bic <- n_obs * log(rss) + df * log(n_obs)
+  
+  # Store model metrics
+  model_metrics2 <- tibble(
+    df = df,
+    rss = rss,
+    aic = aic,
+    bic = bic)
+  
   
   # Convert data from numeric matrix to tsibble
   actual <- bind_cols(
@@ -289,7 +309,7 @@ train_esn <- function(data,
   model_inputs <- list(
     const = const,
     lags = lags,
-    season = season,
+    n_trig = n_trig,
     period = period)
   
   # List with hyperparameters
@@ -315,18 +335,19 @@ train_esn <- function(data,
   model_spec <- create_spec(
     n_layers = n_layers,
     pars = pars,
-    season = season,
+    n_trig = n_trig,
     period = period)
 
   # Store results
   method <- list(
     model_inputs = model_inputs,
     model_metrics = model_metrics,
+    model_metrics2 = model_metrics2,
     model_spec = model_spec,
     pars = pars,
     n_layers = n_layers,
     weights = weights,
-    diff = diff,
+    n_diff = n_diff,
     scale_inputs = scale_inputs,
     scale_runif = scale_runif,
     res = res)
@@ -339,6 +360,8 @@ train_esn <- function(data,
       fitted = fitted,
       resid = resid,
       states_train = states_train,
-      method = method),
+      method = method,
+      Xt = Xt,
+      yt = yt),
     class = "ESN")
 }

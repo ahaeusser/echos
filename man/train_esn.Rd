@@ -7,10 +7,10 @@
 train_esn(
   data,
   lags,
-  season,
+  n_trig,
   period,
   const = TRUE,
-  diff = FALSE,
+  n_diff = 0,
   n_res = 200,
   n_initial = 10,
   n_seed = 42,
@@ -27,13 +27,11 @@ train_esn(
 
 \item{lags}{A list containing integer vectors with the lags associated with each output variable.}
 
-\item{season}{Integer vector. The number of seasonal cycles per period.}
+\item{n_trig}{Integer vector. The number of seasonal cycles per period.}
 
 \item{period}{Integer vector. The periodicity of the time series (e.g. for monthly data period = c(12), for hourly data period = c(24, 168)).}
 
 \item{const}{Logical value. If TRUE, a constant term (intercept) is used.}
-
-\item{diff}{Logical value. If TRUE, the time series is modeled in first difference.}
 
 \item{n_res}{Integer value. The number of internal states within the reservoir (hidden layer).}
 
@@ -52,6 +50,8 @@ train_esn(
 \item{scale_runif}{Numeric vector. The lower and upper bound of the uniform distribution.}
 
 \item{scale_inputs}{Numeric vector. The lower and upper bound for scaling the time series data.}
+
+\item{diff}{Logical value. If TRUE, the time series is modeled in first difference.}
 }
 \value{
 data The original input data as tibble.
