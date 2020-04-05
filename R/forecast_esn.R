@@ -47,7 +47,7 @@ forecast_esn <- function(object,
   
   # Arguments for differencing and scaling the time series data
   scale_inputs <- method$scale_inputs
-  diff <- method$diff
+  n_diff <- method$n_diff
   
   # Extract residuals
   res <- method$res
@@ -58,7 +58,7 @@ forecast_esn <- function(object,
   # Model inputs
   const <- method$model_inputs$const
   lags <- method$model_inputs$lags
-  season <- method$model_inputs$season
+  n_trig <- method$model_inputs$n_trig
   period <- method$model_inputs$period
   
   # Extract (time) index variable
@@ -83,7 +83,7 @@ forecast_esn <- function(object,
   states_train <- invoke(cbind, unclass(states_train)[measured_vars(states_train)])
   
   # Calculate first differences
-  if (diff == TRUE) {
+  if (n_diff == 1) {
     y <- diff_data(
       data = y,
       n_diff = 1,
@@ -108,12 +108,12 @@ forecast_esn <- function(object,
   }
   
   # Create season (fourier terms) as matrix
-  if (is.null(season)) {
+  if (all(n_trig == 0)) {
     y_seas <- NULL
   } else {
-    y_seas <- create_season(
+    y_seas <- create_trig(
       times = (nrow(y) + 1):(nrow(y) + n_ahead),
-      k = season,
+      n_trig = n_trig,
       period = period)
     
     fill_NA <- matrix(
@@ -172,7 +172,7 @@ forecast_esn <- function(object,
     new_range = scale_inputs)
   
   # Inverse differencing
-  if (diff == TRUE) {
+  if (n_diff == 1) {
     fcst_cumsum <- colCumsums(fcst)
     
     last_value <- matrix(
@@ -217,7 +217,7 @@ forecast_esn <- function(object,
     })
     
     # Inverse differencing
-    if (diff == TRUE) {
+    if (n_diff == 1) {
       sim_cumsum <- lapply(sim, function(sim) {
         colCumsums(sim)
       })
