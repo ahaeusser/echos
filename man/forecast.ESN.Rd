@@ -4,7 +4,7 @@
 \alias{forecast.ESN}
 \title{Forecast a trained ESN}
 \usage{
-\method{forecast}{ESN}(object, new_data, specials = NULL, ...)
+\method{forecast}{ESN}(object, new_data, specials = NULL, n_sim = 100, ...)
 }
 \arguments{
 \item{object}{Trained model}

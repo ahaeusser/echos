@@ -77,8 +77,8 @@ forecast_esn <- function(object,
   
   states_train <- states_train %>%
     spread(
-      key = ".state",
-      value = ".value")
+      key = "state",
+      value = "value")
   
   states_train <- invoke(cbind, unclass(states_train)[measured_vars(states_train)])
   
@@ -227,25 +227,29 @@ forecast_esn <- function(object,
         nrow = nrow(fcst),
         ncol = ncol(fcst))
       
+      colnames(last_value) <- names_outputs
+      
       sim <- lapply(sim_cumsum, function(sim_cumsum) {
         last_value + sim_cumsum
       })
     }
     
-    names_sim <- paste("sim", "(", 1:n_sim, ")", sep = "")
+    # Names of simulations
+    names_sim <- paste0(
+      "sim","(", formatC(1:n_sim, width = nchar(max(n_sim)), flag = "0"), ")")
     
     simulation <- lapply(seq_len(n_sim), function(n) {
       bind_cols(
         dttm_fcst,
         as_tibble(sim[[n]])) %>%
         gather(
-          key = ".variable",
-          value = ".value") %>%
-        mutate(.sim = n) %>%
+          key = "variable",
+          value = "sim") %>%
+        mutate(path = names_sim[n]) %>%
         update_tsibble(
           key = c(
-            ".variable",
-            ".sim"))
+            "variable",
+            "path"))
     })
     
     simulation <- do.call(rbind, simulation)
@@ -259,20 +263,17 @@ forecast_esn <- function(object,
     dttm_fcst,
     as_tibble(fcst)) %>%
     gather(
-      key = ".variable",
-      value = ".value") %>%
-    mutate(.type = "mean") %>%
+      key = "variable",
+      value = "fcst") %>%
     update_tsibble(
-      key = c(
-        ".variable",
-        ".type"))
+      key = "variable")
   
   states_fcst <- bind_cols(
     dttm_fcst,
     as_tibble(states_fcst)) %>%
     gather(
-      key = ".state",
-      value = ".value")
+      key = "state",
+      value = "value")
   
   # Output model
   structure(
