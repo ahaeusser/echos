@@ -9,27 +9,78 @@
 #'
 #' @return An object of class \code{ESN}.
 
-train <- function(.data, specials, ...){
+train_esn <- function(.data,
+                      specials,
+                      lags,
+                      n_trig,
+                      period,
+                      const = TRUE,
+                      n_diff = 0,
+                      n_res = 200,
+                      n_initial = 10,
+                      n_seed = 42,
+                      density = 0.1,
+                      scale_inputs = c(-1, 1),
+                      inf_crit = "HQ",
+                      ...){
   
-  if(length(tsibble::measured_vars(.data)) > 1){
-    abort("Only univariate responses are supported by ESN")
+  if (length(tsibble::measured_vars(.data)) > 1) {
+    abort("Only univariate responses are supported by ESN.")
   }
   
-  # Prepare data for modelling
-  model_data <- .data
-  
-  if(any(is.na(model_data))){
+  if(any(is.na(.data))){
     abort("ESN does not support missing values.")
   }
   
+  # Starting values for optimization
+  # (alpha, rho, lambda and scale_runif)
+  par <- c(0.8, 1, 0.1, 0.5)
+  # Lower and upper bound (box contraints)
+  lower <- c(0, 0.5, 0.001, 1e-8)
+  upper <- c(1, 1.5, 100, 1)
+  
+  # Find optimal hyperparameters
+  opt <- optim(
+    par = par,
+    fn = min_loss,
+    lower = lower,
+    upper = upper,
+    method = "L-BFGS-B",
+    data = .data,
+    lags = lags,
+    n_trig = n_trig,
+    period = period,
+    n_diff = n_diff,
+    density = density,
+    n_res = n_res,
+    inf_crit = inf_crit,
+    scale_inputs = scale_inputs
+    )
+  
   # Train model
-  mdl <- echos::auto_esn(data = model_data, ...)
+  model_fit <- estimate_esn(
+    data = .data,
+    lags = lags,
+    n_trig = n_trig,
+    period = period,
+    const = const,
+    n_diff = n_diff,
+    n_res = n_res,
+    n_initial = n_initial,
+    n_seed = n_seed,
+    alpha = opt$par[1],
+    rho = opt$par[2],
+    lambda = opt$par[3],
+    density = density,
+    scale_inputs = scale_inputs,
+    scale_runif = c(-opt$par[4], opt$par[4])
+  )
   
-  # Extract length of actual values and fitted values
-  fitted <- mdl$fitted$.value
-  resid <- mdl$resid$.value
-  
-  n_total <- nrow(model_data)
+  # Extract actual values and fitted values
+  fitted <- model_fit$fitted[["fitted"]]
+  resid <- model_fit$resid[["resid"]]
+  # Get length of time series and fitted values
+  n_total <- nrow(.data)
   n_fitted <- length(fitted)
   
   # Fill NAs in front of fitted values (adjust to equal length of actual values) 
@@ -37,12 +88,12 @@ train <- function(.data, specials, ...){
   resid <- c(rep(NA_real_, n_total - n_fitted), resid)
   
   # Model specification
-  model_spec <- mdl$method$model_spec
+  model_spec <- model_fit$method$model_spec
   
   # Return model
   structure(
     list(
-      model = mdl,
+      model = model_fit,
       est = list(
         .fitted = fitted,
         .resid = resid),
@@ -66,7 +117,7 @@ specials_esn <- new_specials()
 ESN <- function(formula, ...){
   esn_model <- new_model_class(
     model = "ESN",
-    train = train,
+    train = train_esn,
     specials = specials_esn)
   
   new_model_definition(
@@ -141,39 +192,34 @@ model_sum.ESN <- function(x){
 forecast.ESN <- function(object,
                          new_data,
                          specials = NULL,
+                         n_sim = 100,
                          ...) {
   # Extract model
-  mdl <- object$model
+  model_fit <- object$model
   
   # Forecast model
   fcst <- forecast_esn(
-    object = mdl,
+    object = model_fit,
     n_ahead = nrow(new_data))
   
   # Extract point forecasts
-  mean <- fcst$forecast$.value
+  fcst_mean <- fcst$forecast[["fcst"]]
   
   # Extract simulations
   sim <- fcst$simulation %>%
-    select(-.variable) %>%
+    select(-variable) %>%
     spread(
-      key = .sim,
-      value = .value)
+      key = path,
+      value = sim)
   
   sim <- invoke(cbind, unclass(sim)[measured_vars(sim)])
-  sd <- rowSds(sim, na.rm = TRUE)
+  fcst_sd <- rowSds(sim, na.rm = TRUE)
   
   # Return forecast
   construct_fc(
-    point = mean,
-    sd = sd,
+    point = fcst_mean,
+    sd = fcst_sd,
     dist = dist_normal(
-      mean = mean,
-      sd = sd))
+      mean = fcst_mean,
+      sd = fcst_sd))
 }
-
-
-
-
-
-
