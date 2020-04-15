@@ -36,19 +36,30 @@ Rcpp::List train_ridge(const arma::mat& X,
   
   // Effective degrees of freedom
   double df = trace((Xt * inv(XX + Ipp_lambda)) * trans(Xt));
-  // Residual sum of squares (RSS)
-  double rss = trace((trans(res) * res));
+  // Determinant of the residual variance-covariance matrix
+  double det_sigma = det((trans(res) * res)) / n;
+  
+  // Convert n from int to double (due to integer-double division issue)
+  double n_obs = n;
+  
   // Akaike information criterion (AIC)
-  double aic = n * log(rss) + 2 * df;
+  double aic = log(det_sigma) + (2 / n_obs) * df;
+  
+  // Hannan-Quinn information criterion (HQ)
+  double hq = log(det_sigma) + (2 * log(log(n_obs)) / n_obs) * df;
+  
   // Bayesian information criterion (BIC)
-  double bic = n * log(rss) + df * log(n);
+  double bic = log(det_sigma) + (log(n_obs) / n_obs) * df;
+  
+
   
   return Rcpp::List::create(Rcpp::Named("wout") = wout,
                             Rcpp::Named("yhat") = yhat,
                             Rcpp::Named("res") = res,
                             Rcpp::Named("df") = df,
-                            Rcpp::Named("rss") = rss,
+                            Rcpp::Named("det_sigma") = det_sigma,
                             Rcpp::Named("aic") = aic,
+                            Rcpp::Named("hq") = hq,
                             Rcpp::Named("bic") = bic);
   
 }
