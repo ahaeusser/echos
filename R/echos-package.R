@@ -5,8 +5,8 @@
 #' @importFrom Matrix rsparsematrix
 #' @import Rcpp
 #' @import RcppArmadillo
-#' @import dplyr
 #' @import tsibble
+#' @rawNamespace import(dplyr, except = id)
 #' @import fabletools
 #' @useDynLib echos, .registration = TRUE
 
