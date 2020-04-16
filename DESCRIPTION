@@ -1,13 +1,28 @@
 Package: echos
 Type: Package
-Title: What the package does (short line)
-Version: 1.0
-Date: 2020-03-08
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
-License: What license is it under?
+Title: Echo State Networks for Time Series Forecasting
+Description: This package provides a tidy R interface for modeling and forecasting univariate time series using
+   Echo State Networks (ESNs). The model works within the fable framework provided by the fabletools package, which
+   provides the tools to evaluate, visualise, and combine models in a workflow consistent with the tidyverse.
+Version: 0.0.1
+Author: Alexander Häußer <alexander-haeusser@gmx.de>
+Maintainer: Alexander Häußer <alexander-haeusser@gmx.de>
+License: GPL-3
+Depends: 
+    R (>= 3.6.2)
+Imports: 
+    Rcpp (>= 1.0.3),
+    RcppArmadillo,
+    fabletools,
+    tsibble,
+    dplyr,
+    tidyr,
+    purrr,
+    Matrix,
+    matrixStats,
+LinkingTo:
+    Rcpp,
+    RcppArmadillo
 Encoding: UTF-8
-Imports: Rcpp (>= 1.0.3)
-LinkingTo: Rcpp, RcppArmadillo
+LazyData: true
 RoxygenNote: 7.1.0
