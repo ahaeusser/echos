@@ -1,0 +1,123 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# echos
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+This package provides a tidy R interface for modeling and forecasting univariate time series using Echo State Networks (ESNs). The model works within the `fable` framework provided by the `fabletools` package, which provides the tools to evaluate, visualise, and combine models in a workflow consistent with the tidyverse.
+
+## Installation
+
+You can install the development version from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("ahaeusser/echos")
+```
+## Usage
+
+### Load packages
+```{r packages, warning=FALSE, message=FALSE}
+library(echos)
+library(dplyr)
+library(tsibble)
+library(fabletools)
+library(fable)
+```
+
+### Prepare data
+```{r data}
+n_train <- 130  # training window
+n_ahead <- 12   # testing window (forecast horizon)
+
+# Prepare data as tsibble
+data <- AirPassengers %>%
+  as_tsibble() %>%
+  rename(
+    Date = index,
+    Passengers = value)
+
+# Training data
+data_train <- data %>%
+  slice(1:n_train)
+
+data_train
+
+# Testing data
+data_test <- data %>%
+  slice((n_train + 1):(n_train + n_ahead))
+
+data_test
+```
+
+### Model
+```{r model}
+lags <- list(c(1, 2, 3, 4, 12))
+n_trig <- 0
+period <- 12
+n_diff <- 1
+
+models <- data_train %>%
+  model(
+    esn = ESN(
+      Passengers,
+      lags = lags,
+      n_trig = n_trig,
+      period = period,
+      n_diff = n_diff),
+    arima = ARIMA(Passengers),
+    ets = ETS(Passengers))
+
+models
+
+```
+
+### Forecast
+```{r forecast}
+fcsts <- models %>%
+  forecast(h = n_ahead)
+
+fcsts
+```
+
+### Visualize
+```{r plot}
+fcsts %>%
+  autoplot(
+    rbind(data_train, data_test),
+    level = NULL,
+    size = 1.5)
+```
+
+
+## Work in Progress
+
+* Implement specials
+  + `const()` - intercept term
+  + `ar()` - autoregressive lags
+  + `trig()` - trigonometric terms for seasonality
+  + `xreg()` - exogenuous regressors
+* Implement further functions
+  + `report.ESN()`
+  + `tidy.ESN()`
+  + `refit.ESN()`
+  + `generate.ESN()`
+  + `stream.ESN()`
+  + `reservoir.ESN()`
+  + ...
+* Enhance to mulitvariate time series
+* Automatic selection of inputs (intercept, autoregressive lags, etc.)
