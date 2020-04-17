@@ -12,11 +12,11 @@
 train_esn <- function(.data,
                       specials,
                       lags,
-                      n_trig,
-                      period,
-                      const = TRUE,
+                      # n_terms,
+                      # period,
+                      # const = TRUE,
                       n_diff = 0,
-                      n_res = 200,
+                      # n_res = 200,
                       n_initial = 10,
                       n_seed = 42,
                       density = 0.1,
@@ -31,6 +31,20 @@ train_esn <- function(.data,
   if(any(is.na(.data))){
     abort("ESN does not support missing values.")
   }
+  
+  
+  # if (is.null(specials$states[[1]])) {
+  #   n_res <- 200
+  # } else {
+  #   n_res <- specials$states[[1]]
+  # }
+  
+  # Extract specials
+  const <- specials$const[[1]]
+  n_res <- specials$states[[1]]
+  n_terms <- specials$fourier[[1]]$n_terms
+  period <- specials$fourier[[1]]$period
+
   
   # Starting values for optimization
   # (alpha, rho, lambda and scale_runif)
@@ -48,7 +62,8 @@ train_esn <- function(.data,
     method = "L-BFGS-B",
     data = .data,
     lags = lags,
-    n_trig = n_trig,
+    const = const,
+    n_terms = n_terms,
     period = period,
     n_diff = n_diff,
     density = density,
@@ -61,7 +76,7 @@ train_esn <- function(.data,
   model_fit <- estimate_esn(
     data = .data,
     lags = lags,
-    n_trig = n_trig,
+    n_terms = n_terms,
     period = period,
     const = const,
     n_diff = n_diff,
@@ -102,7 +117,33 @@ train_esn <- function(.data,
 }
 
 
-specials_esn <- new_specials()
+# specials_esn <- new_specials()
+
+specials_esn <- new_specials(
+  
+  const = function(x = TRUE) {
+    # Create a constant (intercept term)
+    x
+  },
+  states = function(n = 200) {
+    # Number of internal states within reservoir
+    n
+  },
+  fourier = function(period, n_terms) {
+    # Periodicity of the time series and number of fourier terms
+    list(
+      period = period,
+      n_terms = n_terms)
+  },
+  # .required_specials = c("const", "states")
+  .required_specials = c("states")
+)
+
+
+# specials_esn$states(150)
+# specials_esn$const()
+
+
 
 #' @title Automatic training of ESNs.
 #' 
