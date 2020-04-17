@@ -4,14 +4,14 @@
 \alias{create_spec}
 \title{Create model specification.}
 \usage{
-create_spec(n_layers, pars, n_trig, period)
+create_spec(n_layers, pars, n_terms, period)
 }
 \arguments{
 \item{n_layers}{List containing the number of inputs (n_inputs), reservoir size (n_res) and the number of outputs (n_outputs).}
 
 \item{pars}{List containing the hyperparameters alpha, rho, lambda and density.}
 
-\item{n_trig}{Integer vector. The number of seasonal cycles per period.}
+\item{n_terms}{Integer vector. The number of seasonal cycles per period.}
 
 \item{period}{Integer vector. The periodicity of the time series.}
 }

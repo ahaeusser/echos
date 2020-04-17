@@ -8,7 +8,7 @@ min_loss(
   data,
   par,
   lags,
-  n_trig,
+  n_terms,
   period,
   const = TRUE,
   n_diff = 0,
@@ -27,7 +27,7 @@ min_loss(
 
 \item{lags}{A list containing integer vectors with the lags associated with each output variable.}
 
-\item{n_trig}{Integer vector. The number of seasonal cycles per period.}
+\item{n_terms}{Integer vector. The number of seasonal cycles per period.}
 
 \item{period}{Integer vector. The periodicity of the time series (e.g. for monthly data period = c(12), for hourly data period = c(24, 168)).}
 

@@ -5,7 +5,7 @@
 #' 
 #' @param data A tsibble containing the time series data. Must have column "time" with time index (date or date-time).
 #' @param lags A list containing integer vectors with the lags associated with each output variable.
-#' @param n_trig Integer vector. The number of seasonal cycles per period.
+#' @param n_terms Integer vector. The number of seasonal cycles per period.
 #' @param period Integer vector. The periodicity of the time series (e.g. for monthly data period = c(12), for hourly data period = c(24, 168)).
 #' @param const Logical value. If TRUE, a constant term (intercept) is used.
 #' @param n_diff Integer value. The number of differences.
@@ -31,7 +31,7 @@
 
 estimate_esn <- function(data,
                          lags,
-                         n_trig,
+                         n_terms,
                          period,
                          const = TRUE,
                          n_diff = 0,
@@ -92,19 +92,19 @@ estimate_esn <- function(data,
       lags = lags)
   }
   
-  # Create seasonal terms (trigonometric terms) as matrix
-  if (all(n_trig == 0)) {
+  # Create fourier terms (trigonometric terms) as matrix
+  if (all(n_terms == 0)) {
     y_seas <- NULL
   } else {
-    y_seas <- create_trig(
+    y_seas <- create_fourier(
       times = 1:nrow(y),
-      n_trig = n_trig,
+      n_terms = n_terms,
       period = period)
   }
   
   
   # Create constant term (intercept term) as matrix
-  if (const == FALSE) {
+  if (const == FALSE | is.null(const)) {
     y_const <- NULL
   } else {
     y_const <- create_const(
@@ -287,7 +287,7 @@ estimate_esn <- function(data,
   model_inputs <- list(
     const = const,
     lags = lags,
-    n_trig = n_trig,
+    n_terms = n_terms,
     period = period)
   
   # List with hyperparameters
@@ -313,7 +313,7 @@ estimate_esn <- function(data,
   model_spec <- create_spec(
     n_layers = n_layers,
     pars = pars,
-    n_trig = n_trig,
+    n_terms = n_terms,
     period = period)
 
   # Store results

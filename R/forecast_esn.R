@@ -58,7 +58,7 @@ forecast_esn <- function(object,
   # Model inputs
   const <- method$model_inputs$const
   lags <- method$model_inputs$lags
-  n_trig <- method$model_inputs$n_trig
+  n_terms <- method$model_inputs$n_terms
   period <- method$model_inputs$period
   
   # Extract (time) index variable
@@ -108,12 +108,12 @@ forecast_esn <- function(object,
   }
   
   # Create season (fourier terms) as matrix
-  if (all(n_trig == 0)) {
+  if (all(n_terms == 0)) {
     y_seas <- NULL
   } else {
-    y_seas <- create_trig(
+    y_seas <- create_fourier(
       times = (nrow(y) + 1):(nrow(y) + n_ahead),
-      n_trig = n_trig,
+      n_terms = n_terms,
       period = period)
     
     fill_NA <- matrix(
@@ -125,7 +125,7 @@ forecast_esn <- function(object,
   }
   
   # Create constant (intercept or bias term) as matrix
-  if (const == FALSE) {
+  if (const == FALSE | is.null(const)) {
     y_const <- NULL
   } else {
     y_const <- create_const(
