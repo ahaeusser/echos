@@ -237,18 +237,19 @@ create_spec <- function(n_layers,
   
   # Seasonality and periodicity
   if (is.null(n_terms)) {
-    n_terms <- 0}
-  
-  str_season <- paste(
-    "{",
-    paste("(", period, "-", n_terms, ")",
-          collapse = ",",
-          sep = ""), "}",
-    sep = "")
+    str_season <- NULL
+  } else {
+    str_season <- paste(
+      ", {",
+      paste("(", period, "-", n_terms, ")",
+            collapse = ",",
+            sep = ""), "}",
+      sep = "")
+  }
   
   # Model specification
   model_spec <- paste0(
-    "ESN", "(", str_layer, ", ", str_pars, ", ", str_season, ")")
+    "ESN", "(", str_layer, ", ", str_pars, str_season, ")")
   
   return(model_spec)
 }

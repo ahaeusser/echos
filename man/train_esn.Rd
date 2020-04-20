@@ -7,8 +7,7 @@
 train_esn(
   .data,
   specials,
-  lags,
-  n_diff = 0,
+  n_diff = NULL,
   n_initial = 10,
   n_seed = 42,
   density = 0.1,
@@ -22,7 +21,7 @@ train_esn(
 
 \item{specials}{Specials as list defined in \code{specials_esn}.}
 
-\item{...}{Further arguments passed to \code{echos::auto_esn(...)}.}
+\item{...}{Further arguments passed to \code{estimate_esn(...)}.}
 }
 \value{
 An object of class \code{ESN}.

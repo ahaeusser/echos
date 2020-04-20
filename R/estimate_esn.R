@@ -104,7 +104,7 @@ estimate_esn <- function(data,
   
   
   # Create constant term (intercept term) as matrix
-  if (const == FALSE | is.null(const)) {
+  if (const == FALSE) {
     y_const <- NULL
   } else {
     y_const <- create_const(
