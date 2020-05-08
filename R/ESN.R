@@ -62,6 +62,11 @@ train_esn <- function(.data,
     n_terms <- period <- NULL
   }
   
+  ################################
+  # Rename: n_terms --> n_fourier
+  ################################
+  
+  
   # Reservoir size (number of internal states)
   n_res <- specials$states[[1]]
 

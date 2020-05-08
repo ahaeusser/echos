@@ -10,6 +10,7 @@ estimate_esn(
   n_terms,
   period,
   const = TRUE,
+  n_sdiff = 0,
   n_diff = 0,
   n_res = 200,
   n_initial = 10,
@@ -33,7 +34,9 @@ estimate_esn(
 
 \item{const}{Logical value. If TRUE, a constant term (intercept) is used.}
 
-\item{n_diff}{Integer value. The number of differences.}
+\item{n_sdiff}{Integer vector. The number of seasonal differences.}
+
+\item{n_diff}{Integer vector. The number of non-seasonal differences.}
 
 \item{n_res}{Integer value. The number of internal states within the reservoir (hidden layer).}
 

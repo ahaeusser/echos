@@ -8,7 +8,8 @@
 #' @param n_terms Integer vector. The number of seasonal cycles per period.
 #' @param period Integer vector. The periodicity of the time series (e.g. for monthly data period = c(12), for hourly data period = c(24, 168)).
 #' @param const Logical value. If TRUE, a constant term (intercept) is used.
-#' @param n_diff Integer value. The number of differences.
+#' @param n_sdiff Integer vector. The number of seasonal differences. 
+#' @param n_diff Integer vector. The number of non-seasonal differences.
 #' @param n_res Integer value. The number of internal states within the reservoir (hidden layer).
 #' @param n_initial Integer value. The number of observations of internal states for initial drop out (throw-off).
 #' @param n_seed Integer value. The seed for the random number generator (for reproducibility).
@@ -34,6 +35,7 @@ estimate_esn <- function(data,
                          n_terms,
                          period,
                          const = TRUE,
+                         n_sdiff = 0,
                          n_diff = 0,
                          n_res = 200,
                          n_initial = 10,
@@ -67,16 +69,26 @@ estimate_esn <- function(data,
   names_states <- paste0(
     "state","(", formatC(1:n_res, width = nchar(max(n_res)), flag = "0"), ")")
   
-  # Calculate first differences
-  if (n_diff == 1) {
-    y <- diff_data(
-      data = y,
-      n_diff = 1,
-      na_rm = FALSE)
-  }
+  # # Calculate first differences
+  # if (n_diff == 1) {
+  #   y <- diff_data(
+  #     data = y,
+  #     n_diff = 1,
+  #     na_rm = FALSE)
+  # }
+  
+  # Calculate seasonal and non-seasonal differences
+  y <- diff_data(
+    data = y,
+    period = period,
+    n_sdiff = n_sdiff,
+    n_diff = n_diff)
   
   # Scale data to the specified interval
-  scaled <- scale_data(data = y, new_range = scale_inputs)
+  scaled <- scale_data(
+    data = y,
+    new_range = scale_inputs)
+  
   y <- scaled$data
   old_range <- scaled$old_range
   
@@ -101,7 +113,6 @@ estimate_esn <- function(data,
       n_terms = n_terms,
       period = period)
   }
-  
   
   # Create constant term (intercept term) as matrix
   if (const == FALSE) {
@@ -221,22 +232,43 @@ estimate_esn <- function(data,
     old_range = old_range,
     new_range = scale_inputs)
   
+  
+  
+  # # Inverse differencing
+  # if (n_diff == 1) {
+  #   actual_cumsum <- matrixStats::colCumsums(actual)
+  #   fitted_cumsum <- matrixStats::colCumsums(fitted)
+  #   
+  #   last_value <- matrix(
+  #     data = as.numeric(data[(index_train[1]), -c(1)]),
+  #     nrow = nrow(actual),
+  #     ncol = ncol(actual))
+  #   
+  #   actual <- last_value + actual_cumsum
+  #   fitted <- actual + fitted
+  #   
+  #   colnames(actual) <- names_outputs
+  #   colnames(fitted) <- names_outputs
+  # }
+  
+  
   # Inverse differencing
-  if (n_diff == 1) {
-    actual_cumsum <- matrixStats::colCumsums(actual)
-    fitted_cumsum <- matrixStats::colCumsums(fitted)
-    
-    last_value <- matrix(
-      data = as.numeric(data[(index_train[1]), -c(1)]),
-      nrow = nrow(actual),
-      ncol = ncol(actual))
-    
-    actual <- last_value + actual_cumsum
-    fitted <- actual + fitted
-    
-    colnames(actual) <- names_outputs
-    colnames(fitted) <- names_outputs
-  }
+  actual <- inv_diff_data(
+    data = data,
+    data_diff = actual,
+    period = period,
+    n_sdiff = n_sdiff,
+    n_diff = n_diff,
+    type = "inner")
+  
+  fitted <- inv_diff_data(
+    data = data,
+    data_diff = fitted,
+    period = period,
+    n_sdiff = n_sdiff,
+    n_diff = n_diff,
+    type = "inner")
+  
   
   # Calculate residuals (errors)
   resid <- actual - fitted
