@@ -328,37 +328,215 @@ create_wres <- function(n_res,
 
 
 
-#' @title Calculate n-th differences.
-#' 
-#' @description This function takes a numeric matrix and calculates n-th differences for each column. Leading NAs are padded.
+#' @title Calculate seasonal and non-seasonal differences of a numeric matrix.
+#'
+#' @description This function takes a numeric matrix and calculates seasonal and non-seasonal differences for each column.
 #'
 #' @param data Numeric matrix.
-#' @param n_diff Integer value. The number of differences.
-#' @param na_rm Logical value. If \code{TRUE}, NAs are ignored.
+#' @param period Integer vector. The periodicity of the time series.
+#' @param n_sdiff Integer value. The number of seasonal differences.
+#' @param n_diff Integer value. The number of non-seasonal differences.
 #'
-#' @return y_diff Numeric matrix with differenced data.
+#' @return y_diff Numeric matrix with the differenced data.
 
-diff_data <- function(data, n_diff, na_rm = TRUE) {
+diff_data <- function(data,
+                      period,
+                      n_sdiff,
+                      n_diff) {
   
   names_outputs <- colnames(data)
   n_outputs <- ncol(data)
   
-  y_diff <- colDiffs(
-    data,
-    lag = 1L,
-    differences = n_diff)
+  y_diff <- lapply(seq_len(n_outputs), function(n) {
+    diff_num(
+      y = data[, n],
+      period = max(period),
+      n_sdiff = n_sdiff[n],
+      n_diff = n_diff[n])
+  })
   
+  y_diff <- do.call(cbind, y_diff)
   colnames(y_diff) <- names_outputs
-  
-  if (na_rm == FALSE) {
-    fill_na <- matrix(
-      data = NA_real_,
-      nrow = n_diff,
-      ncol = n_outputs)
-    y_diff <- rbind(fill_na, y_diff)
-  }
   return(y_diff)
 }
+
+
+
+
+#' @title Calculate seasonal and non-seasonal differences of a numeric vector.
+#'
+#' @description This function takes a numeric vector and calculates seasonal and non-seasonal differences.
+#'
+#' @param data Numeric vector.
+#' @param period Integer vector. The periodicity of the time series.
+#' @param n_sdiff Integer value. The number of seasonal differences.
+#' @param n_diff Integer value. The number of non-seasonal differences.
+#'
+#' @return y_diff Numeric vector with the differenced data.
+
+diff_num <- function(y,
+                     period,
+                     n_sdiff,
+                     n_diff) {
+  
+  # Calculate seasonal difference
+  if (n_sdiff > 0) {
+    y_diff <- diff(
+      x = y,
+      differences = n_sdiff,
+      lag = period)
+  } else {
+    y_diff <- y
+  }
+  
+  # Calculate non-seasonal difference
+  if (n_diff > 0) {
+    y_diff <- diff(
+      x = y_diff,
+      differences = n_diff,
+      lag = 1L)
+  } else {
+    y_diff <- y_diff
+  }
+  
+  # Pad vector with leading NAs
+  fill_na <- rep(NA_real_, (n_sdiff * period + n_diff))
+  y_diff <- c(fill_na, y_diff)
+  return(y_diff)
+}
+
+
+
+
+#' @title Integrate seasonal and non-seasonal differences of a numeric matrix ('inverse differencing').
+#'
+#' @description This function takes a numeric matrix and integrates seasonal and non-seasonal differences for each column ('inverse differencing').
+#'
+#' @param data Numeric matrix containing the original data.
+#' @param data_diff Numeric matrix containing the differenced data.
+#' @param period Integer vector. The periodicity of the time series.
+#' @param n_sdiff Integer value. The number of seasonal differences.
+#' @param n_diff Integer value. The number of non-seasonal differences.
+#' @param type Character value. Either \code{type = "inner"} or \code{type = "outer"}. This distinction is relevant for the starting values of the integration.
+#'
+#' @return y_int Numeric matrix with the inverse differenced data.
+
+inv_diff_data <- function(data,
+                          data_diff,
+                          period,
+                          n_sdiff,
+                          n_diff,
+                          type) {
+  
+  names_outputs <- colnames(data)
+  n_outputs <- ncol(data)
+  
+  y_int <- lapply(seq_len(n_outputs), function(n) {
+    
+    inv_diff_num(
+      y = data[, n],
+      y_diff = data_diff[, n],
+      period = max(period),
+      n_sdiff = n_sdiff[n],
+      n_diff = n_diff[n],
+      type = type)
+    
+  })
+  
+  y_int <- do.call(cbind, y_int)
+  colnames(y_int) <- names_outputs
+  return(y_int)
+}
+
+
+
+
+#' @title Integrate seasonal and non-seasonal differences of a numeric vector ('inverse differencing').
+#'
+#' @description This function takes a numeric vector and integrates seasonal and non-seasonal differences ('inverse differencing').
+#'
+#' @param y Numeric vector containing the original data.
+#' @param y_diff Numeric vector containing the differenced data.
+#' @param period Integer vector. The periodicity of the time series.
+#' @param n_sdiff Integer value. The number of seasonal differences.
+#' @param n_diff Integer value. The number of non-seasonal differences.
+#' @param type Character value. Either \code{type = "inner"} or \code{type = "outer"}. This distinction is relevant for the starting values of the integration.
+#'
+#' @return y_int Numeric vector with the inverse differenced data.
+
+inv_diff_num <- function(y,
+                         y_diff,
+                         period,
+                         n_sdiff,
+                         n_diff,
+                         type) {
+  
+  y <- as.numeric(y)
+  y_diff <- as.numeric(na.omit(y_diff))
+  
+  if (type == "inner") {
+    yi <- head(y, n_diff)
+    yii <- head(y, n_sdiff * period)
+    idx <- 1
+  } else {
+    yi <- tail(y, n_diff)
+    yii <- tail(y, n_sdiff * period)
+    idx <- length(y) - period
+  }
+  
+  # Case 1: Doubled differenced
+  if (n_sdiff > 0 & n_diff > 0) {
+    
+    # Integrate first difference
+    yi <- diff(
+      x = y,
+      differences = n_sdiff,
+      lag = period)[idx]
+    
+    y_int <- diffinv(
+      x = y_diff,
+      lag = 1L,
+      differences = n_diff,
+      xi = yi)
+    
+    # Integrate seasonal difference
+    y_int <- diffinv(
+      x = y_int,
+      lag = period,
+      differences = n_sdiff,
+      xi = yii)
+  }
+  
+  # Case 2: Seasonal differenced only
+  if (n_sdiff > 0 & n_diff == 0) {
+    
+    # Integrate seasonal difference
+    y_int <- diffinv(
+      x = y_diff,
+      lag = period,
+      differences = n_sdiff,
+      xi = yii)
+  }
+  
+  # Case 3: Non-seasonal differenced only
+  if (n_sdiff == 0 & n_diff > 0) {
+    
+    # Integrate difference
+    y_int <- diffinv(
+      x = y_diff,
+      lag = 1L,
+      differences = n_diff,
+      xi = yi)
+  }
+  
+  # Case 4: No differences at all
+  if (n_sdiff == 0 & n_diff == 0) {
+    y_int <- y_diff
+  }
+  
+  return(y_int)
+}
+
 
 
 
