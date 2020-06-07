@@ -9,19 +9,19 @@
 #'
 #' @return An object of class \code{ESN}.
 
-train_esn <- function(.data,
-                      specials,
-                      n_diff = NULL,
-                      n_initial = 10,
-                      n_seed = 42,
-                      density = 0.1,
-                      scale_inputs = c(-1, 1),
-                      inf_crit = "HQ",
-                      ...) {
+fbl_train_esn <- function(.data,
+                          specials,
+                          n_initial = 10,
+                          n_res = 200,
+                          n_fourier = NULL,
+                          n_seed = 42,
+                          density = 0.1,
+                          scale_inputs = c(-1, 1),
+                          inf_crit = "HQ",
+                          ...) {
   
   # Number of response variables
   n_outputs <- length(tsibble::measured_vars(.data))
-  
   # Number of observations
   n_obs <- nrow(.data)
   
@@ -33,106 +33,56 @@ train_esn <- function(.data,
     abort("ESN does not support missing values.")
   }
   
+  # Maximum seasonal period which is feasable
+  period <- common_periods(.data)
+  period <- sort(as.numeric(period[period < n_obs]))
   
-  # Extract specials ==========================================================
-  
-  # Intercept term
-  if ("const" %in% names(specials)) {
-    const <- TRUE
-  } else {
-    const <- FALSE
-  }
-  
-  # Autoregressive terms
-  if ("ar" %in% names(specials)) {
-    lags <- specials$ar[[1]]
-  } else {
-    period <- common_periods(.data)
-    period <- sort(as.numeric(period[period < n_obs]))
-    
-    lags <- seq(1, min(period), 1)
-    lags <- rep(list(lags), n_outputs)
-  }
-  
-  # Fourier terms
-  if ("fourier" %in% names(specials)) {
-    n_terms <- specials$fourier[[1]]$n_terms
-    period <- specials$fourier[[1]]$period
-  } else {
-    n_terms <- period <- NULL
-  }
-  
-  ################################
-  # Rename: n_terms --> n_fourier
-  ################################
-  
-  
-  # Reservoir size (number of internal states)
-  n_res <- specials$states[[1]]
+  # # Extract specials ==========================================================
+  # 
+  # # Intercept term
+  # if ("const" %in% names(specials)) {
+  #   const <- TRUE
+  # } else {
+  #   const <- FALSE
+  # }
+  # 
+  # # Autoregressive terms
+  # if ("ar" %in% names(specials)) {
+  #   lags <- specials$ar[[1]]
+  # } else {
+  #   period <- common_periods(.data)
+  #   period <- sort(as.numeric(period[period < n_obs]))
+  #   
+  #   lags <- seq(1, min(period), 1)
+  #   lags <- rep(list(lags), n_outputs)
+  # }
+  # 
+  # # Fourier terms
+  # if ("fourier" %in% names(specials)) {
+  #   n_fourier <- specials$fourier[[1]]$n_fourier
+  #   # period <- specials$fourier[[1]]$period
+  # } else {
+  #   n_fourier <- NULL
+  # }
+  # 
+  # # Reservoir size (number of internal states)
+  # n_res <- specials$states[[1]]
 
-  # Check stationarity
-  if (is.null(n_diff)) {
-    
-    value <- .data %>% 
-      pull(!!measured_vars(.data))
-    
-    n_diff <- unitroot_ndiffs(
-      x = value,
-      alpha = 0.05,
-      unitroot_fn = ~unitroot_kpss(.)["kpss_pvalue"],
-      differences = 0:1)
-  }
   
-  # Hyperparameter optimization ===============================================
-  
-  # Starting values and lower and upper bounds (box constraints)
-  # (alpha, rho, lambda, scale_runif)
-  par <- c(0.8, 1, 0.1, 0.5)
-  lower <- c(0, 0.5, 0.001, 1e-8)
-  upper <- c(1, 1.5, 100, 1)
-  
-  # Find optimal hyperparameters
-  opt <- optim(
-    par = par,
-    fn = min_loss,
-    lower = lower,
-    upper = upper,
-    method = "L-BFGS-B",
+  model_fit <- auto_esn(
     data = .data,
-    lags = lags,
-    const = const,
-    n_terms = n_terms,
     period = period,
-    n_diff = n_diff,
-    density = density,
-    n_res = n_res,
-    inf_crit = inf_crit,
-    scale_inputs = scale_inputs
-    )
-  
-  # Estimate model ============================================================
-  
-  model_fit <- estimate_esn(
-    data = .data,
-    lags = lags,
-    n_terms = n_terms,
-    period = period,
-    const = const,
-    n_diff = n_diff,
-    n_res = n_res,
+    n_fourier =n_fourier,
     n_initial = n_initial,
-    n_seed = n_seed,
-    alpha = opt$par[1],
-    rho = opt$par[2],
-    lambda = opt$par[3],
+    n_res = n_res,
     density = density,
     scale_inputs = scale_inputs,
-    scale_runif = c(-opt$par[4], opt$par[4])
+    inf_crit = inf_crit
   )
   
   # Extract actual values and fitted values
-  fitted <- model_fit$fitted[["fitted"]]
-  resid <- model_fit$resid[["resid"]]
+  fitted <- model_fit$fitted[[".fitted"]]
+  resid <- model_fit$resid[[".resid"]]
   # Get length of time series and fitted values
   n_total <- nrow(.data)
   n_fitted <- length(fitted)
@@ -156,18 +106,21 @@ train_esn <- function(.data,
 }
 
 
-specials_esn <- new_specials(
-  
-  const = function() {},
-  ar = function(p = list(c(1, 2))) {p},
-  states = function(n = 150) {n},
-  fourier = function(period, n_terms) {
-    list(
-      period = period,
-      n_terms = n_terms)
-  },
-  .required_specials = c("states")
-)
+# specials_esn <- new_specials(
+#   
+#   const = function() {},
+#   ar = function(p = list(c(1, 2))) {p},
+#   states = function(n = 150) {n},
+#   fourier = function(period, n_terms) {
+#     list(
+#       period = period,
+#       n_terms = n_terms)
+#   },
+#   .required_specials = c("states")
+# )
+
+
+specials_esn <- new_specials()
 
 
 #' @title Automatic training of ESNs.
@@ -183,7 +136,7 @@ specials_esn <- new_specials(
 ESN <- function(formula, ...){
   esn_model <- new_model_class(
     model = "ESN",
-    train = train_esn,
+    train = fbl_train_esn,
     specials = specials_esn)
   
   new_model_definition(
