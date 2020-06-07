@@ -3,7 +3,8 @@
 #' @importFrom tidyr gather spread
 #' @importFrom matrixStats colCumsums colDiffs colMins colMaxs rowSds
 #' @importFrom Matrix rsparsematrix
-#' @importFrom feasts unitroot_ndiffs unitroot_kpss
+#' @importFrom feasts unitroot_nsdiffs feat_stl unitroot_ndiffs unitroot_kpss
+#' @importFrom rlang is_empty .data
 #' @import Rcpp
 #' @import RcppArmadillo
 #' @import tsibble
