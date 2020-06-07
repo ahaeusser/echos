@@ -1,13 +1,13 @@
 
-#' @title Estimate an Echo State Network (ESN).
+#' @title Train an Echo State Network (ESN).
 #' 
-#' @description This function estimates an Echo State Network (ESN) to a univariate or multivariate time series.
+#' @description This function trains an Echo State Network (ESN) to a univariate or multivariate time series.
 #' 
-#' @param data A tsibble containing the time series data. Must have column "time" with time index (date or date-time).
+#' @param data A \code{tsibble} containing the time series data.
 #' @param lags A list containing integer vectors with the lags associated with each output variable.
-#' @param n_terms Integer vector. The number of seasonal cycles per period.
-#' @param period Integer vector. The periodicity of the time series (e.g. for monthly data period = c(12), for hourly data period = c(24, 168)).
-#' @param const Logical value. If TRUE, a constant term (intercept) is used.
+#' @param n_fourier Integer vector. The number of fourier terms (seasonal cycles per period).
+#' @param period Integer vector. The periodicity of the time series (e.g. for monthly data \code{period = c(12)}, for hourly data \code{period = c(24, 168)}).
+#' @param const Logical value. If \code{TRUE}, a constant term (intercept) is used.
 #' @param n_sdiff Integer vector. The number of seasonal differences. 
 #' @param n_diff Integer vector. The number of non-seasonal differences.
 #' @param n_res Integer value. The number of internal states within the reservoir (hidden layer).
@@ -20,32 +20,31 @@
 #' @param scale_runif Numeric vector. The lower and upper bound of the uniform distribution.
 #' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data.
 #' 
-#' @return data The original input data as tibble.
-#' @return actual A tibble containing the actual values with the columns time, id, type, variable, and value.
-#' @return fitted A tibble containing the fitted values with the columns time, id, type, variable, and value.
-#' @return error A tibble containing the errors (= residuals, i.e. actual - fitted) with the columns time, id, type, variable, and value.
-#' @return pct_error A tibble containing the percentage errors (i.e. error / actual * 100) with the columns time, id, type, variable, and value.
-#' @return states_train A tibble containing the internal states with the columns time, id, type, variable, and value.
-#' @return method A list containing several objects and information of the trained ESN (weight matrices, hyperparameters, error and model metrics, etc.).
+#' @return data The original input data as \code{tsibble}.
+#' @return actual A \code{tsibble} containing the actual values in long format.
+#' @return fitted A \code{tsibble} containing the fitted values in long format.
+#' @return error A \code{tsibble} containing the errors (= residuals, i.e. actual - fitted) in long format.
+#' @return states_train A \code{tsibble} containing the internal states in long format.
+#' @return method A list containing several objects and information of the trained ESN (weight matrices, hyperparameters, model metrics, etc.).
 #' 
 #' @export
 
-estimate_esn <- function(data,
-                         lags,
-                         n_terms,
-                         period,
-                         const = TRUE,
-                         n_sdiff = 0,
-                         n_diff = 0,
-                         n_res = 200,
-                         n_initial = 10,
-                         n_seed = 42,
-                         rho = 0.7,
-                         alpha = 0.85,
-                         lambda = 12,
-                         density = 0.1,
-                         scale_runif = c(-0.5, 0.5),
-                         scale_inputs = c(-1, 1)) {
+train_esn <- function(data,
+                      lags,
+                      n_fourier,
+                      period,
+                      const = TRUE,
+                      n_sdiff = 0,
+                      n_diff = 0,
+                      n_res = 200,
+                      n_initial = 10,
+                      n_seed = 42,
+                      rho = 0.7,
+                      alpha = 0.85,
+                      lambda = 12,
+                      density = 0.1,
+                      scale_runif = c(-0.5, 0.5),
+                      scale_inputs = c(-1, 1)) {
   
   # Pre-processing ============================================================
   
@@ -60,22 +59,16 @@ estimate_esn <- function(data,
   
   # Get response variables (convert tsibble to numeric matrix)
   y <- invoke(cbind, unclass(data)[measured_vars(data)])
+  # Create copy of numeric matrix y for later usage
+  actual <- y
   
-  # Nameas of output variables
+  # Names of response variables
   names_outputs <- colnames(y)
-  # Number of output variables
+  # Number of response variables
   n_outputs <- ncol(y)
   # Names of internal states
   names_states <- paste0(
     "state","(", formatC(1:n_res, width = nchar(max(n_res)), flag = "0"), ")")
-  
-  # # Calculate first differences
-  # if (n_diff == 1) {
-  #   y <- diff_data(
-  #     data = y,
-  #     n_diff = 1,
-  #     na_rm = FALSE)
-  # }
   
   # Calculate seasonal and non-seasonal differences
   y <- diff_data(
@@ -105,12 +98,12 @@ estimate_esn <- function(data,
   }
   
   # Create fourier terms (trigonometric terms) as matrix
-  if (all(n_terms == 0)) {
+  if (all(n_fourier == 0)) {
     y_seas <- NULL
   } else {
     y_seas <- create_fourier(
       times = 1:nrow(y),
-      n_terms = n_terms,
+      n_fourier = n_fourier,
       period = period)
   }
   
@@ -128,15 +121,24 @@ estimate_esn <- function(data,
     y_lag,
     y_seas)
   
-  # Get maximum lag (overall) and prepare row indices for subsetting
-  max_lag <- max(unlist(lags))
-  # Train index adjusted for maximum lag and inital throw-off
-  index_train <- c((1 + max_lag + n_initial):nrow(y))
-  # State index adjusted for maximum lag without inital throw-off
-  index_states <- c((1 + max_lag):nrow(y))
+  # Drop NAs for training
+  inputs <- inputs[complete.cases(inputs), ]
   
-  # Subset input matrix (get rid of NAs)
-  inputs <- inputs[index_states, ]
+  # Number of observations (total)
+  n_total <- nrow(y)
+  # Number of observations (training)
+  n_train <- nrow(inputs)
+  # Number of observations (accounted for initial throw-off)
+  n_obs <- n_train - n_initial
+  # Number of input features (constant, lagged variables, etc.)
+  n_inputs <- ncol(inputs)
+  
+  # Maximum lag (overall)
+  max_lag <- max(unlist(lags))
+  # Train index (with inital throw-off)
+  index_train <- c((1 + (n_total - n_train + n_initial)):n_total)
+  # Train index (without inital throw-off)
+  index_states <- c((1 + (n_total - n_train)):n_total)
   
   # Create time index for training
   dttm_train <- dttm_index[index_train, ]
@@ -145,13 +147,6 @@ estimate_esn <- function(data,
   
   
   # Create hidden layer (reservoir) ===========================================
-  
-  # Number of observations (accounted for lag length)
-  n_train <- nrow(inputs)
-  # Number of observations (accounted for lag length and initial throw-off)
-  n_obs <- n_train - n_initial
-  # Number of input features per output variable
-  n_inputs <- ncol(inputs)
   
   # Set seed for random draws
   set.seed(n_seed)
@@ -186,7 +181,7 @@ estimate_esn <- function(data,
   X <- cbind(inputs, states_train)
   # Adjust response and design matrix for initial throw-off and lag-length
   Xt <- X[((n_initial + 1):nrow(X)), , drop = FALSE]
-  yt <- y[((n_initial + 1 + max_lag):nrow(y)), , drop = FALSE]
+  yt <- y[((n_initial + 1 + (n_total - n_train)):nrow(y)), , drop = FALSE]
   
   # Linear observation weights within the interval [1, 2]
   # obs_weights <- (0:(nrow(Xt) - 1)) * (1 / (nrow(Xt) - 1)) + 1
@@ -215,62 +210,24 @@ estimate_esn <- function(data,
   colnames(yhat) <- names_outputs
   colnames(res) <- names_outputs
   
+  
   # Post-processing ===========================================================
   
-  # Rename objects for convenience
-  actual <- yt
-  fitted <- yhat
+  # Adjust actual values for correct dimension
+  actual <- actual[index_train, , drop = FALSE]
   
-  # Rescale actual and fitted values to original scale
-  actual <- rescale_data(
-    data = actual,
-    old_range = old_range,
-    new_range = scale_inputs)
-  
+  # Rescale fitted values
   fitted <- rescale_data(
-    data = fitted,
+    data = yhat,
     old_range = old_range,
     new_range = scale_inputs)
   
+  # Inverse difference fitted values
+  if (n_diff > 0 | n_sdiff > 0) {
+    fitted <- actual + fitted
+  }
   
-  
-  # # Inverse differencing
-  # if (n_diff == 1) {
-  #   actual_cumsum <- matrixStats::colCumsums(actual)
-  #   fitted_cumsum <- matrixStats::colCumsums(fitted)
-  #   
-  #   last_value <- matrix(
-  #     data = as.numeric(data[(index_train[1]), -c(1)]),
-  #     nrow = nrow(actual),
-  #     ncol = ncol(actual))
-  #   
-  #   actual <- last_value + actual_cumsum
-  #   fitted <- actual + fitted
-  #   
-  #   colnames(actual) <- names_outputs
-  #   colnames(fitted) <- names_outputs
-  # }
-  
-  
-  # Inverse differencing
-  actual <- inv_diff_data(
-    data = data,
-    data_diff = actual,
-    period = period,
-    n_sdiff = n_sdiff,
-    n_diff = n_diff,
-    type = "inner")
-  
-  fitted <- inv_diff_data(
-    data = data,
-    data_diff = fitted,
-    period = period,
-    n_sdiff = n_sdiff,
-    n_diff = n_diff,
-    type = "inner")
-  
-  
-  # Calculate residuals (errors)
+  # Calculate residuals (1-step ahead forecast errors)
   resid <- actual - fitted
   
   # Convert data from numeric matrix to tsibble
@@ -278,35 +235,35 @@ estimate_esn <- function(data,
     dttm_train,
     as_tibble(actual)) %>%
     gather(
-      key = "variable",
-      value = "actual") %>%
+      key = ".response",
+      value = ".actual") %>%
     update_tsibble(
-      key = "variable")
-
+      key = ".response")
+  
   fitted <- bind_cols(
     dttm_train,
     as_tibble(fitted)) %>%
     gather(
-      key = "variable",
-      value = "fitted") %>%
+      key = ".response",
+      value = ".fitted") %>%
     update_tsibble(
-      key = "variable")
+      key = ".response")
   
   resid <- bind_cols(
     dttm_train,
     as_tibble(resid)) %>%
     gather(
-      key = "variable",
-      value = "resid") %>%
+      key = ".response",
+      value = ".resid") %>%
     update_tsibble(
-      key = "variable")
-
+      key = ".response")
+  
   states_train <- bind_cols(
     dttm_states,
     as_tibble(states_train)) %>%
     gather(
-      key = "state",
-      value = "value")
+      key = ".state",
+      value = ".value")
   
   # Store model metrics
   model_metrics <- tibble(
@@ -319,7 +276,7 @@ estimate_esn <- function(data,
   model_inputs <- list(
     const = const,
     lags = lags,
-    n_terms = n_terms,
+    n_fourier = n_fourier,
     period = period)
   
   # List with hyperparameters
@@ -345,9 +302,9 @@ estimate_esn <- function(data,
   model_spec <- create_spec(
     n_layers = n_layers,
     pars = pars,
-    n_terms = n_terms,
+    n_fourier = n_fourier,
     period = period)
-
+  
   # Store results
   method <- list(
     model_inputs = model_inputs,
