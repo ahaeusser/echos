@@ -8,9 +8,10 @@ min_loss(
   data,
   par,
   lags,
-  n_terms,
+  n_fourier,
   period,
   const = TRUE,
+  n_sdiff = 0,
   n_diff = 0,
   n_res = 200,
   n_initial = 10,
@@ -21,17 +22,19 @@ min_loss(
 )
 }
 \arguments{
-\item{data}{A tsibble containing the time series data. Must have column "time" with time index (date or date-time).}
+\item{data}{A \code{tsibble} containing the time series data.}
 
-\item{par}{}
+\item{par}{Numeric vector containing the hyperparameters.}
 
 \item{lags}{A list containing integer vectors with the lags associated with each output variable.}
 
-\item{n_terms}{Integer vector. The number of seasonal cycles per period.}
+\item{n_fourier}{Integer vector. The number of fourier terms (seasonal cycles per period).}
 
-\item{period}{Integer vector. The periodicity of the time series (e.g. for monthly data period = c(12), for hourly data period = c(24, 168)).}
+\item{period}{Integer vector. The periodicity of the time series (e.g. for monthly data \code{period = c(12)}, for hourly data \code{period = c(24, 168)}).}
 
-\item{const}{Logical value. If TRUE, a constant term (intercept) is used.}
+\item{const}{Logical value. If \code{TRUE}, a constant term (intercept) is used.}
+
+\item{n_sdiff}{Integer vector. The number of seasonal differences.}
 
 \item{n_diff}{Integer value. The number of differences.}
 
