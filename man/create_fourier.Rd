@@ -4,12 +4,12 @@
 \alias{create_fourier}
 \title{Create fourier terms.}
 \usage{
-create_fourier(times, n_terms, period)
+create_fourier(times, n_fourier, period)
 }
 \arguments{
 \item{times}{Integer vector. Regular sequence with integers.}
 
-\item{n_terms}{Integer vector. The number of fourier terms per period (i.e. the number of sines and cosines for each period).}
+\item{n_fourier}{Integer vector. The number of fourier terms per period (i.e. the number of sines and cosines for each period).}
 
 \item{period}{Integer vector. The periodicity of the time series.}
 }

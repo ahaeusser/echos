@@ -11,9 +11,9 @@ diff_data(data, period, n_sdiff, n_diff)
 
 \item{period}{Integer vector. The periodicity of the time series.}
 
-\item{n_sdiff}{Integer value. The number of seasonal differences.}
+\item{n_sdiff}{Integer vector. The number of seasonal differences.}
 
-\item{n_diff}{Integer value. The number of non-seasonal differences.}
+\item{n_diff}{Integer vector. The number of non-seasonal differences.}
 }
 \value{
 y_diff Numeric matrix with the differenced data.

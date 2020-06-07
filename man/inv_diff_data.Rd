@@ -2,9 +2,10 @@
 % Please edit documentation in R/utils.R
 \name{inv_diff_data}
 \alias{inv_diff_data}
-\title{Integrate seasonal and non-seasonal differences of a numeric matrix ('inverse differencing').}
+\title{Integrate seasonal and non-seasonal differences of a numeric matrix
+   ('inverse differencing').}
 \usage{
-inv_diff_data(data, data_diff, period, n_sdiff, n_diff, type)
+inv_diff_data(data, data_diff, period, n_sdiff, n_diff)
 }
 \arguments{
 \item{data}{Numeric matrix containing the original data.}
@@ -13,15 +14,14 @@ inv_diff_data(data, data_diff, period, n_sdiff, n_diff, type)
 
 \item{period}{Integer vector. The periodicity of the time series.}
 
-\item{n_sdiff}{Integer value. The number of seasonal differences.}
+\item{n_sdiff}{Integer vector. The number of seasonal differences.}
 
-\item{n_diff}{Integer value. The number of non-seasonal differences.}
-
-\item{type}{Character value. Either \code{type = "inner"} or \code{type = "outer"}. This distinction is relevant for the starting values of the integration.}
+\item{n_diff}{Integer vector. The number of non-seasonal differences.}
 }
 \value{
 y_int Numeric matrix with the inverse differenced data.
 }
 \description{
-This function takes a numeric matrix and integrates seasonal and non-seasonal differences for each column ('inverse differencing').
+This function takes a numeric matrix and integrates seasonal
+   and non-seasonal differences for each column ('inverse differencing').
 }
