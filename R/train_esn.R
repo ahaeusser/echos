@@ -20,12 +20,16 @@
 #' @param scale_runif Numeric vector. The lower and upper bound of the uniform distribution.
 #' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data.
 #' 
-#' @return data The original input data as \code{tsibble}.
-#' @return actual A \code{tsibble} containing the actual values in long format.
-#' @return fitted A \code{tsibble} containing the fitted values in long format.
-#' @return error A \code{tsibble} containing the errors (= residuals, i.e. actual - fitted) in long format.
-#' @return states_train A \code{tsibble} containing the internal states in long format.
-#' @return method A list containing several objects and information of the trained ESN (weight matrices, hyperparameters, model metrics, etc.).
+#' @return A list containing:
+#' 
+#'    \itemize{
+#'       \item{\code{data}: The original input data as \code{tsibble}.}
+#'       \item{\code{actual}: A \code{tsibble} containing the actual values in long format.}
+#'       \item{\code{fitted}: A \code{tsibble} containing the fitted values in long format.}
+#'       \item{\code{error}: A \code{tsibble} containing the errors (= residuals, i.e. actual - fitted) in long format.}
+#'       \item{\code{states_train}: A \code{tsibble} containing the internal states in long format.}
+#'       \item{\code{method}: A list containing several objects and information of the trained ESN (weight matrices, hyperparameters, model metrics, etc.).}
+#'       }
 #' 
 #' @export
 
@@ -280,40 +284,43 @@ train_esn <- function(data,
     period = period)
   
   # List with hyperparameters
-  pars <- list(
+  model_pars <- list(
     alpha = alpha,
     rho = rho,
     lambda = lambda,
     density = density)
   
   # List with number of inputs, internal states and outputs
-  n_layers <- list(
+  model_layers <- list(
     n_inputs = n_inputs,
     n_res = n_res,
     n_outputs = n_outputs)
   
   # List with weight matrices for inputs, reservoir and outputs
-  weights <- list(
+  model_weights <- list(
     win = win,
     wres = wres,
     wout = wout)
   
   # Create model specification (short summary)
   model_spec <- create_spec(
-    n_layers = n_layers,
-    pars = pars,
-    n_fourier = n_fourier,
-    period = period)
+    model_layers = model_layers,
+    model_pars = model_pars,
+    model_inputs = model_inputs)
+  
+  diff_inputs <- list(
+    n_sdiff = n_sdiff,
+    n_diff = n_diff)
   
   # Store results
   method <- list(
     model_inputs = model_inputs,
     model_metrics = model_metrics,
     model_spec = model_spec,
-    pars = pars,
-    n_layers = n_layers,
-    weights = weights,
-    n_diff = n_diff,
+    model_pars = model_pars,
+    model_layers = model_layers,
+    model_weights = model_weights,
+    diff_inputs = diff_inputs,
     scale_inputs = scale_inputs,
     scale_runif = scale_runif,
     res = res)
