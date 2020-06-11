@@ -207,41 +207,39 @@ create_fourier <- function(times,
 #' 
 #' @description This function creates the model specification (short summary) as a string.
 #'
-#' @param n_layers List containing the number of inputs (n_inputs), reservoir size (n_res) and the number of outputs (n_outputs).
-#' @param pars List containing the hyperparameters alpha, rho, lambda and density.
-#' @param n_fourier Integer vector. The number of seasonal cycles per period.
-#' @param period Integer vector. The periodicity of the time series.
+#' @param model_layers List containing the number of inputs (n_inputs), reservoir size (n_res) and the number of outputs (n_outputs).
+#' @param model_pars List containing the hyperparameters alpha, rho, lambda and density.
+#' @param model_inputs List containing the model inputs (constant, lags, n_fourier, period).
 #'
 #' @return model_spec Character value. The model specification as string.
 
-create_spec <- function(n_layers,
-                        pars,
-                        n_fourier,
-                        period) {
+create_spec <- function(model_layers,
+                        model_pars,
+                        model_inputs) {
   
   # Number of inputs and outputs and reservoir size
   str_layer <- paste0(
     "{",
-    n_layers$n_inputs, ",",
-    n_layers$n_res, ",",
-    n_layers$n_outputs,
+    model_layers$n_inputs, ",",
+    model_layers$n_res, ",",
+    model_layers$n_outputs,
     "}")
   
   # Hyperparameters
   str_pars <- paste0(
     "{",
-    round(pars$alpha, 2), ",",
-    round(pars$rho, 2), ",",
-    round(pars$lambda, 2),
+    round(model_pars$alpha, 2), ",",
+    round(model_pars$rho, 2), ",",
+    round(model_pars$lambda, 2),
     "}")
   
   # Seasonality and periodicity
-  if (is.null(n_fourier)) {
+  if (is.null(model_inputs$n_fourier)) {
     str_season <- NULL
   } else {
     str_season <- paste(
       ", {",
-      paste("(", period, "-", n_fourier, ")",
+      paste("(", model_inputs$period, "-", model_inputs$n_fourier, ")",
             collapse = ",",
             sep = ""), "}",
       sep = "")
@@ -534,6 +532,9 @@ inv_diff_vec <- function(y,
   y <- as.numeric(y)
   y_diff <- as.numeric(na.omit(y_diff))
   
+  # Forecast horizon
+  n_ahead <- length(y_diff)
+  
   yi <- tail(y, n_diff)             # starting value for non-seasonal differences
   yii <- tail(y, n_sdiff * period)  # starting value for seasonal differences
   idx <- length(y) - period         # index of starting value
@@ -587,6 +588,9 @@ inv_diff_vec <- function(y,
   if (n_sdiff == 0 & n_diff == 0) {
     y_int <- y_diff
   }
+  
+  # Cut y_int to previous length
+  y_int <- y_int[c((length(y_int) - n_ahead + 1):length(y_int))]
   
   return(y_int)
 }
