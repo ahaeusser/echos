@@ -5,7 +5,7 @@
 #'
 #' @param .data Input data as tsibble.
 #' @param specials Specials as list defined in \code{specials_esn}.
-#' @param ... Further arguments passed to \code{estimate_esn(...)}.
+#' @param ... Further arguments passed to \code{train_esn()}.
 #'
 #' @return An object of class \code{ESN}.
 
@@ -107,7 +107,7 @@ fbl_train_esn <- function(.data,
 
 
 # specials_esn <- new_specials(
-#   
+# 
 #   const = function() {},
 #   ar = function(p = list(c(1, 2))) {p},
 #   states = function(n = 150) {n},
@@ -217,19 +217,19 @@ forecast.ESN <- function(object,
   model_fit <- object$model
   
   # Forecast model
-  fcst <- forecast_esn(
+  model_fcst <- forecast_esn(
     object = model_fit,
     n_ahead = nrow(new_data))
   
   # Extract point forecasts
-  fcst_mean <- fcst$forecast[["fcst"]]
+  fcst_mean <- model_fcst$forecast[[".mean"]]
   
   # Extract simulations
-  sim <- fcst$simulation %>%
-    select(-variable) %>%
+  sim <- model_fcst$simulation %>%
+    select(-c(.response)) %>%
     spread(
-      key = path,
-      value = sim)
+      key = .path,
+      value = .mean)
   
   sim <- invoke(cbind, unclass(sim)[measured_vars(sim)])
   fcst_sd <- rowSds(sim, na.rm = TRUE)
@@ -242,3 +242,68 @@ forecast.ESN <- function(object,
       mean = fcst_mean,
       sd = fcst_sd))
 }
+
+
+
+
+#' @export
+report.ESN <- function(object, ...) {
+  
+  method <- object$model$method
+  
+  n_inputs <- method$model_layer$n_inputs
+  n_res <- method$model_layer$n_res
+  n_outputs <- method$model_layer$n_outputs
+  
+  const <- method$model_inputs$const
+  lags <- unlist(method$model_inputs$lags)
+  
+  n_sdiff <- as.numeric(method$diff_inputs$n_sdiff)
+  n_diff <- as.numeric(method$diff_inputs$n_diff)
+  
+  alpha <- round(method$model_pars$alpha, 2)
+  rho <- round(method$model_pars$rho, 2)
+  lambda <- round(method$model_pars$lambda, 2)
+  density <- round(method$model_pars$density, 2)
+  
+  df <- round(method$model_metrics$df, 2)
+  aic <- round(method$model_metrics$aic, 2)
+  bic <- round(method$model_metrics$bic, 2)
+  hq <- round(method$model_metrics$hq, 2)
+  
+  cat(
+    "\nNetwork size:", "\n",
+    "Inputs        =", n_inputs, "\n",
+    "Reservoir     =", n_res, "\n",
+    "Outputs       =", n_outputs, "\n"
+  )
+  
+  cat(
+    "\nModel inputs:", "\n",
+    "Constant =", const, "\n",
+    "Lags     =", lags, "\n"
+  )
+  
+  cat(
+    "\nDifferences: \n",
+    "Seasonal     = ", n_sdiff, "\n",
+    "Non-seasonal = ", n_diff, "\n"
+  )
+  
+  cat(
+    "\nHyperparameters:", "\n",
+    "alpha   =", alpha, "\n",
+    "rho     =", rho, "\n",
+    "lambda  =", lambda, "\n",
+    "density =", density, "\n"
+  )
+  
+  cat(
+    "\nMetrics:", "\n",
+    "df  =", df, "\n",
+    "AIC =", aic, "\n",
+    "BIC =", bic, "\n",
+    "HQ  =", hq, "\n"
+  )
+}
+

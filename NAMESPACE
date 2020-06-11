@@ -3,6 +3,7 @@
 S3method(fitted,ESN)
 S3method(forecast,ESN)
 S3method(model_sum,ESN)
+S3method(report,ESN)
 S3method(residuals,ESN)
 export(ESN)
 export(auto_esn)

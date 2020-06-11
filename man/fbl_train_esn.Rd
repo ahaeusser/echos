@@ -22,7 +22,7 @@ fbl_train_esn(
 
 \item{specials}{Specials as list defined in \code{specials_esn}.}
 
-\item{...}{Further arguments passed to \code{estimate_esn(...)}.}
+\item{...}{Further arguments passed to \code{train_esn()}.}
 }
 \value{
 An object of class \code{ESN}.
