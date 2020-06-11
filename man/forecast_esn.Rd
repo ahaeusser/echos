@@ -7,7 +7,7 @@
 forecast_esn(object, n_ahead = 12, n_sim = 100, n_seed = 42)
 }
 \arguments{
-\item{object}{An object of class "esn". The result of a call to train_esn(...).}
+\item{object}{An object of class \code{ESN}. The result of a call to \code{train_esn()} or \code{auto_esn()}.}
 
 \item{n_ahead}{Integer value. The number of periods for forecasting (forecast horizon).}
 
@@ -16,17 +16,18 @@ forecast_esn(object, n_ahead = 12, n_sim = 100, n_seed = 42)
 \item{n_seed}{Integer value. The seed for the random number generator (for reproducibility).}
 }
 \value{
-forecast A tibble containing the forecast and prediction intervals with the columns time, id, type, variable, and value.
+A list containing:
 
-simulation A tibble containing the simulations with the columns time, id, type (sim(1), sim(2), ...), variable, and value.
-
-actual A tibble containing the actual values with the columns time, id, type, variable, and value.
-
-fitted A tibble containing the fitted values with the columns time, id, type, variable, and value.
-
-states_fcst A tibble containing the internal states with the columns time, id, type, variable, and value.
-
-method A list containing several objects and information of the trained ESN (weight matrices, hyperparameters, etc.).
+   \itemize{
+      \item{\code{forecast}: A \code{tsibble} containing the forecasts.}
+      \item{\code{simulation}: A \code{tsibble} containing the simulated future sample path.}
+      \item{\code{actual}: A \code{tsibble} containing the actual values.}
+      \item{\code{fitted}: A \code{tsibble} containing the fitted values.}
+      \item{\code{states_train}: A \code{tsibble} containing the internal states.}
+      \item{\code{method}: A list containing several objects and information of the trained ESN (weight matrices, hyperparameters, model metrics, etc.).}
+      \item{\code{n_ahead}: Integer value. The number of periods for forecasting (forecast horizon).}
+      \item{\code{n_sim}: Integer value. The number of simulations (number of future sample paths).}
+      }
 }
 \description{
 Forecast an Echo State Network from a trained model (univariate and multivariate ESNs).
