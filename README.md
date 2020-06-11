@@ -5,6 +5,8 @@
 
 <!-- badges: start -->
 
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 <!-- badges: end -->
 
 This package provides a tidy R interface for modeling and forecasting
@@ -33,6 +35,8 @@ library(dplyr)
 library(tsibble)
 library(fabletools)
 library(fable)
+Sys.setlocale("LC_TIME", "C")
+#> [1] "C"
 ```
 
 ### Prepare data
@@ -58,14 +62,14 @@ data_train
 #>       <mth>      <dbl>
 #>  1 1949 Jan        112
 #>  2 1949 Feb        118
-#>  3 1949 Mrz        132
+#>  3 1949 Mar        132
 #>  4 1949 Apr        129
-#>  5 1949 Mai        121
+#>  5 1949 May        121
 #>  6 1949 Jun        135
 #>  7 1949 Jul        148
 #>  8 1949 Aug        148
 #>  9 1949 Sep        136
-#> 10 1949 Okt        119
+#> 10 1949 Oct        119
 #> # ... with 120 more rows
 
 # Testing data
@@ -77,48 +81,72 @@ data_test
 #>        Date Passengers
 #>       <mth>      <dbl>
 #>  1 1959 Nov        362
-#>  2 1959 Dez        405
+#>  2 1959 Dec        405
 #>  3 1960 Jan        417
 #>  4 1960 Feb        391
-#>  5 1960 Mrz        419
+#>  5 1960 Mar        419
 #>  6 1960 Apr        461
-#>  7 1960 Mai        472
+#>  7 1960 May        472
 #>  8 1960 Jun        535
 #>  9 1960 Jul        622
 #> 10 1960 Aug        606
 #> 11 1960 Sep        508
-#> 12 1960 Okt        461
+#> 12 1960 Oct        461
 ```
 
 ### Model
 
 ``` r
-lags <- list(c(1, 2, 3, 4, 12))
-n_trig <- 0
-period <- 12
-n_diff <- 1
-
+# Train models
 models <- data_train %>%
   model(
-    esn = ESN(
-      Passengers,
-      lags = lags,
-      n_trig = n_trig,
-      period = period,
-      n_diff = n_diff),
+    esn = ESN(Passengers),
     arima = ARIMA(Passengers),
     ets = ETS(Passengers))
 
 models
 #> # A mable: 1 x 3
-#>   esn                                 arima                          ets        
-#>   <model>                             <model>                        <model>    
-#> 1 <ESN({6,200,1}, {0.99,1.5,0}, {(12~ <ARIMA(3,0,0)(0,1,0)[12] w/ d~ <ETS(M,Ad,~
+#>   esn                         arima                              ets          
+#>   <model>                     <model>                            <model>      
+#> 1 <ESN({4,200,1}, {1,1.5,0})> <ARIMA(3,0,0)(0,1,0)[12] w/ drift> <ETS(M,Ad,M)>
+
+# Detailed report of ESN
+models %>%
+  select(esn) %>%
+  report()
+#> Series: Passengers 
+#> Model: ESN({4,200,1}, {1,1.5,0}) 
+#> 
+#> Network size: 
+#>  Inputs        = 4 
+#>  Reservoir     = 200 
+#>  Outputs       = 1 
+#> 
+#> Model inputs: 
+#>  Constant = TRUE 
+#>  Lags     = 1 3 12 
+#> 
+#> Differences: 
+#>  Seasonal     =  1 
+#>  Non-seasonal =  0 
+#> 
+#> Hyperparameters: 
+#>  alpha   = 1 
+#>  rho     = 1.5 
+#>  lambda  = 0 
+#>  density = 0.1 
+#> 
+#> Metrics: 
+#>  df  = 95.95 
+#>  AIC = -14.98 
+#>  BIC = -12.42 
+#>  HQ  = -13.94
 ```
 
 ### Forecast
 
 ``` r
+# Forecast models
 fcsts <- models %>%
   forecast(h = n_ahead)
 
@@ -127,16 +155,16 @@ fcsts
 #> # Key:     .model [3]
 #>    .model     Date Passengers .distribution  
 #>    <chr>     <mth>      <dbl> <dist>         
-#>  1 esn    1959 Nov       380. N(380, 1.7e-05)
-#>  2 esn    1959 Dez       389. N(389, 2.8e-05)
-#>  3 esn    1960 Jan       422. N(422, 4.6e-05)
-#>  4 esn    1960 Feb       421. N(421, 4.8e-05)
-#>  5 esn    1960 Mrz       466. N(466, 6.6e-05)
-#>  6 esn    1960 Apr       460. N(460, 8.2e-05)
-#>  7 esn    1960 Mai       485. N(485, 8.0e-05)
-#>  8 esn    1960 Jun       530. N(530, 8.4e-05)
-#>  9 esn    1960 Jul       601. N(601, 8.8e-05)
-#> 10 esn    1960 Aug       600. N(600, 9.8e-05)
+#>  1 esn    1959 Nov       344. N(344, 5.9e-05)
+#>  2 esn    1959 Dec       372. N(372, 6.7e-05)
+#>  3 esn    1960 Jan       413. N(413, 6.2e-05)
+#>  4 esn    1960 Feb       391. N(391, 6.0e-05)
+#>  5 esn    1960 Mar       462. N(462, 1.5e-04)
+#>  6 esn    1960 Apr       439. N(439, 5.0e-05)
+#>  7 esn    1960 May       476. N(476, 1.3e-04)
+#>  8 esn    1960 Jun       519. N(519, 3.9e-04)
+#>  9 esn    1960 Jul       592. N(592, 4.6e-04)
+#> 10 esn    1960 Aug       598. N(598, 2.3e-04)
 #> # ... with 26 more rows
 ```
 
@@ -147,25 +175,24 @@ fcsts %>%
   autoplot(
     rbind(data_train, data_test),
     level = NULL,
-    size = 1.5)
+    size = 1)
 ```
 
-<img src="man/figures/README-plot-1.png" width="100%" />
+<img src="man/figures/README-plot-1.svg" width="100%" />
 
 ## Work in Progress
 
   - Implement specials
       - `const()` - intercept term
-      - `ar()` - autoregressive lags
-      - `trig()` - trigonometric terms for seasonality
+      - `lags()` - autoregressive lags
+      - `fourier()` - fourier terms (trigonometric terms) for
+        seasonality
       - `xreg()` - exogenuous regressors
   - Implement further functions
-      - `report.ESN()`
-      - `tidy.ESN()`
       - `refit.ESN()`
       - `generate.ESN()`
       - `stream.ESN()`
       - `reservoir.ESN()`
+      - `plot_reservoir()`
       - …
-  - Enhance to mulitvariate time series
-  - Automatic selection of inputs (intercept, autoregressive lags, etc.)
+  - Enhance `ESN()` to mulitvariate time series

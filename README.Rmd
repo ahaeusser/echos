@@ -8,6 +8,7 @@ output: github_document
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
+  dev = "svg",
   fig.path = "man/figures/README-",
   out.width = "100%"
 )
@@ -16,6 +17,7 @@ knitr::opts_chunk$set(
 # echos
 
 <!-- badges: start -->
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 <!-- badges: end -->
 
 This package provides a tidy R interface for modeling and forecasting univariate time series using Echo State Networks (ESNs). The model works within the `fable` framework provided by the `fabletools` package, which provides the tools to evaluate, visualise, and combine models in a workflow consistent with the tidyverse.
@@ -37,6 +39,7 @@ library(dplyr)
 library(tsibble)
 library(fabletools)
 library(fable)
+Sys.setlocale("LC_TIME", "C")
 ```
 
 ### Prepare data
@@ -66,28 +69,25 @@ data_test
 
 ### Model
 ```{r model}
-lags <- list(c(1, 2, 3, 4, 12))
-n_trig <- 0
-period <- 12
-n_diff <- 1
-
+# Train models
 models <- data_train %>%
   model(
-    esn = ESN(
-      Passengers,
-      lags = lags,
-      n_trig = n_trig,
-      period = period,
-      n_diff = n_diff),
+    esn = ESN(Passengers),
     arima = ARIMA(Passengers),
     ets = ETS(Passengers))
 
 models
 
+# Detailed report of ESN
+models %>%
+  select(esn) %>%
+  report()
+
 ```
 
 ### Forecast
 ```{r forecast}
+# Forecast models
 fcsts <- models %>%
   forecast(h = n_ahead)
 
@@ -100,7 +100,7 @@ fcsts %>%
   autoplot(
     rbind(data_train, data_test),
     level = NULL,
-    size = 1.5)
+    size = 1)
 ```
 
 
@@ -108,16 +108,14 @@ fcsts %>%
 
 * Implement specials
   + `const()` - intercept term
-  + `ar()` - autoregressive lags
-  + `trig()` - trigonometric terms for seasonality
+  + `lags()` - autoregressive lags
+  + `fourier()` - fourier terms (trigonometric terms) for seasonality
   + `xreg()` - exogenuous regressors
 * Implement further functions
-  + `report.ESN()`
-  + `tidy.ESN()`
   + `refit.ESN()`
   + `generate.ESN()`
   + `stream.ESN()`
   + `reservoir.ESN()`
+  + `plot_reservoir()`
   + ...
-* Enhance to mulitvariate time series
-* Automatic selection of inputs (intercept, autoregressive lags, etc.)
+* Enhance `ESN()` to mulitvariate time series
