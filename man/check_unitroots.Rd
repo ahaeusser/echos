@@ -2,12 +2,12 @@
 % Please edit documentation in R/utils.R
 \name{check_unitroots}
 \alias{check_unitroots}
-\title{Test for seasonal and non-seasonal differences reuqired to achieve stationarity.}
+\title{Test for seasonal and non-seasonal differences required to achieve stationarity.}
 \usage{
 check_unitroots(.data, period, alpha = 0.05)
 }
 \arguments{
-\item{.data}{A \code{tsibble} in wieder format.}
+\item{.data}{A \code{tsibble} in wide format.}
 
 \item{period}{Integer value. The seasonal period of the time series.}
 

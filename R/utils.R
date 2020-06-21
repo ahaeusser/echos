@@ -326,12 +326,12 @@ create_wres <- function(n_res,
 
 
 
-#' @title Test for seasonal and non-seasonal differences reuqired to achieve stationarity.
+#' @title Test for seasonal and non-seasonal differences required to achieve stationarity.
 #' 
 #' @description This function tests for the number of seasonal and
 #'    non-seasonal differences required to achieve stationarity.
 #'
-#' @param .data A \code{tsibble} in wieder format.
+#' @param .data A \code{tsibble} in wide format.
 #' @param period Integer value. The seasonal period of the time series.
 #' @param alpha Numeric value. The significance level for the statistical test.
 #'

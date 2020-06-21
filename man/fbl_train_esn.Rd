@@ -13,12 +13,12 @@ fbl_train_esn(
   n_seed = 42,
   density = 0.1,
   scale_inputs = c(-1, 1),
-  inf_crit = "HQ",
+  inf_crit = "BIC",
   ...
 )
 }
 \arguments{
-\item{.data}{Input data as tsibble.}
+\item{.data}{Input data as \code{tsibble}.}
 
 \item{specials}{Specials as list defined in \code{specials_esn}.}
 

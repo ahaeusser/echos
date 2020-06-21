@@ -3,7 +3,7 @@
 #' 
 #' @description Train an Echo State Network (ESN).
 #'
-#' @param .data Input data as tsibble.
+#' @param .data Input data as \code{tsibble}.
 #' @param specials Specials as list defined in \code{specials_esn}.
 #' @param ... Further arguments passed to \code{train_esn()}.
 #'
@@ -17,7 +17,7 @@ fbl_train_esn <- function(.data,
                           n_seed = 42,
                           density = 0.1,
                           scale_inputs = c(-1, 1),
-                          inf_crit = "HQ",
+                          inf_crit = "BIC",
                           ...) {
   
   # Number of response variables
@@ -271,6 +271,9 @@ report.ESN <- function(object, ...) {
   bic <- round(method$model_metrics$bic, 2)
   hq <- round(method$model_metrics$hq, 2)
   
+  scale_inputs <- round(method$scale_inputs, 2)
+  scale_runif <- round(method$scale_runif, 2)
+  
   cat(
     "\nNetwork size:", "\n",
     "Inputs        =", n_inputs, "\n",
@@ -288,6 +291,13 @@ report.ESN <- function(object, ...) {
     "\nDifferences: \n",
     "Seasonal     = ", n_sdiff, "\n",
     "Non-seasonal = ", n_diff, "\n"
+  )
+  
+  cat(
+    "\nScaling: \n",
+    " Inputs         = ", "(", scale_inputs[1], ", ", scale_inputs[2], ")", "\n",
+    " Random uniform = ", "(", scale_runif[1], ", ", scale_runif[2], ")", "\n",
+    sep = ""
   )
   
   cat(
