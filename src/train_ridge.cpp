@@ -1,6 +1,17 @@
 
 #include <RcppArmadillo.h>
 
+//' @name train_ridge
+//' @title Estimate ridge regression
+//' @description Estimate coefficients via ridge regression.
+//' 
+//' @param X Numeric matrix. The design matrix containing the predictor variables.
+//' @param y Numeric matrix. The response variable(s).
+//' @param lambda Numeric value. The regularization parameter.
+//' @param weights Numeric vector. Observation weights.
+//' 
+//' @return A list containing the estimated coefficients, fitted values, etc.
+
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
 
