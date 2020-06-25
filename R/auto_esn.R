@@ -23,7 +23,7 @@ auto_esn <- function(data,
                      n_res = 200,
                      density = 0.1,
                      scale_inputs = c(-1, 1),
-                     inf_crit = "HQ") {
+                     inf_crit = "BIC") {
   
   # Set seed for reproducibility
   n_seed <- 42
