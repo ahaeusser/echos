@@ -606,6 +606,7 @@ inv_diff_vec <- function(y,
 #' @param period Integer vector. The periodicity of the time series.
 #' @param n_sdiff Integer vector. The number of seasonal differences.
 #' @param n_diff Integer vector. The number of non-seasonal differences.
+#' @param max_lag Integer value. Maximum number of non-seasonal lags.
 #' @param level Numeric value. The confidence level.
 #'
 #' @return
@@ -614,7 +615,8 @@ select_lags <- function(.data,
                         period,
                         n_sdiff,
                         n_diff,
-                        level = 0.9) {
+                        max_lag,
+                        level = 0.95) {
   
   y <- invoke(cbind, unclass(.data)[measured_vars(.data)])
   n_outputs <- ncol(y)
@@ -625,6 +627,7 @@ select_lags <- function(.data,
       period = period,
       n_sdiff = n_sdiff[n],
       n_diff = n_diff[n],
+      max_lag = max_lag,
       level = level)
   })
   
@@ -641,6 +644,7 @@ select_lags <- function(.data,
 #' @param period Integer vector. The periodicity of the time series.
 #' @param n_sdiff Integer value. The number of seasonal differences.
 #' @param n_diff Integer value. The number of non-seasonal differences.
+#' @param max_lag Integer value. Maximum number of non-seasonal lags.
 #' @param level Numeric value. The confidence level.
 #'
 #' @return
@@ -649,7 +653,8 @@ select_lags_vec <- function(y,
                             period,
                             n_sdiff,
                             n_diff,
-                            level = 0.9) {
+                            max_lag,
+                            level = 0.95) {
   # Difference data
   yd <- diff_vec(
     y = y,
@@ -661,8 +666,13 @@ select_lags_vec <- function(y,
   yd <- na.omit(yd)
   n_obs <- length(yd)
   
-  # Estimate partial autocorrelation function.
-  pacf_values <- stats::pacf(yd, lag.max = min(period), plot = FALSE)
+  # Estimate partial autocorrelation function
+  
+  if (is.null(max_lag)) {
+    max_lag <- floor(min(period) / 2)
+  }
+  
+  pacf_values <- stats::pacf(yd, lag.max = max_lag, plot = FALSE)
   conf = qnorm((1 - level) / 2) / sqrt(length(yd))
   
   lags <- tibble(
@@ -671,10 +681,9 @@ select_lags_vec <- function(y,
     conf = as.numeric(conf)) %>%
     mutate(sign = ifelse(abs(pacf) > abs(conf), TRUE, FALSE)) %>%
     filter(sign == TRUE) %>%
-    filter(lags %in% 1:(min(period) / 2)) %>%
     pull(lags)
   
-  lags <- c(lags, period)
+  lags <- union(lags, period)
   return(lags)
 }
 

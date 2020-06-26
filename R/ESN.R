@@ -5,12 +5,14 @@
 #'
 #' @param .data Input data as \code{tsibble}.
 #' @param specials Specials as list defined in \code{specials_esn}.
+#' @param max_lag Integer value. Maximum number of non-seasonal lags.
 #' @param ... Further arguments passed to \code{train_esn()}.
 #'
 #' @return An object of class \code{ESN}.
 
 fbl_train_esn <- function(.data,
                           specials,
+                          max_lag = NULL,
                           n_initial = 10,
                           n_res = 200,
                           n_fourier = NULL,
@@ -72,6 +74,7 @@ fbl_train_esn <- function(.data,
   model_fit <- auto_esn(
     data = .data,
     period = period,
+    max_lag = max_lag,
     n_fourier =n_fourier,
     n_initial = n_initial,
     n_res = n_res,

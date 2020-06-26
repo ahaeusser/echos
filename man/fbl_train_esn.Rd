@@ -7,6 +7,7 @@
 fbl_train_esn(
   .data,
   specials,
+  max_lag = NULL,
   n_initial = 10,
   n_res = 200,
   n_fourier = NULL,
@@ -21,6 +22,8 @@ fbl_train_esn(
 \item{.data}{Input data as \code{tsibble}.}
 
 \item{specials}{Specials as list defined in \code{specials_esn}.}
+
+\item{max_lag}{Integer value. Maximum number of non-seasonal lags.}
 
 \item{...}{Further arguments passed to \code{train_esn()}.}
 }

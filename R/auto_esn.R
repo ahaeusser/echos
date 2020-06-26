@@ -5,6 +5,7 @@
 #'
 #' @param .data A \code{tsibble} containing the time series data.
 #' @param period Integer vector. The periodicity of the time series (e.g. for monthly data \code{period = c(12)}, for hourly data \code{period = c(24, 168)}).
+#' @param max_lag Integer value. Maximum number of non-seasonal lags.
 #' @param n_fourier Integer vector. The number of fourier terms (seasonal cycles per period).
 #' @param n_initial Integer value. The number of observations of internal states for initial drop out (throw-off).
 #' @param n_res Integer value. The number of internal states within the reservoir (hidden layer).
@@ -18,6 +19,7 @@
 
 auto_esn <- function(data,
                      period,
+                     max_lag = NULL,
                      n_fourier = NULL,
                      n_initial = 10,
                      n_res = 200,
@@ -30,7 +32,7 @@ auto_esn <- function(data,
   # Set intercept term
   const <- TRUE
   
-  # Maximum seasonal period which is feasable
+  # Maximum seasonal period which is feasible
   n_obs <- nrow(data)
   period <- common_periods(data)
   period <- sort(as.numeric(period[period < n_obs]))
@@ -48,7 +50,8 @@ auto_esn <- function(data,
     period = period,
     n_sdiff = ur$n_sdiff,
     n_diff = ur$n_diff,
-    level = 0.9
+    max_lag = max_lag,
+    level = 0.95
   )
   
   

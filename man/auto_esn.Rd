@@ -7,6 +7,7 @@
 auto_esn(
   data,
   period,
+  max_lag = NULL,
   n_fourier = NULL,
   n_initial = 10,
   n_res = 200,
@@ -17,6 +18,8 @@ auto_esn(
 }
 \arguments{
 \item{period}{Integer vector. The periodicity of the time series (e.g. for monthly data \code{period = c(12)}, for hourly data \code{period = c(24, 168)}).}
+
+\item{max_lag}{Integer value. Maximum number of non-seasonal lags.}
 
 \item{n_fourier}{Integer vector. The number of fourier terms (seasonal cycles per period).}
 

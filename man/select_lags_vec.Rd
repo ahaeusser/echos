@@ -4,7 +4,7 @@
 \alias{select_lags_vec}
 \title{Estimate and select significant lags by partial autocorrelation function (PACF).}
 \usage{
-select_lags_vec(y, period, n_sdiff, n_diff, level = 0.9)
+select_lags_vec(y, period, n_sdiff, n_diff, max_lag, level = 0.95)
 }
 \arguments{
 \item{y}{Numeric vector containing the original data.}
@@ -14,6 +14,8 @@ select_lags_vec(y, period, n_sdiff, n_diff, level = 0.9)
 \item{n_sdiff}{Integer value. The number of seasonal differences.}
 
 \item{n_diff}{Integer value. The number of non-seasonal differences.}
+
+\item{max_lag}{Integer value. Maximum number of non-seasonal lags.}
 
 \item{level}{Numeric value. The confidence level.}
 }
