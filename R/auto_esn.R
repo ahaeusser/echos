@@ -54,27 +54,26 @@ auto_esn <- function(data,
     level = 0.95
   )
   
-  
   # Hyperparameter optimization ===============================================
   
   # Starting values and lower and upper bounds (box constraints)
   par <- c(
     alpha = 0.8,
     rho = 1,
-    lambda = 0.1,
+    lambda = 1, # 0.1, 1.0
     scale_runif = 0.5)
   
   lower <- c(
     alpha = 0,
     rho = 0.5,
-    lambda = 0.001,
+    lambda = 0.1, # 0.001
     scale_runif = 1e-8)
   
   upper <- c(
     alpha = 1,
     rho = 1.5,
     lambda = 100,
-    scale_runif = 1)
+    scale_runif = 5)
   
   # Find optimal hyperparameters
   opt <- optim(
