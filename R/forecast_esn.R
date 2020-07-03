@@ -247,7 +247,7 @@ forecast_esn <- function(object,
             ".response",
             ".path"))
     })
-    simulation <- do.call(rbind, simulation)
+    simulation <- bind_rows(simulation)
   }
   
   # Post-processing ===========================================================
