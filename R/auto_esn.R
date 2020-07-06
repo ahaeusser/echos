@@ -25,7 +25,7 @@ auto_esn <- function(data,
                      n_res = 200,
                      density = 0.1,
                      scale_inputs = c(-1, 1),
-                     inf_crit = "BIC") {
+                     inf_crit = "AIC") {
   
   # Set seed for reproducibility
   n_seed <- 42
@@ -44,12 +44,15 @@ auto_esn <- function(data,
     period = period
   )
   
+  n_sdiff <- 0
+  n_diff <- 0
+  
   # Select significant lags based on PACF
   lags <- select_lags(
     .data = data,
     period = period,
-    n_sdiff = ur$n_sdiff,
-    n_diff = ur$n_diff,
+    n_sdiff = n_sdiff,
+    n_diff = n_diff,
     max_lag = max_lag,
     level = 0.95
   )
@@ -87,8 +90,8 @@ auto_esn <- function(data,
     const = const,
     n_fourier = n_fourier,
     period = period,
-    n_sdiff = ur$n_sdiff,
-    n_diff = ur$n_diff,
+    n_sdiff = n_sdiff,
+    n_diff = n_diff,
     density = density,
     n_res = n_res,
     inf_crit = inf_crit,
@@ -103,8 +106,8 @@ auto_esn <- function(data,
     n_fourier = n_fourier,
     period = period,
     const = const,
-    n_sdiff = ur$n_sdiff,
-    n_diff = ur$n_diff,
+    n_sdiff = n_sdiff,
+    n_diff = n_diff,
     n_res = n_res,
     n_initial = n_initial,
     n_seed = n_seed,

@@ -13,7 +13,7 @@ auto_esn(
   n_res = 200,
   density = 0.1,
   scale_inputs = c(-1, 1),
-  inf_crit = "BIC"
+  inf_crit = "AIC"
 )
 }
 \arguments{
