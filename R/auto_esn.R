@@ -45,7 +45,7 @@ auto_esn <- function(data,
   )
   
   n_sdiff <- 0
-  n_diff <- 0
+  n_diff <- 1
   
   # Select significant lags based on PACF
   lags <- select_lags(
