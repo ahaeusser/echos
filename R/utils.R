@@ -1,5 +1,5 @@
 
-#' @title Create constant (intercept term).
+#' @title Create constant (intercept term)
 #' 
 #' @description This functions creates the constant (intercept term) for the design matrix as numeric matrix.
 #'
@@ -19,7 +19,7 @@ create_const <- function(n_obs) {
 
 
 
-#' @title Create lagged variables of a matrix.
+#' @title Create lagged variables of a matrix
 #' 
 #' @description Create lagged variables of a matrix, shifting each column back by a given number of observations.
 #' 
@@ -74,7 +74,7 @@ create_lags <- function(data, lags) {
 
 
 
-#' @title Create lagged variables of a matrix for iterative forecasting.
+#' @title Create lagged variables of a matrix for iterative forecasting
 #' 
 #' @description Create lagged variables of a matrix for iterative forecasting, shifting each column back by a given number of observations and fill with NAs for the updates.
 #' 
@@ -134,7 +134,7 @@ create_revolved <- function(data, lags, n_ahead) {
 
 
 
-#' @title Create fourier terms.
+#' @title Create fourier terms
 #' 
 #' @description This function creates the fourier terms for the design matrix as numeric matrix.
 #'
@@ -203,7 +203,7 @@ create_fourier <- function(times,
 }
 
 
-#' @title Create model specification.
+#' @title Create model specification
 #' 
 #' @description This function creates the model specification (short summary) as a string.
 #'
@@ -254,7 +254,7 @@ create_spec <- function(model_layers,
 
 
 
-#' @title Create the input weight matrix.
+#' @title Create the input weight matrix
 #' 
 #' @description This function creates the random input weight matrices.
 #' 
@@ -279,9 +279,10 @@ create_win <- function(n_inputs,
 
 
 
-#' @title Create the reservoir weight matrix.
+#' @title Create the reservoir weight matrix
 #' 
-#' @description This function creates the random reservoir weight matrix (scaled to spectral radius rho).
+#' @description This function creates the random reservoir weight matrix
+#'    (scaled to spectral radius rho).
 #' 
 #' @param n_res Integer value. The number of internal states within the reservoir (reservoir size).
 #' @param rho Numeric value. The spectral radius for scaling the weight matrix.
@@ -326,7 +327,7 @@ create_wres <- function(n_res,
 
 
 
-#' @title Test for seasonal and non-seasonal differences required to achieve stationarity.
+#' @title Test for seasonal and non-seasonal differences required to achieve stationarity
 #' 
 #' @description This function tests for the number of seasonal and
 #'    non-seasonal differences required to achieve stationarity.
@@ -391,7 +392,8 @@ check_unitroots <- function(.data,
 
 #' @title Calculate seasonal and non-seasonal differences of a numeric matrix.
 #'
-#' @description This function takes a numeric matrix and calculates seasonal and non-seasonal differences for each column.
+#' @description This function takes a numeric matrix and calculates seasonal
+#'    and non-seasonal differences for each column.
 #'
 #' @param data Numeric matrix.
 #' @param period Integer vector. The periodicity of the time series.
@@ -424,9 +426,10 @@ diff_data <- function(data,
 
 
 
-#' @title Calculate seasonal and non-seasonal differences of a numeric vector.
+#' @title Calculate seasonal and non-seasonal differences of a numeric vector
 #'
-#' @description This function takes a numeric vector and calculates seasonal and non-seasonal differences.
+#' @description This function takes a numeric vector and calculates seasonal
+#'    and non-seasonal differences.
 #'
 #' @param y Numeric vector.
 #' @param period Integer vector. The periodicity of the time series.
@@ -470,10 +473,10 @@ diff_vec <- function(y,
 
 
 #' @title Integrate seasonal and non-seasonal differences of a numeric matrix
-#'    ('inverse differencing').
+#'    ("inverse difference")
 #'
 #' @description This function takes a numeric matrix and integrates seasonal
-#'    and non-seasonal differences for each column ('inverse differencing').
+#'    and non-seasonal differences for each column ("inverse difference").
 #'
 #' @param data Numeric matrix containing the original data.
 #' @param data_diff Numeric matrix containing the differenced data.
@@ -510,10 +513,10 @@ inv_diff_data <- function(data,
 
 
 #' @title Integrate seasonal and non-seasonal differences of a numeric vector
-#'    ('inverse differencing').
+#'    ("inverse difference")
 #'
 #' @description This function takes a numeric vector and integrates seasonal
-#'    and non-seasonal differences ('inverse differencing').
+#'    and non-seasonal differences ("inverse difference").
 #'
 #' @param y Numeric vector containing the original data.
 #' @param y_diff Numeric vector containing the differenced data.
@@ -598,16 +601,19 @@ inv_diff_vec <- function(y,
 
 
 
-#' @title Estimate and select significant lags by partial autocorrelation function (PACF).
+#' @title Estimate best subset autoregressive models and select lags
 #' 
-#' @description Estimate and select significant lags by partial autocorrelation function (PACF).
+#' @description Estimate best subset autoregressive models and select lags.
+#'    The underlying model is an ARp model (subset autoregressive model) and
+#'    by default the BICq information criterion is used. This is a wrapper
+#'    function for \code{select_lags_vec} that works on the columns of a
+#'    numeric matrix.
 #'
 #' @param data Numeric matrix containing the original data.
 #' @param period Integer vector. The periodicity of the time series.
 #' @param n_sdiff Integer vector. The number of seasonal differences.
 #' @param n_diff Integer vector. The number of non-seasonal differences.
 #' @param max_lag Integer value. Maximum number of non-seasonal lags.
-#' @param level Numeric value. The confidence level.
 #'
 #' @return
 
@@ -615,8 +621,7 @@ select_lags <- function(.data,
                         period,
                         n_sdiff,
                         n_diff,
-                        max_lag,
-                        level = 0.95) {
+                        max_lag) {
   
   y <- invoke(cbind, unclass(.data)[measured_vars(.data)])
   n_outputs <- ncol(y)
@@ -627,8 +632,7 @@ select_lags <- function(.data,
       period = period,
       n_sdiff = n_sdiff[n],
       n_diff = n_diff[n],
-      max_lag = max_lag,
-      level = level)
+      max_lag = max_lag)
   })
   
   return(lags)
@@ -636,16 +640,17 @@ select_lags <- function(.data,
 
 
 
-#' @title Estimate and select significant lags by partial autocorrelation function (PACF).
+#' @title Estimate best subset autoregressive models and select lags
 #' 
-#' @description Estimate and select significant lags by partial autocorrelation function (PACF).
+#' @description Estimate best subset autoregressive models and select lags.
+#'    The underlying model is an ARp model (subset autoregressive model) and
+#'    by default the BICq information criterion is used.
 #'
 #' @param y Numeric vector containing the original data.
 #' @param period Integer vector. The periodicity of the time series.
 #' @param n_sdiff Integer value. The number of seasonal differences.
 #' @param n_diff Integer value. The number of non-seasonal differences.
 #' @param max_lag Integer value. Maximum number of non-seasonal lags.
-#' @param level Numeric value. The confidence level.
 #'
 #' @return
 
@@ -653,8 +658,7 @@ select_lags_vec <- function(y,
                             period,
                             n_sdiff,
                             n_diff,
-                            max_lag,
-                            level = 0.95) {
+                            max_lag) {
   # Difference data
   yd <- diff_vec(
     y = y,
@@ -663,33 +667,26 @@ select_lags_vec <- function(y,
     n_diff = n_diff
   )
   
+  # Drop NAs
   yd <- na.omit(yd)
-  n_obs <- length(yd)
   
-  # Estimate partial autocorrelation function
+  # Convert to msts object
+  # yd <- msts(yd, seasonal.periods = period)
   
-  if (is.null(max_lag)) {
-    max_lag <- floor(min(period) / 2)
-  }
-  
-  pacf_values <- stats::pacf(yd, lag.max = max_lag, plot = FALSE)
-  conf = qnorm((1 - level) / 2) / sqrt(length(yd))
-  
-  lags <- tibble(
-    pacf = as.numeric(pacf_values$acf),
-    lags = as.integer(pacf_values$lag),
-    conf = as.numeric(conf)) %>%
-    mutate(sign = ifelse(abs(pacf) > abs(conf), TRUE, FALSE)) %>%
-    filter(sign == TRUE) %>%
-    pull(lags)
+  # Estimate subset autoregressive models (ARp)
+  lags <- SelectModel(
+    z = yd,
+    lag.max = max_lag,
+    ARModel = "ARp",
+    Criterion = "BICq",
+    Best = 1)
   
   lags <- union(lags, period)
   return(lags)
 }
 
 
-
-#' @title Forecast a fitted ESN.
+#' @title Forecast a fitted ESN
 #' 
 #' @description Calculate point forecasts for a fitted ESN (internally).
 #' 
@@ -784,9 +781,10 @@ predict_esn <- function(win,
 
 
 
-#' @title Rescale (inverse scaling) the columns of a numeric matrix.
+#' @title Rescale (inverse scaling) the columns of a numeric matrix
 #' 
-#' @description Recale (inverse scaling) the columns of a numeric matrix by applying the transformation backwards to original range.
+#' @description Rescale (inverse scaling) the columns of a numeric matrix
+#'    by applying the transformation backwards to original range.
 #' 
 #' @param data Numeric matrix containing the values to be rescaled. Each column is a variable and each row an observation.
 #' @param old_range Numeric matrix with ranges (min and max) of original data.
@@ -794,7 +792,10 @@ predict_esn <- function(win,
 #' 
 #' @return data Numeric matrix with rescaled columns.
 
-rescale_data <- function(data, old_range, new_range) {
+rescale_data <- function(data,
+                         old_range,
+                         new_range) {
+  
   # # Check y for missing values
   # if (anyNA(data) == TRUE) {
   #   stop("data contains at least one missing value")
@@ -841,7 +842,7 @@ rescale_data <- function(data, old_range, new_range) {
 
 
 
-#' @title Scale the columns of a numeric matrix.
+#' @title Scale the columns of a numeric matrix
 #' 
 #' @description Scale the columns of a numeric matrix to a specific interval.
 #' 
@@ -850,7 +851,8 @@ rescale_data <- function(data, old_range, new_range) {
 #' 
 #' @return data Numeric matrix with scaled columns.
 
-scale_data <- function(data, new_range = c(-1, 1)) {
+scale_data <- function(data,
+                       new_range = c(-1, 1)) {
   
   # # Check y for missing values
   # if (anyNA(data) == TRUE) {
@@ -906,7 +908,7 @@ scale_data <- function(data, new_range = c(-1, 1)) {
 
 
 
-#' @title Simulate a fitted ESN.
+#' @title Simulate a fitted ESN
 #' 
 #' @description Simulate future sample path from a fitted ESN.
 #' 
