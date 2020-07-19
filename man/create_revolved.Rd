@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{create_revolved}
 \alias{create_revolved}
-\title{Create lagged variables of a matrix for iterative forecasting.}
+\title{Create lagged variables of a matrix for iterative forecasting}
 \usage{
 create_revolved(data, lags, n_ahead)
 }

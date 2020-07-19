@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{create_fourier}
 \alias{create_fourier}
-\title{Create fourier terms.}
+\title{Create fourier terms}
 \usage{
 create_fourier(times, n_fourier, period)
 }

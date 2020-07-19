@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{rescale_data}
 \alias{rescale_data}
-\title{Rescale (inverse scaling) the columns of a numeric matrix.}
+\title{Rescale (inverse scaling) the columns of a numeric matrix}
 \usage{
 rescale_data(data, old_range, new_range)
 }
@@ -17,5 +17,6 @@ rescale_data(data, old_range, new_range)
 data Numeric matrix with rescaled columns.
 }
 \description{
-Recale (inverse scaling) the columns of a numeric matrix by applying the transformation backwards to original range.
+Rescale (inverse scaling) the columns of a numeric matrix
+   by applying the transformation backwards to original range.
 }

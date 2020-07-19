@@ -3,7 +3,7 @@
 \name{inv_diff_data}
 \alias{inv_diff_data}
 \title{Integrate seasonal and non-seasonal differences of a numeric matrix
-   ('inverse differencing').}
+   ("inverse difference")}
 \usage{
 inv_diff_data(data, data_diff, period, n_sdiff, n_diff)
 }
@@ -23,5 +23,5 @@ y_int Numeric matrix with the inverse differenced data.
 }
 \description{
 This function takes a numeric matrix and integrates seasonal
-   and non-seasonal differences for each column ('inverse differencing').
+   and non-seasonal differences for each column ("inverse difference").
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{create_const}
 \alias{create_const}
-\title{Create constant (intercept term).}
+\title{Create constant (intercept term)}
 \usage{
 create_const(n_obs)
 }

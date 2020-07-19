@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{create_spec}
 \alias{create_spec}
-\title{Create model specification.}
+\title{Create model specification}
 \usage{
 create_spec(model_layers, model_pars, model_inputs)
 }

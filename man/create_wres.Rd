@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{create_wres}
 \alias{create_wres}
-\title{Create the reservoir weight matrix.}
+\title{Create the reservoir weight matrix}
 \usage{
 create_wres(n_res, rho, density, scale_runif, symmetric = FALSE)
 }
@@ -21,5 +21,6 @@ create_wres(n_res, rho, density, scale_runif, symmetric = FALSE)
 wres Numeric matrix. The final reservoir weight matrix.
 }
 \description{
-This function creates the random reservoir weight matrix (scaled to spectral radius rho).
+This function creates the random reservoir weight matrix
+   (scaled to spectral radius rho).
 }

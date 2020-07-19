@@ -2,7 +2,7 @@
 % Please edit documentation in R/auto_esn.R
 \name{auto_esn}
 \alias{auto_esn}
-\title{Automatic train an Echo State Network (ESN).}
+\title{Automatic train an Echo State Network (ESN)}
 \usage{
 auto_esn(
   data,
@@ -39,5 +39,6 @@ auto_esn(
 An object of class \code{ESN}.
 }
 \description{
-This function trains automatically an Echo State Network (ESN) to a univariate or multivariate time series.
+This function trains automatically an Echo State Network (ESN)
+   to a univariate or multivariate time series.
 }

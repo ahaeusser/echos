@@ -2,9 +2,9 @@
 % Please edit documentation in R/utils.R
 \name{select_lags}
 \alias{select_lags}
-\title{Estimate and select significant lags by partial autocorrelation function (PACF).}
+\title{Estimate best subset autoregressive models and select lags}
 \usage{
-select_lags(.data, period, n_sdiff, n_diff, max_lag, level = 0.95)
+select_lags(.data, period, n_sdiff, n_diff, max_lag)
 }
 \arguments{
 \item{period}{Integer vector. The periodicity of the time series.}
@@ -15,13 +15,15 @@ select_lags(.data, period, n_sdiff, n_diff, max_lag, level = 0.95)
 
 \item{max_lag}{Integer value. Maximum number of non-seasonal lags.}
 
-\item{level}{Numeric value. The confidence level.}
-
 \item{data}{Numeric matrix containing the original data.}
 }
 \value{
 
 }
 \description{
-Estimate and select significant lags by partial autocorrelation function (PACF).
+Estimate best subset autoregressive models and select lags.
+   The underlying model is an ARp model (subset autoregressive model) and
+   by default the BICq information criterion is used. This is a wrapper
+   function for \code{select_lags_vec} that works on the columns of a
+   numeric matrix.
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{create_lags}
 \alias{create_lags}
-\title{Create lagged variables of a matrix.}
+\title{Create lagged variables of a matrix}
 \usage{
 create_lags(data, lags)
 }

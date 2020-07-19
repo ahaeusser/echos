@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{check_unitroots}
 \alias{check_unitroots}
-\title{Test for seasonal and non-seasonal differences required to achieve stationarity.}
+\title{Test for seasonal and non-seasonal differences required to achieve stationarity}
 \usage{
 check_unitroots(.data, period, alpha = 0.05)
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{scale_data}
 \alias{scale_data}
-\title{Scale the columns of a numeric matrix.}
+\title{Scale the columns of a numeric matrix}
 \usage{
 scale_data(data, new_range = c(-1, 1))
 }

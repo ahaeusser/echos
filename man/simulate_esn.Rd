@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{simulate_esn}
 \alias{simulate_esn}
-\title{Simulate a fitted ESN.}
+\title{Simulate a fitted ESN}
 \usage{
 simulate_esn(
   win,

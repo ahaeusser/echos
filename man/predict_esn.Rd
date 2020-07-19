@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{predict_esn}
 \alias{predict_esn}
-\title{Forecast a fitted ESN.}
+\title{Forecast a fitted ESN}
 \usage{
 predict_esn(
   win,

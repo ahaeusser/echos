@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{create_win}
 \alias{create_win}
-\title{Create the input weight matrix.}
+\title{Create the input weight matrix}
 \usage{
 create_win(n_inputs, n_res, scale_runif)
 }

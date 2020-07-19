@@ -19,5 +19,6 @@ diff_data(data, period, n_sdiff, n_diff)
 y_diff Numeric matrix with the differenced data.
 }
 \description{
-This function takes a numeric matrix and calculates seasonal and non-seasonal differences for each column.
+This function takes a numeric matrix and calculates seasonal
+   and non-seasonal differences for each column.
 }
