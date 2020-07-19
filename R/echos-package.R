@@ -7,6 +7,7 @@
 #' @importFrom rlang is_empty .data abort
 #' @importFrom stats complete.cases diffinv na.omit optim pacf qnorm runif
 #' @importFrom utils tail
+#' @importFrom FitAR SelectModel
 #' @import Rcpp
 #' @import RcppArmadillo
 #' @import tsibble
