@@ -1,7 +1,8 @@
 
-#' @title Automatic train an Echo State Network (ESN).
+#' @title Automatic train an Echo State Network (ESN)
 #' 
-#' @description This function trains automatically an Echo State Network (ESN) to a univariate or multivariate time series.
+#' @description This function trains automatically an Echo State Network (ESN)
+#'    to a univariate or multivariate time series.
 #'
 #' @param .data A \code{tsibble} containing the time series data.
 #' @param period Integer vector. The periodicity of the time series (e.g. for monthly data \code{period = c(12)}, for hourly data \code{period = c(24, 168)}).
@@ -47,14 +48,13 @@ auto_esn <- function(data,
   n_sdiff <- 0
   n_diff <- 1
   
-  # Select significant lags based on PACF
+  # Select significant lags based best subset autoregressive models (ARp)
   lags <- select_lags(
     .data = data,
     period = period,
     n_sdiff = n_sdiff,
     n_diff = n_diff,
-    max_lag = max_lag,
-    level = 0.95
+    max_lag = max_lag
   )
   
   # Hyperparameter optimization ===============================================
