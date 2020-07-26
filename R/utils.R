@@ -686,6 +686,232 @@ select_lags_vec <- function(y,
 }
 
 
+
+
+
+
+#' @title Model selection
+#' 
+#' @description Model selection procedure
+#'
+#' @param data A \code{tsibble} containing the time series data.
+#' @param lags A list containing integer vectors with the lags associated with each output variable.
+#' @param n_fourier Integer vector. The number of fourier terms (seasonal cycles per period).
+#' @param period Integer vector. The periodicity of the time series (e.g. for monthly data \code{period = c(12)}, for hourly data \code{period = c(24, 168)}).
+#' @param const Logical value. If \code{TRUE}, a constant term (intercept) is used.
+#' @param n_sdiff Integer vector. The number of seasonal differences. 
+#' @param n_diff Integer vector. The number of non-seasonal differences.
+#' @param n_initial Integer value. The number of observations of internal states for initial drop out (throw-off).
+#' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data.
+#' @param inf_crit Character value. The information criterion \code{inf_crit = c("AIC", "BIC", "HQ")}.
+#'
+#' @return A list with vectors const and lags
+
+select_inputs <- function(data,
+                          lags,
+                          n_fourier,
+                          period,
+                          const,
+                          n_sdiff,
+                          n_diff,
+                          n_initial,
+                          scale_inputs,
+                          inf_crit) {
+  
+  # Pre-processing ============================================================
+  
+  # Get response variables (convert tsibble to numeric matrix)
+  y <- invoke(cbind, unclass(data)[measured_vars(data)])
+  
+  # Calculate seasonal and non-seasonal differences
+  y <- diff_data(
+    data = y,
+    period = period,
+    n_sdiff = n_sdiff,
+    n_diff = n_diff)
+  
+  # Scale data to the specified interval
+  scaled <- scale_data(
+    data = y,
+    new_range = scale_inputs)
+  
+  y <- scaled$data
+  old_range <- scaled$old_range
+  
+  
+  # Create input layer ========================================================
+  
+  # Create lagged variables as matrix
+  if (is.null(lags)) {
+    y_lag <- NULL
+  } else {
+    y_lag <- create_lags(
+      data = y,
+      lags = lags)
+  }
+  
+  # Create fourier terms (trigonometric terms) as matrix
+  if (all(n_fourier == 0)) {
+    y_seas <- NULL
+  } else {
+    y_seas <- create_fourier(
+      times = 1:nrow(y),
+      n_fourier = n_fourier,
+      period = period)
+  }
+  
+  # Create constant term (intercept term) as matrix
+  if (const == FALSE) {
+    y_const <- NULL
+  } else {
+    y_const <- create_const(
+      n_obs = nrow(y))
+  }
+  
+  # Concatenate input matrices
+  inputs <- cbind(
+    y_const,
+    y_lag,
+    y_seas)
+  
+  # Drop NAs for training
+  inputs <- inputs[complete.cases(inputs), ]
+  
+  # Number of observations (total)
+  n_total <- nrow(y)
+  # Number of observations (training)
+  n_train <- nrow(inputs)
+  
+  
+  # Create output layer (train model) =========================================
+  
+  # Concatenate inputs and reservoir
+  X <- inputs
+  # Adjust response and design matrix for initial throw-off and lag-length
+  Xt <- X[((n_initial + 1):nrow(X)), , drop = FALSE]
+  yt <- y[((n_initial + 1 + (n_total - n_train)):nrow(y)), , drop = FALSE]
+  
+  # Linear observation weights within the interval [1, 2]
+  # obs_weights <- (0:(nrow(Xt) - 1)) * (1 / (nrow(Xt) - 1)) + 1
+  # Equal observation weights
+  obs_weights <- rep(1, nrow(Xt))
+  
+  
+  # names_lags <- colnames(y_lag)
+  # names_seas <- colnames(y_seas)
+  #
+  # # Split a vector x into n chunks
+  # split_vec <- function(x, n) {
+  #   split(x, cut(seq_along(x), n, labels = FALSE)) 
+  # }
+  # 
+  # fourier_terms <- split_vec(
+  #   x = names_seas,
+  #   n = sum(n_fourier, na.rm = TRUE))
+  # 
+  # fourier_terms <- transpose(
+  #   .l = fourier_terms,
+  #   .names = c("sine", "cosine")) %>% 
+  #   simplify_all() %>%
+  #   as_tibble() %>%
+  #   unite(
+  #     col = "pair",
+  #     sep = "_",
+  #     remove = FALSE)
+  
+  
+  # Prepare model grid
+  # names_inputs <- c(colnames(y_const), colnames(y_lag), fourier_terms$pair)
+  names_inputs <- c(colnames(y_const), colnames(y_lag))
+  n_inputs <- length(names_inputs)
+  
+  # Create named list with input names and vector with 0 and 1
+  model_grid <- setNames(rep(list(c(0, 1)), n_inputs), names_inputs)
+  # Create all possible combinations of the inputs as tibble
+  model_grid <- cross_df(model_grid)
+  # Drop first row (white noise model)
+  model_grid <- model_grid[-c(1), ]
+  # Number of combinations
+  n_models <- nrow(model_grid)
+  
+  
+  # model_seas <- model_grid %>%
+  #   select(fourier_terms$pair)
+  # 
+  # sine <- model_seas
+  # names(sine) <- fourier_terms$sine
+  # 
+  # cosine <- model_seas
+  # names(cosine) <- fourier_terms$cosine
+  # 
+  # model_grid <- bind_cols(
+  #   model_grid,
+  #   sine,
+  #   cosine)
+  # 
+  # model_grid <- model_grid %>%
+  #   select(-fourier_terms$pair)
+  
+  
+  # Train models via least squares
+  model_metrics <- 1:n_models %>% map_dfr(
+    .f = function(n) {
+      # Train individual models
+      model <- train_ridge(
+        X = Xt[, which(model_grid[n, ] == 1), drop = FALSE],
+        y = yt,
+        lambda = 0,
+        weights = obs_weights)
+      
+      # Store model metrics
+      model_metrics <- tibble(
+        df = model$df,
+        AIC = model$aic,
+        BIC = model$bic,
+        HQ = model$hq)
+    }
+  )
+  
+  # Filter row with minimum information criterion
+  model_metrics <- model_metrics %>%
+    mutate(id = row_number(), .before = df) %>%
+    slice(which.min(!!sym(inf_crit)))
+  
+  # Filter for optimal model and transpose to long format
+  model_inputs <- model_grid %>%
+    slice(model_metrics$id) %>%
+    pivot_longer(
+      cols = everything(),
+      names_to = "input",
+      values_to = "usage")
+  
+  # Check for constant (intercept) term
+  const <- model_inputs %>%
+    filter(input == "const") %>%
+    pull(usage)
+  
+  const <- ifelse(const == 1, TRUE, FALSE)
+  
+  # Check for relevant lags
+  lags <- model_inputs %>%
+    filter(!input == "const") %>%
+    filter(usage == 1) %>%
+    pull(input) %>%
+    parse_number() %>%
+    list()
+  
+  list(
+    const = const,
+    lags = lags
+  )
+}
+
+
+
+
+
+
+
 #' @title Forecast a fitted ESN
 #' 
 #' @description Calculate point forecasts for a fitted ESN (internally).
