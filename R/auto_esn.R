@@ -26,7 +26,7 @@ auto_esn <- function(data,
                      n_res = 200,
                      density = 0.1,
                      scale_inputs = c(-1, 1),
-                     inf_crit = "AIC") {
+                     inf_crit = "BIC") {
   
   # Set seed for reproducibility
   n_seed <- 42
@@ -48,14 +48,32 @@ auto_esn <- function(data,
   n_sdiff <- 0
   n_diff <- 1
   
-  # Select significant lags based best subset autoregressive models (ARp)
-  lags <- select_lags(
-    .data = data,
+  # # Select significant lags based best subset autoregressive models (ARp)
+  # lags <- select_lags(
+  #   .data = data,
+  #   period = period,
+  #   n_sdiff = n_sdiff,
+  #   n_diff = n_diff,
+  #   max_lag = max_lag
+  # )
+  
+  lags <- list(c(seq(1:max_lag), period))
+  
+  model_inputs <- select_inputs(
+    data = data,
+    lags = lags,
+    n_fourier = n_fourier,
     period = period,
+    const = const,
     n_sdiff = n_sdiff,
     n_diff = n_diff,
-    max_lag = max_lag
+    n_initial = n_initial,
+    scale_inputs = scale_inputs,
+    inf_crit = inf_crit
   )
+  
+  const <- model_inputs$const
+  lags <- model_inputs$lags
   
   # Hyperparameter optimization ===============================================
   
