@@ -1,6 +1,7 @@
 
-#' @importFrom purrr map_dfr invoke
-#' @importFrom tidyr gather spread
+#' @importFrom purrr map_dfr invoke cross_df
+#' @importFrom tidyr gather spread pivot_longer
+#' @importFrom readr parse_number
 #' @importFrom matrixStats colCumsums colDiffs colMins colMaxs rowSds
 #' @importFrom Matrix rsparsematrix
 #' @importFrom feasts unitroot_nsdiffs feat_stl unitroot_ndiffs unitroot_kpss
