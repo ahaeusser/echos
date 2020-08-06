@@ -203,6 +203,81 @@ create_fourier <- function(times,
 }
 
 
+
+#' @title Rotate a matrix
+#' 
+#' @description Little helper function to rotate a matrix. If you apply rotate
+#'    two times, the matrix is flipped (\code{rotate(rotate(x))}).
+#'
+#' @param x A matrix.
+#'
+#' @return A matrix.
+
+rotate <- function(x) {
+  t(apply(x, 2, rev))
+}
+
+
+
+#' @title Create a grid of fourier terms for best subset regression
+#' 
+#' @description \code{create_grid_fourier} creates a grid of all combinations
+#'    of fourier terms. One fourier term is always a pair of sine and cosine
+#'    terms. If higher order fourier terms are used, it is assumed that the
+#'    previous terms are added too. 
+#'
+#' @param n_fourier Integer vector. The number of fourier terms (seasonal cycles) per period.
+#' @param period Integer vector. The periodicity of the time series (e.g. for monthly data \code{period = c(12)}, for hourly data \code{period = c(24, 168)}).
+#'
+#' @return blocks A tibble containing zeros and ones for all combinations of fourier terms.
+
+create_grid_fourier <- function(n_fourier,
+                                period) {
+  
+  # Initialize empty list
+  blocks <- vector(
+    mode = "list",
+    length = length(period)
+  )
+  
+  # Create matrices with zeros and ones as blocks
+  for (j in 1:length(period)) {
+    
+    # Initialize matrix with zeros
+    mat <- matrix(
+      data = 0,
+      nrow = n_fourier[j],
+      ncol = n_fourier[j]
+    )
+    
+    # Fill lower triangular with ones
+    mat[lower.tri(mat, diag = TRUE)] <- 1
+    
+    # Repeat each column two times (one for sine and one for cosine)
+    mat <- matrix(
+      data = rep(mat, each = 2),
+      ncol = 2 * ncol(mat), 
+      byrow = TRUE)
+    
+    # Add row with zeros and flip matrix
+    mat <- rbind(mat, 0)
+    mat <- rotate(rotate(mat))
+    
+    colnames(mat) <- paste0(
+      paste0(c("sin(", "cos("), rep(1:n_fourier[j], rep(2, n_fourier[j]))),
+      "-", round(period[j]), ")")
+    
+    # Store matrices in list
+    blocks[[j]] <- mat
+  }
+  
+  # Merge matrices
+  blocks <- as_tibble(do.call(merge, blocks))
+  return(blocks)
+}
+
+
+
 #' @title Create model specification
 #' 
 #' @description This function creates the model specification (short summary) as a string.
