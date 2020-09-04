@@ -7,8 +7,8 @@
 auto_esn(
   data,
   period,
-  max_lag = NULL,
-  n_fourier = NULL,
+  max_lag = 6,
+  n_fourier = c(3, 3),
   n_initial = 10,
   n_res = 200,
   density = 0.1,

@@ -20,8 +20,8 @@
 
 auto_esn <- function(data,
                      period,
-                     max_lag = NULL,
-                     n_fourier = NULL,
+                     max_lag = 6,
+                     n_fourier = c(3, 3),
                      n_initial = 10,
                      n_res = 200,
                      density = 0.1,
@@ -48,15 +48,6 @@ auto_esn <- function(data,
   n_sdiff <- 0
   n_diff <- 1
   
-  # # Select significant lags based best subset autoregressive models (ARp)
-  # lags <- select_lags(
-  #   .data = data,
-  #   period = period,
-  #   n_sdiff = n_sdiff,
-  #   n_diff = n_diff,
-  #   max_lag = max_lag
-  # )
-  
   lags <- list(c(seq(1:max_lag), period))
   
   model_inputs <- select_inputs(
@@ -69,11 +60,11 @@ auto_esn <- function(data,
     n_diff = n_diff,
     n_initial = n_initial,
     scale_inputs = scale_inputs,
-    inf_crit = inf_crit
-  )
+    inf_crit = inf_crit)
   
   const <- model_inputs$const
   lags <- model_inputs$lags
+  n_fourier <- model_inputs$n_fourier
   
   # Hyperparameter optimization ===============================================
   

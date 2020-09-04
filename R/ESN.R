@@ -70,12 +70,14 @@ fbl_train_esn <- function(.data,
   # # Reservoir size (number of internal states)
   # n_res <- specials$states[[1]]
 
+  n_fourier <- c(3, 3)
+  max_lag <- 6
   
   model_fit <- auto_esn(
     data = .data,
     period = period,
     max_lag = max_lag,
-    n_fourier =n_fourier,
+    n_fourier = n_fourier,
     n_initial = n_initial,
     n_res = n_res,
     density = density,
