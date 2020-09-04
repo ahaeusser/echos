@@ -871,32 +871,7 @@ select_inputs <- function(data,
   # Equal observation weights
   obs_weights <- rep(1, nrow(Xt))
   
-  
-  # names_lags <- colnames(y_lag)
-  # names_seas <- colnames(y_seas)
-  #
-  # # Split a vector x into n chunks
-  # split_vec <- function(x, n) {
-  #   split(x, cut(seq_along(x), n, labels = FALSE)) 
-  # }
-  # 
-  # fourier_terms <- split_vec(
-  #   x = names_seas,
-  #   n = sum(n_fourier, na.rm = TRUE))
-  # 
-  # fourier_terms <- transpose(
-  #   .l = fourier_terms,
-  #   .names = c("sine", "cosine")) %>% 
-  #   simplify_all() %>%
-  #   as_tibble() %>%
-  #   unite(
-  #     col = "pair",
-  #     sep = "_",
-  #     remove = FALSE)
-  
-  
   # Prepare model grid
-  # names_inputs <- c(colnames(y_const), colnames(y_lag), fourier_terms$pair)
   names_inputs <- c(colnames(y_const), colnames(y_lag))
   n_inputs <- length(names_inputs)
   
@@ -906,27 +881,17 @@ select_inputs <- function(data,
   model_grid <- cross_df(model_grid)
   # Drop first row (white noise model)
   model_grid <- model_grid[-c(1), ]
+  
+  # Create grid of fourier terms
+  grid_fourier <- create_grid_fourier(
+    n_fourier = n_fourier,
+    period = period)
+  
+  # Combine const, lags and fourier terms
+  model_grid <- merge(model_grid, grid_fourier)
+  
   # Number of combinations
   n_models <- nrow(model_grid)
-  
-  
-  # model_seas <- model_grid %>%
-  #   select(fourier_terms$pair)
-  # 
-  # sine <- model_seas
-  # names(sine) <- fourier_terms$sine
-  # 
-  # cosine <- model_seas
-  # names(cosine) <- fourier_terms$cosine
-  # 
-  # model_grid <- bind_cols(
-  #   model_grid,
-  #   sine,
-  #   cosine)
-  # 
-  # model_grid <- model_grid %>%
-  #   select(-fourier_terms$pair)
-  
   
   # Train models via least squares
   model_metrics <- 1:n_models %>% map_dfr(
@@ -960,25 +925,41 @@ select_inputs <- function(data,
       names_to = "input",
       values_to = "usage")
   
-  # Check for constant (intercept) term
+  # Check for constant term
   const <- model_inputs %>%
     filter(input == "const") %>%
+    mutate(usage = ifelse(usage == 1, TRUE, FALSE)) %>%
     pull(usage)
-  
-  const <- ifelse(const == 1, TRUE, FALSE)
   
   # Check for relevant lags
   lags <- model_inputs %>%
     filter(!input == "const") %>%
+    filter(!grepl('sin|cos', input)) %>%
     filter(usage == 1) %>%
     pull(input) %>%
     parse_number() %>%
     list()
   
-  list(
+  # Check for fourier terms
+  n_fourier <- model_inputs %>%
+    filter(!input == "const") %>%
+    filter(grepl('sin|cos', input)) %>%
+    mutate(n_fourier = as.integer(unlist(map(regmatches(input, gregexpr("[[:digit:]]+", input)), 1)))) %>%
+    mutate(period = as.integer(unlist(map(regmatches(input, gregexpr("[[:digit:]]+", input)), 2)))) %>%
+    mutate(flag = usage * n_fourier) %>%
+    group_by(period) %>%
+    summarise(
+      n_fourier = max(flag, na.rm = TRUE),
+      .groups = "drop") %>%
+    pull(n_fourier)
+  
+  # Store and return
+  model_inputs <- list(
     const = const,
-    lags = lags
-  )
+    lags = lags,
+    n_fourier = n_fourier)
+  
+  return(model_inputs)
 }
 
 
