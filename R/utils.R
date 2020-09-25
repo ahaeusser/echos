@@ -402,85 +402,49 @@ create_wres <- function(n_res,
 
 
 
-#' @title Test for seasonal and non-seasonal differences required to achieve stationarity
+#' @title Test for (non-seasonal) differences required to achieve stationarity
 #' 
-#' @description This function tests for the number of seasonal and
-#'    non-seasonal differences required to achieve stationarity.
+#' @description This function tests for the number of
+#'    (non-seasonal) differences required to achieve stationarity.
 #'
 #' @param .data A \code{tsibble} in wide format.
-#' @param period Integer value. The seasonal period of the time series.
 #' @param alpha Numeric value. The significance level for the statistical test.
 #'
-#' @return A list with the number of seasonal differences (\code{n_sdiff})
-#'    and non-seasonal differences (\code{n_diff}).
+#' @return A list with the number of non-seasonal differences (\code{n_diff}).
 #'    
 #' @export
 
 check_unitroots <- function(.data,
-                            period,
                             alpha = 0.05) {
-  
-  # Number of observations
-  n_obs <- nrow(.data)
-  
-  # Maximum seasonal period
-  period <- max(period)
 
   # Get response variables (convert tsibble to numeric matrix)
   y <- invoke(cbind, unclass(.data)[measured_vars(.data)])
   
-  # Test for seasonal differences
-  n_sdiff <- apply(y, 2, function(y) {
-    unitroot_nsdiffs(
-      x = y,
-      alpha = alpha,
-      unitroot_fn = ~feat_stl(., .period)[2] < 0.64,
-      differences = 0:1,
-      .period = period)
-  })
-  
-  yd <- diff_data(
-    data = y,
-    period = period,
-    n_sdiff = n_sdiff,
-    n_diff = rep(0, times = ncol(y))
-  )
-  
   # Test for non-seasonal differences
   n_diff <- apply(y, 2, function(y) {
     unitroot_ndiffs(
-      x = yd,
+      x = y,
       alpha = alpha,
       unitroot_fn = ~unitroot_kpss(.)["kpss_pvalue"],
       differences = 0:1)
   })
   
-  structure(
-    list(
-      n_sdiff = n_sdiff,
-      n_diff = n_diff
-    )
-  )
+  structure(list(n_diff = n_diff))
 }
 
 
 
-#' @title Calculate seasonal and non-seasonal differences of a numeric matrix.
+#' @title Calculate (non-seasonal) differences of a numeric matrix
 #'
-#' @description This function takes a numeric matrix and calculates seasonal
-#'    and non-seasonal differences for each column.
+#' @description This function takes a numeric matrix and calculates 
+#'    (non-seasonal) differences for each column.
 #'
 #' @param data Numeric matrix.
-#' @param period Integer vector. The periodicity of the time series.
-#' @param n_sdiff Integer vector. The number of seasonal differences.
 #' @param n_diff Integer vector. The number of non-seasonal differences.
 #'
 #' @return y_diff Numeric matrix with the differenced data.
 
-diff_data <- function(data,
-                      period,
-                      n_sdiff,
-                      n_diff) {
+diff_data <- function(data, n_diff) {
   
   names_outputs <- colnames(data)
   n_outputs <- ncol(data)
@@ -488,8 +452,6 @@ diff_data <- function(data,
   y_diff <- lapply(seq_len(n_outputs), function(n) {
     diff_vec(
       y = data[, n],
-      period = max(period),
-      n_sdiff = n_sdiff[n],
       n_diff = n_diff[n])
   })
   
@@ -501,45 +463,30 @@ diff_data <- function(data,
 
 
 
-#' @title Calculate seasonal and non-seasonal differences of a numeric vector
+#' @title Calculate (non-seasonal) differences of a numeric vector
 #'
-#' @description This function takes a numeric vector and calculates seasonal
-#'    and non-seasonal differences.
+#' @description This function takes a numeric vector and calculates
+#'    (non-seasonal) differences.
 #'
 #' @param y Numeric vector.
-#' @param period Integer vector. The periodicity of the time series.
-#' @param n_sdiff Integer value. The number of seasonal differences.
 #' @param n_diff Integer value. The number of non-seasonal differences.
 #'
 #' @return y_diff Numeric vector with the differenced data.
 
-diff_vec <- function(y,
-                     period,
-                     n_sdiff,
-                     n_diff) {
+diff_vec <- function(y, n_diff) {
   
-  # Calculate seasonal difference
-  if (n_sdiff > 0) {
+  # Calculate (non-seasonal) difference
+  if (n_diff > 0) {
     y_diff <- diff(
       x = y,
-      differences = n_sdiff,
-      lag = period)
+      differences = n_diff,
+      lag = 1L)
   } else {
     y_diff <- y
   }
   
-  # Calculate non-seasonal difference
-  if (n_diff > 0) {
-    y_diff <- diff(
-      x = y_diff,
-      differences = n_diff,
-      lag = 1L)
-  } else {
-    y_diff <- y_diff
-  }
-  
   # Pad vector with leading NAs
-  fill_na <- rep(NA_real_, (n_sdiff * period + n_diff))
+  fill_na <- rep(NA_real_, n_diff)
   y_diff <- c(fill_na, y_diff)
   return(y_diff)
 }
@@ -547,24 +494,20 @@ diff_vec <- function(y,
 
 
 
-#' @title Integrate seasonal and non-seasonal differences of a numeric matrix
+#' @title Integrate (non-seasonal) differences of a numeric matrix
 #'    ("inverse difference")
 #'
-#' @description This function takes a numeric matrix and integrates seasonal
-#'    and non-seasonal differences for each column ("inverse difference").
+#' @description This function takes a numeric matrix and integrates
+#'    (non-seasonal) differences for each column ("inverse difference").
 #'
 #' @param data Numeric matrix containing the original data.
 #' @param data_diff Numeric matrix containing the differenced data.
-#' @param period Integer vector. The periodicity of the time series.
-#' @param n_sdiff Integer vector. The number of seasonal differences.
 #' @param n_diff Integer vector. The number of non-seasonal differences.
 #' 
 #' @return y_int Numeric matrix with the inverse differenced data.
 
 inv_diff_data <- function(data,
                           data_diff,
-                          period,
-                          n_sdiff,
                           n_diff) {
   
   names_outputs <- colnames(data)
@@ -574,8 +517,6 @@ inv_diff_data <- function(data,
     inv_diff_vec(
       y = data[, n],
       y_diff = data_diff[, n],
-      period = max(period),
-      n_sdiff = n_sdiff[n],
       n_diff = n_diff[n])
   })
   
@@ -587,24 +528,20 @@ inv_diff_data <- function(data,
 
 
 
-#' @title Integrate seasonal and non-seasonal differences of a numeric vector
+#' @title Integrate (non-seasonal) differences of a numeric vector
 #'    ("inverse difference")
 #'
-#' @description This function takes a numeric vector and integrates seasonal
-#'    and non-seasonal differences ("inverse difference").
+#' @description This function takes a numeric vector and integrates
+#'    (non-seasonal) differences ("inverse difference").
 #'
 #' @param y Numeric vector containing the original data.
 #' @param y_diff Numeric vector containing the differenced data.
-#' @param period Integer vector. The periodicity of the time series.
-#' @param n_sdiff Integer value. The number of seasonal differences.
 #' @param n_diff Integer value. The number of non-seasonal differences.
 #'
 #' @return y_int Numeric vector with the inverse differenced data.
 
 inv_diff_vec <- function(y,
                          y_diff,
-                         period,
-                         n_sdiff,
                          n_diff) {
   
   y <- as.numeric(y)
@@ -613,57 +550,19 @@ inv_diff_vec <- function(y,
   # Forecast horizon
   n_ahead <- length(y_diff)
   
-  yi <- tail(y, n_diff)             # starting value for non-seasonal differences
-  yii <- tail(y, n_sdiff * period)  # starting value for seasonal differences
-  idx <- length(y) - period         # index of starting value
+  # Starting value for integration
+  yi <- tail(y, n_diff)
   
-  #1: Doubled differenced
-  if (n_sdiff > 0 & n_diff > 0) {
-    
-    # Integrate first difference
-    yi <- diff(
-      x = y,
-      differences = n_sdiff,
-      lag = period)[idx]
-    
+  
+  if (n_diff > 0) {
+    # Integrate differenced data
     y_int <- diffinv(
       x = y_diff,
       lag = 1L,
       differences = n_diff,
       xi = yi)
-    
-    # Integrate seasonal difference
-    y_int <- diffinv(
-      x = y_int,
-      lag = period,
-      differences = n_sdiff,
-      xi = yii)
-  }
-  
-  # Case 2: Seasonal differenced only
-  if (n_sdiff > 0 & n_diff == 0) {
-    
-    # Integrate seasonal difference
-    y_int <- diffinv(
-      x = y_diff,
-      lag = period,
-      differences = n_sdiff,
-      xi = yii)
-  }
-  
-  # Case 3: Non-seasonal differenced only
-  if (n_sdiff == 0 & n_diff > 0) {
-    
-    # Integrate difference
-    y_int <- diffinv(
-      x = y_diff,
-      lag = 1L,
-      differences = n_diff,
-      xi = yi)
-  }
-  
-  # Case 4: No differences at all
-  if (n_sdiff == 0 & n_diff == 0) {
+  } else {
+    # No differences
     y_int <- y_diff
   }
   
@@ -672,94 +571,6 @@ inv_diff_vec <- function(y,
   
   return(y_int)
 }
-
-
-
-
-#' @title Estimate best subset autoregressive models and select lags
-#' 
-#' @description Estimate best subset autoregressive models and select lags.
-#'    The underlying model is an ARp model (subset autoregressive model) and
-#'    by default the BICq information criterion is used. This is a wrapper
-#'    function for \code{select_lags_vec} that works on the columns of a
-#'    numeric matrix.
-#'
-#' @param data Numeric matrix containing the original data.
-#' @param period Integer vector. The periodicity of the time series.
-#' @param n_sdiff Integer vector. The number of seasonal differences.
-#' @param n_diff Integer vector. The number of non-seasonal differences.
-#' @param max_lag Integer value. Maximum number of non-seasonal lags.
-#'
-#' @return
-
-select_lags <- function(.data,
-                        period,
-                        n_sdiff,
-                        n_diff,
-                        max_lag) {
-  
-  y <- invoke(cbind, unclass(.data)[measured_vars(.data)])
-  n_outputs <- ncol(y)
-  
-  lags <- lapply(seq_len(n_outputs), function(n) {
-    select_lags_vec(
-      y = y[, n],
-      period = period,
-      n_sdiff = n_sdiff[n],
-      n_diff = n_diff[n],
-      max_lag = max_lag)
-  })
-  
-  return(lags)
-}
-
-
-
-#' @title Estimate best subset autoregressive models and select lags
-#' 
-#' @description Estimate best subset autoregressive models and select lags.
-#'    The underlying model is an ARp model (subset autoregressive model) and
-#'    by default the BICq information criterion is used.
-#'
-#' @param y Numeric vector containing the original data.
-#' @param period Integer vector. The periodicity of the time series.
-#' @param n_sdiff Integer value. The number of seasonal differences.
-#' @param n_diff Integer value. The number of non-seasonal differences.
-#' @param max_lag Integer value. Maximum number of non-seasonal lags.
-#'
-#' @return
-
-select_lags_vec <- function(y,
-                            period,
-                            n_sdiff,
-                            n_diff,
-                            max_lag) {
-  # Difference data
-  yd <- diff_vec(
-    y = y,
-    period = max(period),
-    n_sdiff = n_sdiff,
-    n_diff = n_diff
-  )
-  
-  # Drop NAs
-  yd <- na.omit(yd)
-  
-  # Convert to msts object
-  # yd <- msts(yd, seasonal.periods = period)
-  
-  # Estimate subset autoregressive models (ARp)
-  lags <- SelectModel(
-    z = yd,
-    lag.max = max_lag,
-    ARModel = "ARp",
-    Criterion = "BICq",
-    Best = 1)
-  
-  lags <- union(lags, period)
-  return(lags)
-}
-
 
 
 
@@ -774,20 +585,19 @@ select_lags_vec <- function(y,
 #' @param n_fourier Integer vector. The number of fourier terms (seasonal cycles per period).
 #' @param period Integer vector. The periodicity of the time series (e.g. for monthly data \code{period = c(12)}, for hourly data \code{period = c(24, 168)}).
 #' @param const Logical value. If \code{TRUE}, a constant term (intercept) is used.
-#' @param n_sdiff Integer vector. The number of seasonal differences. 
 #' @param n_diff Integer vector. The number of non-seasonal differences.
 #' @param n_initial Integer value. The number of observations of internal states for initial drop out (throw-off).
 #' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data.
 #' @param inf_crit Character value. The information criterion \code{inf_crit = c("AIC", "BIC", "HQ")}.
 #'
-#' @return A list with vectors const and lags
+#' @return A list with const (intercept term), lags (lags for input variables)
+#'    and n_fourier (number of fourier terms per period).
 
 select_inputs <- function(data,
                           lags,
                           n_fourier,
                           period,
                           const,
-                          n_sdiff,
                           n_diff,
                           n_initial,
                           scale_inputs,
@@ -801,8 +611,6 @@ select_inputs <- function(data,
   # Calculate seasonal and non-seasonal differences
   y <- diff_data(
     data = y,
-    period = period,
-    n_sdiff = n_sdiff,
     n_diff = n_diff)
   
   # Scale data to the specified interval
@@ -1135,11 +943,6 @@ rescale_data <- function(data,
 
 scale_data <- function(data,
                        new_range = c(-1, 1)) {
-  
-  # # Check y for missing values
-  # if (anyNA(data) == TRUE) {
-  #   stop("data contains at least one missing value")
-  #   }
   
   # Number of rows (observations) and columns (variables) in data
   n_rows <- nrow(data)

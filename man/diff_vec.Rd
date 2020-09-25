@@ -2,16 +2,12 @@
 % Please edit documentation in R/utils.R
 \name{diff_vec}
 \alias{diff_vec}
-\title{Calculate seasonal and non-seasonal differences of a numeric vector}
+\title{Calculate (non-seasonal) differences of a numeric vector}
 \usage{
-diff_vec(y, period, n_sdiff, n_diff)
+diff_vec(y, n_diff)
 }
 \arguments{
 \item{y}{Numeric vector.}
-
-\item{period}{Integer vector. The periodicity of the time series.}
-
-\item{n_sdiff}{Integer value. The number of seasonal differences.}
 
 \item{n_diff}{Integer value. The number of non-seasonal differences.}
 }
@@ -19,6 +15,6 @@ diff_vec(y, period, n_sdiff, n_diff)
 y_diff Numeric vector with the differenced data.
 }
 \description{
-This function takes a numeric vector and calculates seasonal
-   and non-seasonal differences.
+This function takes a numeric vector and calculates
+   (non-seasonal) differences.
 }

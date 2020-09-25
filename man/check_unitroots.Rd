@@ -2,22 +2,19 @@
 % Please edit documentation in R/utils.R
 \name{check_unitroots}
 \alias{check_unitroots}
-\title{Test for seasonal and non-seasonal differences required to achieve stationarity}
+\title{Test for (non-seasonal) differences required to achieve stationarity}
 \usage{
-check_unitroots(.data, period, alpha = 0.05)
+check_unitroots(.data, alpha = 0.05)
 }
 \arguments{
 \item{.data}{A \code{tsibble} in wide format.}
 
-\item{period}{Integer value. The seasonal period of the time series.}
-
 \item{alpha}{Numeric value. The significance level for the statistical test.}
 }
 \value{
-A list with the number of seasonal differences (\code{n_sdiff})
-   and non-seasonal differences (\code{n_diff}).
+A list with the number of non-seasonal differences (\code{n_diff}).
 }
 \description{
-This function tests for the number of seasonal and
-   non-seasonal differences required to achieve stationarity.
+This function tests for the number of
+   (non-seasonal) differences required to achieve stationarity.
 }

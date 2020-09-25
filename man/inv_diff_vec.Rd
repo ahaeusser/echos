@@ -2,19 +2,15 @@
 % Please edit documentation in R/utils.R
 \name{inv_diff_vec}
 \alias{inv_diff_vec}
-\title{Integrate seasonal and non-seasonal differences of a numeric vector
+\title{Integrate (non-seasonal) differences of a numeric vector
    ("inverse difference")}
 \usage{
-inv_diff_vec(y, y_diff, period, n_sdiff, n_diff)
+inv_diff_vec(y, y_diff, n_diff)
 }
 \arguments{
 \item{y}{Numeric vector containing the original data.}
 
 \item{y_diff}{Numeric vector containing the differenced data.}
-
-\item{period}{Integer vector. The periodicity of the time series.}
-
-\item{n_sdiff}{Integer value. The number of seasonal differences.}
 
 \item{n_diff}{Integer value. The number of non-seasonal differences.}
 }
@@ -22,6 +18,6 @@ inv_diff_vec(y, y_diff, period, n_sdiff, n_diff)
 y_int Numeric vector with the inverse differenced data.
 }
 \description{
-This function takes a numeric vector and integrates seasonal
-   and non-seasonal differences ("inverse difference").
+This function takes a numeric vector and integrates
+   (non-seasonal) differences ("inverse difference").
 }

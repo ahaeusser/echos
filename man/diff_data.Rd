@@ -2,16 +2,12 @@
 % Please edit documentation in R/utils.R
 \name{diff_data}
 \alias{diff_data}
-\title{Calculate seasonal and non-seasonal differences of a numeric matrix.}
+\title{Calculate (non-seasonal) differences of a numeric matrix}
 \usage{
-diff_data(data, period, n_sdiff, n_diff)
+diff_data(data, n_diff)
 }
 \arguments{
 \item{data}{Numeric matrix.}
-
-\item{period}{Integer vector. The periodicity of the time series.}
-
-\item{n_sdiff}{Integer vector. The number of seasonal differences.}
 
 \item{n_diff}{Integer vector. The number of non-seasonal differences.}
 }
@@ -19,6 +15,6 @@ diff_data(data, period, n_sdiff, n_diff)
 y_diff Numeric matrix with the differenced data.
 }
 \description{
-This function takes a numeric matrix and calculates seasonal
-   and non-seasonal differences for each column.
+This function takes a numeric matrix and calculates 
+   (non-seasonal) differences for each column.
 }
