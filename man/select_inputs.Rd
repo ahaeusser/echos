@@ -10,7 +10,6 @@ select_inputs(
   n_fourier,
   period,
   const,
-  n_sdiff,
   n_diff,
   n_initial,
   scale_inputs,
@@ -28,8 +27,6 @@ select_inputs(
 
 \item{const}{Logical value. If \code{TRUE}, a constant term (intercept) is used.}
 
-\item{n_sdiff}{Integer vector. The number of seasonal differences.}
-
 \item{n_diff}{Integer vector. The number of non-seasonal differences.}
 
 \item{n_initial}{Integer value. The number of observations of internal states for initial drop out (throw-off).}
@@ -39,7 +36,8 @@ select_inputs(
 \item{inf_crit}{Character value. The information criterion \code{inf_crit = c("AIC", "BIC", "HQ")}.}
 }
 \value{
-A list with vectors const and lags
+A list with const (intercept term), lags (lags for input variables)
+   and n_fourier (number of fourier terms per period).
 }
 \description{
 Model selection procedure

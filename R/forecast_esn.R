@@ -53,7 +53,6 @@ forecast_esn <- function(object,
   
   # Arguments for differencing and scaling the time series data
   scale_inputs <- method$scale_inputs
-  n_sdiff <- method$diff_inputs$n_sdiff
   n_diff <- method$diff_inputs$n_diff
   
   # Extract residuals
@@ -95,8 +94,6 @@ forecast_esn <- function(object,
   # Calculate seasonal and non-seasonal differences
   y <- diff_data(
     data = y,
-    period = period,
-    n_sdiff = n_sdiff,
     n_diff = n_diff)
   
   # Scale data to the specified interval
@@ -183,12 +180,10 @@ forecast_esn <- function(object,
     old_range = old_range,
     new_range = scale_inputs)
   
-  # Integrate seasonal and non-seasonal differences
+  # Integrate non-seasonal differences
   fcst <- inv_diff_data(
     data = actual,
     data_diff = fcst,
-    period = period,
-    n_sdiff = n_sdiff,
     n_diff = n_diff)
   
   # Simulation ================================================================
@@ -220,13 +215,11 @@ forecast_esn <- function(object,
         new_range = scale_inputs)
     })
     
-    # Integrate seasonal and non-seasonal differences
+    # Integrate non-seasonal differences
     sim <- lapply(sim, function(sim) {
       inv_diff_data(
         data = actual,
         data_diff = sim,
-        period = period,
-        n_sdiff = n_sdiff,
         n_diff = n_diff)
     })
     

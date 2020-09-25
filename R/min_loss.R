@@ -9,7 +9,6 @@
 #' @param n_fourier Integer vector. The number of fourier terms (seasonal cycles per period).
 #' @param period Integer vector. The periodicity of the time series (e.g. for monthly data \code{period = c(12)}, for hourly data \code{period = c(24, 168)}).
 #' @param const Logical value. If \code{TRUE}, a constant term (intercept) is used.
-#' @param n_sdiff Integer vector. The number of seasonal differences.
 #' @param n_diff Integer value. The number of differences.
 #' @param n_res Integer value. The number of internal states within the reservoir (hidden layer).
 #' @param n_initial Integer value. The number of observations of internal states for initial drop out (throw-off).
@@ -27,7 +26,6 @@ min_loss <- function(data,
                      n_fourier,
                      period,
                      const = TRUE,
-                     n_sdiff = 0,
                      n_diff = 0,
                      n_res = 200,
                      n_initial = 10,
@@ -43,7 +41,7 @@ min_loss <- function(data,
   lambda <- par[3]
   scale_runif <- c(-par[4], par[4])
   
-  # Prepare contants as integers
+  # Prepare constants as integers
   n_res <- as.integer(n_res)
   n_initial <- as.integer(n_initial)
   n_seed <- as.integer(n_seed)
@@ -68,8 +66,6 @@ min_loss <- function(data,
   # Calculate seasonal and non-seasonal differences
   y <- diff_data(
     data = y,
-    period = period,
-    n_sdiff = n_sdiff,
     n_diff = n_diff)
   
   # Scale data to the specified interval
@@ -130,9 +126,9 @@ min_loss <- function(data,
   
   # Maximum lag (overall)
   max_lag <- max(unlist(lags))
-  # Train index (with inital throw-off)
+  # Train index (with initial throw-off)
   index_train <- c((1 + (n_total - n_train + n_initial)):n_total)
-  # Train index (without inital throw-off)
+  # Train index (without initial throw-off)
   index_states <- c((1 + (n_total - n_train)):n_total)
   
   # Create time index for training

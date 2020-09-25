@@ -10,7 +10,6 @@ train_esn(
   n_fourier,
   period,
   const = TRUE,
-  n_sdiff = 0,
   n_diff = 0,
   n_res = 200,
   n_initial = 10,
@@ -33,8 +32,6 @@ train_esn(
 \item{period}{Integer vector. The periodicity of the time series (e.g. for monthly data \code{period = c(12)}, for hourly data \code{period = c(24, 168)}).}
 
 \item{const}{Logical value. If \code{TRUE}, a constant term (intercept) is used.}
-
-\item{n_sdiff}{Integer vector. The number of seasonal differences.}
 
 \item{n_diff}{Integer vector. The number of non-seasonal differences.}
 

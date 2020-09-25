@@ -41,12 +41,9 @@ auto_esn <- function(data,
   # Check stationarity of time series
   ur <- check_unitroots(
     .data = data,
-    alpha = 0.05,
-    period = period
-  )
+    alpha = 0.05)
   
-  n_sdiff <- 0
-  n_diff <- 1
+  n_diff <- ur$n_diff
   
   lags <- list(c(seq(1:max_lag), period))
   
@@ -56,7 +53,6 @@ auto_esn <- function(data,
     n_fourier = n_fourier,
     period = period,
     const = const,
-    n_sdiff = n_sdiff,
     n_diff = n_diff,
     n_initial = n_initial,
     scale_inputs = scale_inputs,
@@ -72,13 +68,13 @@ auto_esn <- function(data,
   par <- c(
     alpha = 0.8,
     rho = 1,
-    lambda = 1, # 0.1, 1.0
+    lambda = 1,
     scale_runif = 0.5)
   
   lower <- c(
     alpha = 0,
     rho = 0.5,
-    lambda = 0.1, # 0.001
+    lambda = 0.1,
     scale_runif = 1e-8)
   
   upper <- c(
@@ -99,7 +95,6 @@ auto_esn <- function(data,
     const = const,
     n_fourier = n_fourier,
     period = period,
-    n_sdiff = n_sdiff,
     n_diff = n_diff,
     density = density,
     n_res = n_res,
@@ -115,7 +110,6 @@ auto_esn <- function(data,
     n_fourier = n_fourier,
     period = period,
     const = const,
-    n_sdiff = n_sdiff,
     n_diff = n_diff,
     n_res = n_res,
     n_initial = n_initial,
