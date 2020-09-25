@@ -1,5 +1,5 @@
 
-#' @title Train an Echo State Network (ESN).
+#' @title Train an Echo State Network (ESN)
 #' 
 #' @description Train an Echo State Network (ESN).
 #'
@@ -12,7 +12,7 @@
 
 fbl_train_esn <- function(.data,
                           specials,
-                          max_lag = NULL,
+                          max_lag = 6,
                           n_initial = 10,
                           n_res = 200,
                           n_fourier = NULL,
@@ -35,7 +35,7 @@ fbl_train_esn <- function(.data,
     abort("ESN does not support missing values.")
   }
   
-  # Maximum seasonal period which is feasable
+  # Maximum seasonal period which is feasible
   period <- common_periods(.data)
   period <- sort(as.numeric(period[period < n_obs]))
   
@@ -69,9 +69,6 @@ fbl_train_esn <- function(.data,
   # 
   # # Reservoir size (number of internal states)
   # n_res <- specials$states[[1]]
-
-  n_fourier <- c(3, 3)
-  max_lag <- 6
   
   model_fit <- auto_esn(
     data = .data,
@@ -263,7 +260,6 @@ report.ESN <- function(object, ...) {
   const <- method$model_inputs$const
   lags <- unlist(method$model_inputs$lags)
   
-  n_sdiff <- as.numeric(method$diff_inputs$n_sdiff)
   n_diff <- as.numeric(method$diff_inputs$n_diff)
   
   alpha <- round(method$model_pars$alpha, 2)
@@ -294,7 +290,6 @@ report.ESN <- function(object, ...) {
   
   cat(
     "\nDifferences: \n",
-    "Seasonal     = ", n_sdiff, "\n",
     "Non-seasonal = ", n_diff, "\n"
   )
   

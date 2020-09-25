@@ -2,12 +2,12 @@
 % Please edit documentation in R/ESN.R
 \name{fbl_train_esn}
 \alias{fbl_train_esn}
-\title{Train an Echo State Network (ESN).}
+\title{Train an Echo State Network (ESN)}
 \usage{
 fbl_train_esn(
   .data,
   specials,
-  max_lag = NULL,
+  max_lag = 6,
   n_initial = 10,
   n_res = 200,
   n_fourier = NULL,
