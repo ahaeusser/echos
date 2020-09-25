@@ -27,8 +27,7 @@ Imports:
     Matrix,
     matrixStats,
     rlang,
-    feasts,
-    FitAR
+    feasts
 LinkingTo:
     Rcpp,
     RcppArmadillo
