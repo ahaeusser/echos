@@ -237,12 +237,8 @@ forecast.ESN <- function(object,
   fcst_sd <- rowSds(sim, na.rm = TRUE)
   
   # Return forecast
-  construct_fc(
-    point = fcst_mean,
-    sd = fcst_sd,
-    dist = dist_normal(
-      mean = fcst_mean,
-      sd = fcst_sd))
+  dist_normal(fcst_mean, fcst_sd)
+  
 }
 
 

@@ -1,7 +1,7 @@
 Package: echos
 Type: Package
 Title: Echo State Networks for Time Series Forecasting
-Version: 0.0.1
+Version: 0.0.2
 Description: This package provides a tidy R interface for modeling and forecasting univariate time series using
    Echo State Networks (ESNs). The model works within the fable framework provided by the fabletools package, which
    provides the tools to evaluate, visualise, and combine models in a workflow consistent with the tidyverse.
@@ -27,7 +27,8 @@ Imports:
     Matrix,
     matrixStats,
     rlang,
-    feasts
+    feasts,
+    distributional
 LinkingTo:
     Rcpp,
     RcppArmadillo
