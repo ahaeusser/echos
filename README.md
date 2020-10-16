@@ -31,6 +31,7 @@ devtools::install_github("ahaeusser/echos")
 
 ``` r
 library(echos)
+library(tscv)
 library(dplyr)
 library(tsibble)
 library(fabletools)
@@ -42,105 +43,108 @@ Sys.setlocale("LC_TIME", "C")
 ### Prepare data
 
 ``` r
-n_train <- 130  # training window
-n_ahead <- 12   # testing window (forecast horizon)
 
-# Prepare data as tsibble
-data <- AirPassengers %>%
-  as_tsibble() %>%
-  rename(
-    Date = index,
-    Passengers = value)
+# Prepare dataset
+data <- elec_price %>%
+  tscv::clean_data()
 
-# Training data
-data_train <- data %>%
-  slice(1:n_train)
+# Setup for time series cross validation
+n_init <- 2400   # size for training window
+n_ahead <- 24    # size for testing window (forecast horizon)
+mode <- "slide"  # fixed window approach
+n_skip <- 23     # skip 23 observations
+n_lag <- 0       # no lag
 
-data_train
-#> # A tsibble: 130 x 2 [1M]
-#>        Date Passengers
-#>       <mth>      <dbl>
-#>  1 1949 Jan        112
-#>  2 1949 Feb        118
-#>  3 1949 Mar        132
-#>  4 1949 Apr        129
-#>  5 1949 May        121
-#>  6 1949 Jun        135
-#>  7 1949 Jul        148
-#>  8 1949 Aug        148
-#>  9 1949 Sep        136
-#> 10 1949 Oct        119
-#> # ... with 120 more rows
+data <- data %>%
+  tscv::split_data(
+    n_init = n_init,
+    n_ahead = n_ahead,
+    mode = mode,
+    n_skip = n_skip,
+    n_lag = n_lag)
 
-# Testing data
-data_test <- data %>%
-  slice((n_train + 1):(n_train + n_ahead))
+# Use only a small sample of data
+data <- data %>%
+  filter(BZN == "SE1") %>%
+  filter(split == 10)
 
-data_test
-#> # A tsibble: 12 x 2 [1M]
-#>        Date Passengers
-#>       <mth>      <dbl>
-#>  1 1959 Nov        362
-#>  2 1959 Dec        405
-#>  3 1960 Jan        417
-#>  4 1960 Feb        391
-#>  5 1960 Mar        419
-#>  6 1960 Apr        461
-#>  7 1960 May        472
-#>  8 1960 Jun        535
-#>  9 1960 Jul        622
-#> 10 1960 Aug        606
-#> 11 1960 Sep        508
-#> 12 1960 Oct        461
+data
+#> # A tsibble: 2,424 x 9 [1h] <UTC>
+#> # Key:       Series, Unit, BZN, split [1]
+#>    Time                Series      Unit   BZN   Value split    id sample horizon
+#>    <dttm>              <chr>       <chr>  <chr> <dbl> <int> <int> <chr>    <int>
+#>  1 2019-01-10 00:00:00 Day-ahead ~ [EUR/~ SE1    50.0    10   217 train       NA
+#>  2 2019-01-10 01:00:00 Day-ahead ~ [EUR/~ SE1    49.6    10   218 train       NA
+#>  3 2019-01-10 02:00:00 Day-ahead ~ [EUR/~ SE1    50.0    10   219 train       NA
+#>  4 2019-01-10 03:00:00 Day-ahead ~ [EUR/~ SE1    49.9    10   220 train       NA
+#>  5 2019-01-10 04:00:00 Day-ahead ~ [EUR/~ SE1    51.9    10   221 train       NA
+#>  6 2019-01-10 05:00:00 Day-ahead ~ [EUR/~ SE1    50.7    10   222 train       NA
+#>  7 2019-01-10 06:00:00 Day-ahead ~ [EUR/~ SE1    50.4    10   223 train       NA
+#>  8 2019-01-10 07:00:00 Day-ahead ~ [EUR/~ SE1    50.6    10   224 train       NA
+#>  9 2019-01-10 08:00:00 Day-ahead ~ [EUR/~ SE1    50.4    10   225 train       NA
+#> 10 2019-01-10 09:00:00 Day-ahead ~ [EUR/~ SE1    50.2    10   226 train       NA
+#> # ... with 2,414 more rows
 ```
 
 ### Model
 
 ``` r
 # Train models
-models <- data_train %>%
+models <- data %>%
+  filter(sample == "train") %>%
   model(
-    esn = ESN(Passengers),
-    arima = ARIMA(Passengers),
-    ets = ETS(Passengers))
+    "ESN" = ESN(
+      Value,
+      inf_crit = "BIC",
+      max_lag = 6,
+      n_fourier = c(3, 3),
+      n_initial = 50,
+      n_res = 200,
+      scale_inputs = c(-1, 1)),
+    "sNaive" = SNAIVE(Value ~ lag("week")))
 
 models
-#> # A mable: 1 x 3
-#>   esn                         arima                              ets          
-#>   <model>                     <model>                            <model>      
-#> 1 <ESN({4,200,1}, {1,1.5,0})> <ARIMA(3,0,0)(0,1,0)[12] w/ drift> <ETS(M,Ad,M)>
+#> # A mable: 1 x 6
+#> # Key:     Series, Unit, BZN, split [1]
+#>   Series Unit  BZN   split                                                   ESN
+#>   <chr>  <chr> <chr> <int>                                               <model>
+#> 1 Day-a~ [EUR~ SE1      10 <ESN({12,200,1}, {0.64,1.26,5.13}, {(24-2),(168-0)})>
+#> # ... with 1 more variable: sNaive <model>
 
 # Detailed report of ESN
 models %>%
-  select(esn) %>%
+  select(ESN) %>%
   report()
-#> Series: Passengers 
-#> Model: ESN({4,200,1}, {1,1.5,0}) 
+#> Series: Value 
+#> Model: ESN({12,200,1}, {0.64,1.26,5.13}, {(24-2),(168-0)}) 
 #> 
 #> Network size: 
-#>  Inputs        = 4 
+#>  Inputs        = 12 
 #>  Reservoir     = 200 
 #>  Outputs       = 1 
 #> 
 #> Model inputs: 
 #>  Constant = TRUE 
-#>  Lags     = 1 3 12 
+#>  Lags     = 1 2 3 4 5 24 168 
 #> 
 #> Differences: 
-#>  Seasonal     =  1 
-#>  Non-seasonal =  0 
+#>  Non-seasonal =  1 
+#> 
+#> Scaling: 
+#>  Inputs         = (-1, 1)
+#>  Random uniform = (-0.65, 0.65)
 #> 
 #> Hyperparameters: 
-#>  alpha   = 1 
-#>  rho     = 1.5 
-#>  lambda  = 0 
+#>  alpha   = 0.64 
+#>  rho     = 1.26 
+#>  lambda  = 5.13 
 #>  density = 0.1 
 #> 
 #> Metrics: 
-#>  df  = 95.95 
-#>  AIC = -14.98 
-#>  BIC = -12.42 
-#>  HQ  = -13.94
+#>  df  = 60.11 
+#>  AIC = -5.16 
+#>  BIC = -5 
+#>  HQ  = -5.1
 ```
 
 ### Forecast
@@ -151,29 +155,32 @@ fcsts <- models %>%
   forecast(h = n_ahead)
 
 fcsts
-#> # A fable: 36 x 4 [1M]
-#> # Key:     .model [3]
-#>    .model     Date Passengers .distribution  
-#>    <chr>     <mth>      <dbl> <dist>         
-#>  1 esn    1959 Nov       344. N(344, 5.9e-05)
-#>  2 esn    1959 Dec       372. N(372, 6.7e-05)
-#>  3 esn    1960 Jan       413. N(413, 6.2e-05)
-#>  4 esn    1960 Feb       391. N(391, 6.0e-05)
-#>  5 esn    1960 Mar       462. N(462, 1.5e-04)
-#>  6 esn    1960 Apr       439. N(439, 5.0e-05)
-#>  7 esn    1960 May       476. N(476, 1.3e-04)
-#>  8 esn    1960 Jun       519. N(519, 3.9e-04)
-#>  9 esn    1960 Jul       592. N(592, 4.6e-04)
-#> 10 esn    1960 Aug       598. N(598, 2.3e-04)
-#> # ... with 26 more rows
+#> # A fable: 48 x 8 [1h] <UTC>
+#> # Key:     Series, Unit, BZN, split, .model [2]
+#>    Series        Unit    BZN   split .model Time                     Value .mean
+#>    <chr>         <chr>   <chr> <int> <chr>  <dttm>                  <dist> <dbl>
+#>  1 Day-ahead Pr~ [EUR/M~ SE1      10 ESN    2019-04-20 00:00:00 N(40, 2.9)  40.0
+#>  2 Day-ahead Pr~ [EUR/M~ SE1      10 ESN    2019-04-20 01:00:00 N(40, 6.1)  39.7
+#>  3 Day-ahead Pr~ [EUR/M~ SE1      10 ESN    2019-04-20 02:00:00 N(40, 9.2)  39.6
+#>  4 Day-ahead Pr~ [EUR/M~ SE1      10 ESN    2019-04-20 03:00:00  N(41, 12)  40.7
+#>  5 Day-ahead Pr~ [EUR/M~ SE1      10 ESN    2019-04-20 04:00:00  N(42, 11)  41.8
+#>  6 Day-ahead Pr~ [EUR/M~ SE1      10 ESN    2019-04-20 05:00:00  N(43, 11)  42.6
+#>  7 Day-ahead Pr~ [EUR/M~ SE1      10 ESN    2019-04-20 06:00:00  N(43, 11)  43.3
+#>  8 Day-ahead Pr~ [EUR/M~ SE1      10 ESN    2019-04-20 07:00:00 N(43, 9.7)  42.9
+#>  9 Day-ahead Pr~ [EUR/M~ SE1      10 ESN    2019-04-20 08:00:00  N(42, 11)  42.2
+#> 10 Day-ahead Pr~ [EUR/M~ SE1      10 ESN    2019-04-20 09:00:00  N(42, 11)  41.9
+#> # ... with 38 more rows
 ```
 
 ### Visualize
 
 ``` r
+actuals <- data %>%
+  filter_index("2019-04-10" ~ .)
+
 fcsts %>%
   autoplot(
-    rbind(data_train, data_test),
+    actuals,
     level = NULL,
     size = 1)
 ```

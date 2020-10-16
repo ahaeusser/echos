@@ -35,6 +35,7 @@ devtools::install_github("ahaeusser/echos")
 ### Load packages
 ```{r packages, warning=FALSE, message=FALSE}
 library(echos)
+library(tscv)
 library(dplyr)
 library(tsibble)
 library(fabletools)
@@ -44,43 +45,55 @@ Sys.setlocale("LC_TIME", "C")
 
 ### Prepare data
 ```{r data}
-n_train <- 130  # training window
-n_ahead <- 12   # testing window (forecast horizon)
 
-# Prepare data as tsibble
-data <- AirPassengers %>%
-  as_tsibble() %>%
-  rename(
-    Date = index,
-    Passengers = value)
+# Prepare dataset
+data <- elec_price %>%
+  tscv::clean_data()
 
-# Training data
-data_train <- data %>%
-  slice(1:n_train)
+# Setup for time series cross validation
+n_init <- 2400   # size for training window
+n_ahead <- 24    # size for testing window (forecast horizon)
+mode <- "slide"  # fixed window approach
+n_skip <- 23     # skip 23 observations
+n_lag <- 0       # no lag
 
-data_train
+data <- data %>%
+  tscv::split_data(
+    n_init = n_init,
+    n_ahead = n_ahead,
+    mode = mode,
+    n_skip = n_skip,
+    n_lag = n_lag)
 
-# Testing data
-data_test <- data %>%
-  slice((n_train + 1):(n_train + n_ahead))
+# Use only a small sample of data
+data <- data %>%
+  filter(BZN == "SE1") %>%
+  filter(split == 10)
 
-data_test
+data
 ```
 
 ### Model
 ```{r model}
 # Train models
-models <- data_train %>%
+models <- data %>%
+  filter(sample == "train") %>%
   model(
-    esn = ESN(Passengers),
-    arima = ARIMA(Passengers),
-    ets = ETS(Passengers))
+    "ESN" = ESN(
+      Value,
+      inf_crit = "BIC",
+      max_lag = 6,
+      n_fourier = c(3, 3),
+      n_initial = 50,
+      n_res = 200,
+      scale_inputs = c(-1, 1)),
+    "sNaive" = SNAIVE(Value ~ lag("week")))
 
 models
 
 # Detailed report of ESN
 models %>%
-  select(esn) %>%
+  select(ESN) %>%
   report()
 
 ```
@@ -96,9 +109,12 @@ fcsts
 
 ### Visualize
 ```{r plot}
+actuals <- data %>%
+  filter_index("2019-04-10" ~ .)
+
 fcsts %>%
   autoplot(
-    rbind(data_train, data_test),
+    actuals,
     level = NULL,
     size = 1)
 ```
