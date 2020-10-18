@@ -73,7 +73,7 @@ auto_esn <- function(data,
   
   lower <- c(
     alpha = 0,
-    rho = 0.5,
+    rho = 0.25, # 0.5
     lambda = 0.1,
     scale_runif = 1e-8)
   
