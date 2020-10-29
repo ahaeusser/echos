@@ -45,7 +45,8 @@ auto_esn <- function(data,
   
   n_diff <- ur$n_diff
   
-  lags <- list(c(seq(1:max_lag), period))
+  # lags <- list(c(seq(1:max_lag), period))
+  lags <- list(c(seq(1:max_lag), period, 48, 72))
   
   model_inputs <- select_inputs(
     data = data,
