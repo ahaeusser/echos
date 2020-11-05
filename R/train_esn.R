@@ -184,9 +184,9 @@ train_esn <- function(data,
   yt <- y[((n_initial + 1 + (n_total - n_train)):nrow(y)), , drop = FALSE]
   
   # Linear observation weights within the interval [1, 2]
-  # obs_weights <- (0:(nrow(Xt) - 1)) * (1 / (nrow(Xt) - 1)) + 1
+  obs_weights <- (0:(nrow(Xt) - 1)) * (1 / (nrow(Xt) - 1)) + 1
   # Equal observation weights
-  obs_weights <- rep(1, nrow(Xt))
+  # obs_weights <- rep(1, nrow(Xt))
   
   # Train linear model via ridge regression
   model <- train_ridge(
