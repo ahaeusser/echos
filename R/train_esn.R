@@ -98,7 +98,7 @@ train_esn <- function(data,
   }
   
   # Create fourier terms (trigonometric terms) as matrix
-  if (all(n_fourier == 0)) {
+  if (is.null(n_fourier)) {
     y_seas <- NULL
   } else {
     y_seas <- create_fourier(
@@ -122,7 +122,7 @@ train_esn <- function(data,
     y_seas)
   
   # Drop NAs for training
-  inputs <- inputs[complete.cases(inputs), ]
+  inputs <- inputs[complete.cases(inputs), , drop = FALSE]
   
   # Number of observations (total)
   n_total <- nrow(y)

@@ -247,8 +247,7 @@ create_grid_fourier <- function(n_fourier,
     mat <- matrix(
       data = 0,
       nrow = n_fourier[j],
-      ncol = n_fourier[j]
-    )
+      ncol = n_fourier[j])
     
     # Fill lower triangular with ones
     mat[lower.tri(mat, diag = TRUE)] <- 1
@@ -271,8 +270,12 @@ create_grid_fourier <- function(n_fourier,
     blocks[[j]] <- mat
   }
   
-  # Merge matrices
-  blocks <- as_tibble(do.call(merge, blocks))
+  # Merge matrices for multiple periods or extract just the matrix
+  if (length(period) > 1) {
+    blocks <- as_tibble(do.call(merge, blocks))
+  } else {
+    blocks <- as_tibble(blocks[[1]])
+  }
   return(blocks)
 }
 
@@ -634,7 +637,7 @@ select_inputs <- function(data,
   }
   
   # Create fourier terms (trigonometric terms) as matrix
-  if (all(n_fourier == 0)) {
+  if (is.null(n_fourier)) {
     y_seas <- NULL
   } else {
     y_seas <- create_fourier(
@@ -658,7 +661,7 @@ select_inputs <- function(data,
     y_seas)
   
   # Drop NAs for training
-  inputs <- inputs[complete.cases(inputs), ]
+  inputs <- inputs[complete.cases(inputs), , drop = FALSE]
   
   # Number of observations (total)
   n_total <- nrow(y)
@@ -690,13 +693,17 @@ select_inputs <- function(data,
   # Drop first row (white noise model)
   model_grid <- model_grid[-c(1), ]
   
-  # Create grid of fourier terms
-  grid_fourier <- create_grid_fourier(
-    n_fourier = n_fourier,
-    period = period)
-  
-  # Combine const, lags and fourier terms
-  model_grid <- merge(model_grid, grid_fourier)
+  # Add fourier terms
+  if (is.null(n_fourier)) {
+    grid_fourier <- NULL
+  } else {
+    # Create grid of fourier terms
+    grid_fourier <- create_grid_fourier(
+      n_fourier = n_fourier,
+      period = period)
+    # Combine const, lags and fourier terms
+    model_grid <- merge(model_grid, grid_fourier)
+  }
   
   # Number of combinations
   n_models <- nrow(model_grid)
@@ -733,33 +740,73 @@ select_inputs <- function(data,
       names_to = "input",
       values_to = "usage")
   
+  
+  if (const == TRUE) {
+    input_const <- tibble(
+      input = colnames(y_const),
+      type = "const")
+  } else {
+    input_const <- NULL
+  }
+  
+  if (!is.null(lags)) {
+    input_lag <- tibble(
+      input = colnames(y_lag),
+      type = "lag")
+  } else {
+    input_lag <- NULL
+  }
+  
+  if (!is.null(n_fourier)) {
+    input_seas <- tibble(
+      input = colnames(y_seas),
+      type = "fourier")
+  } else {
+    input_seas <- NULL
+  }
+  
+  input_types <- bind_rows(
+    input_const,
+    input_lag,
+    input_seas)
+  
+  model_inputs <- left_join(
+    x = model_inputs,
+    y = input_types,
+    by = "input")
+  
+  
   # Check for constant term
-  const <- model_inputs %>%
-    filter(input == "const") %>%
-    mutate(usage = ifelse(usage == 1, TRUE, FALSE)) %>%
-    pull(usage)
+  if (const == TRUE) {
+    const <- model_inputs %>%
+      filter(type == "const") %>%
+      mutate(value = ifelse(usage == 1, TRUE, FALSE)) %>%
+      pull(value)
+  }
   
   # Check for relevant lags
-  lags <- model_inputs %>%
-    filter(!input == "const") %>%
-    filter(!grepl('sin|cos', input)) %>%
-    filter(usage == 1) %>%
-    pull(input) %>%
-    parse_number() %>%
-    list()
+  if (!is.null(lags)) {
+    lags <- model_inputs %>%
+      filter(type == "lag") %>%
+      filter(usage == 1) %>%
+      mutate(value = str_nth_number(input, n = 1)) %>%
+      pull(value) %>%
+      list()
+  }
   
   # Check for fourier terms
-  n_fourier <- model_inputs %>%
-    filter(!input == "const") %>%
-    filter(grepl('sin|cos', input)) %>%
-    mutate(n_fourier = as.integer(unlist(map(regmatches(input, gregexpr("[[:digit:]]+", input)), 1)))) %>%
-    mutate(period = as.integer(unlist(map(regmatches(input, gregexpr("[[:digit:]]+", input)), 2)))) %>%
-    mutate(flag = usage * n_fourier) %>%
-    group_by(period) %>%
-    summarise(
-      n_fourier = max(flag, na.rm = TRUE),
-      .groups = "drop") %>%
-    pull(n_fourier)
+  if (!is.null(n_fourier)) {
+    n_fourier <- model_inputs %>%
+      filter(type == "fourier") %>%
+      mutate(value = str_nth_number(input, n = 1)) %>%
+      mutate(period = str_nth_number(input, n = 2)) %>%
+      mutate(flag = usage * value) %>%
+      group_by(period) %>%
+      summarise(
+        value = max(flag, na.rm = TRUE),
+        .groups = "drop") %>%
+      pull(value)
+  }
   
   # Store and return
   model_inputs <- list(
