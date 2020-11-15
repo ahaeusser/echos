@@ -7,7 +7,7 @@
 fbl_train_esn(
   .data,
   specials,
-  max_lag = 6,
+  max_lag = NULL,
   n_initial = 10,
   n_res = 200,
   n_fourier = NULL,

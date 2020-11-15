@@ -12,7 +12,7 @@
 
 fbl_train_esn <- function(.data,
                           specials,
-                          max_lag = 6,
+                          max_lag = NULL,
                           n_initial = 10,
                           n_res = 200,
                           n_fourier = NULL,
@@ -38,6 +38,11 @@ fbl_train_esn <- function(.data,
   # Maximum seasonal period which is feasible
   period <- common_periods(.data)
   period <- sort(as.numeric(period[period < n_obs]))
+  
+  # Default maximum non-seasonal lag to minimum seasonal period minus one
+  if (is.null(max_lag)) {
+    max_lag <- min(period) - 1
+  }
   
   # # Extract specials ==========================================================
   # 
