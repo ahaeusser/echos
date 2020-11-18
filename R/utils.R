@@ -708,6 +708,9 @@ select_inputs <- function(data,
   # Number of combinations
   n_models <- nrow(model_grid)
   
+  # Ensure feasibility of fourier terms
+  model_grid <- model_grid[, colnames(Xt)]
+  
   # Train models via least squares
   model_metrics <- 1:n_models %>% map_dfr(
     .f = function(n) {
