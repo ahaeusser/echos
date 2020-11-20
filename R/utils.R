@@ -788,17 +788,20 @@ select_inputs <- function(data,
   }
   
   # Check for relevant lags
-  if (!is.null(lags)) {
+  if (any(filter(model_inputs, type == "lag")$usage != 0)) {
     lags <- model_inputs %>%
       filter(type == "lag") %>%
       filter(usage == 1) %>%
       mutate(value = str_nth_number(input, n = 1)) %>%
       pull(value) %>%
       list()
+  } else {
+    # If usage is zero for all lags, at least lag one is used
+    lags <- list(c(1))
   }
   
   # Check for fourier terms
-  if (!is.null(n_fourier)) {
+  if (any(filter(model_inputs, type == "fourier")$usage != 0)) {
     n_fourier <- model_inputs %>%
       filter(type == "fourier") %>%
       mutate(value = str_nth_number(input, n = 1)) %>%
@@ -809,6 +812,8 @@ select_inputs <- function(data,
         value = max(flag, na.rm = TRUE),
         .groups = "drop") %>%
       pull(value)
+  } else {
+    n_fourier <- NULL
   }
   
   # Store and return
