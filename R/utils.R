@@ -672,9 +672,9 @@ select_inputs <- function(data,
   # Create output layer (train model) =========================================
   
   # Concatenate inputs and reservoir
-  X <- inputs
+  Xt <- inputs
   # Adjust response and design matrix for initial throw-off and lag-length
-  Xt <- X[((n_initial + 1):nrow(X)), , drop = FALSE]
+  Xt <- Xt[((n_initial + 1):nrow(Xt)), , drop = FALSE]
   yt <- y[((n_initial + 1 + (n_total - n_train)):nrow(y)), , drop = FALSE]
   
   # Linear observation weights within the interval [1, 2]
