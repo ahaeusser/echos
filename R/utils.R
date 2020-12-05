@@ -577,6 +577,143 @@ inv_diff_vec <- function(y,
 
 
 
+#' Create random grid of constant terms
+#' 
+#' @description The function creates a \code{tibble} with random combinations
+#'    of constant terms (sampling with replacement). The number of combinations (rows)
+#'    is given by \code{n_sample} and the number of columns is always one.
+#'
+#' @param y_const Numeric matrix. The result of a call to \code{create_const()}.
+#' @param n_sample Integer value. The number of random samples.
+#'
+#' @return out Random grid of constant terms as \code{tibble}. 
+#' @export
+
+random_const <- function(y_const,
+                         n_sample = 5000) {
+  out <- matrix(
+    data = sample(
+      x = c(0, 1),
+      size = n_sample,
+      replace = TRUE),
+    nrow = n_sample,
+    ncol = 1,
+    dimnames = list(c(), colnames(y_const)))
+  
+  out <- as_tibble(out)
+  return(out)
+}
+
+
+
+#' Create random grid of lags
+#' 
+#' @description The function creates a \code{tibble} with random combinations
+#'    of lags (sampling with replacement). The number of combinations (rows)
+#'    is given by \code{n_sample} and the number of columns is determined by
+#'    \code{y_lag}.
+#'
+#' @param y_lag Numeric matrix. The result of a call to \code{create_lags()}.
+#' @param n_sample Integer value. The number of random samples.
+#'
+#' @return out Random grid of lags as \code{tibble}. 
+#' @export
+
+random_lags <- function(y_lag,
+                        n_sample = 5000) {
+  
+  out <- matrix(
+    data = 0,
+    nrow = n_sample,
+    ncol = ncol(y_lag),
+    dimnames = list(c(), colnames(y_lag)))
+  
+  for (i in seq_len(n_sample)) {
+    index <- sort(sample(
+      x = seq_len(ncol(y_lag)),
+      size = sample(
+        x = seq_len(ncol(y_lag)),
+        size = 1),
+      replace = FALSE))
+    out[i, index] <- 1
+  }
+  
+  out <- as_tibble(out)
+  return(out)
+}
+
+
+
+
+#' Create random grid of fourier terms
+#' 
+#' @description The function creates a \code{tibble} with random combinations
+#'    of fourier terms (sampling with replacement). The number of combinations
+#'    (rows) is given by \code{n_sample} and the number of columns is
+#'    determined by \code{n_fourier} and \code{period}.
+#'
+#' @param n_fourier Integer vector. The number of fourier terms per seasonal period.
+#' @param period Integer vector. The seasonal periods.
+#' @param n_sample Integer value. The number of random samples.
+#'
+#' @return out Random grid of fourier terms as \code{tibble}. 
+#' @export
+
+random_fourier <- function(n_fourier,
+                           period,
+                           n_sample = 5000) {
+  # Initialize empty list
+  out <- vector(
+    mode = "list",
+    length = length(period)
+  )
+  
+  # Create matrices with zeros and ones as blocks
+  for (j in 1:length(period)) {
+    
+    # Initialize matrix with zeros
+    mat <- matrix(
+      data = 0,
+      nrow = n_fourier[j],
+      ncol = n_fourier[j])
+    
+    # Fill lower triangular with ones
+    mat[lower.tri(mat, diag = TRUE)] <- 1
+    
+    # Repeat each column two times (one for sine and one for cosine)
+    mat <- matrix(
+      data = rep(mat, each = 2),
+      ncol = 2 * ncol(mat), 
+      byrow = TRUE)
+    
+    # Add row with zeros and flip matrix
+    mat <- rbind(mat, 0)
+    mat <- rotate(rotate(mat))
+    
+    colnames(mat) <- paste0(
+      paste0(c("sin(", "cos("), rep(1:n_fourier[j], rep(2, n_fourier[j]))),
+      "-", round(period[j]), ")")
+    
+    # Store matrices in list
+    out[[j]] <- mat
+  }
+  
+  # Merge matrices for multiple periods or extract just the matrix
+  if (length(period) > 1) {
+    out <- do.call(merge, out)
+  } else {
+    out <- out[[1]]
+  }
+  
+  out <- out %>%
+    as_tibble() %>%
+    sample_n(
+      size = n_sample,
+      replace = TRUE)
+  return(out)
+}
+
+
 
 
 #' @title Model selection
@@ -672,9 +809,9 @@ select_inputs <- function(data,
   # Create output layer (train model) =========================================
   
   # Concatenate inputs and reservoir
-  Xt <- inputs
+  X <- inputs
   # Adjust response and design matrix for initial throw-off and lag-length
-  Xt <- Xt[((n_initial + 1):nrow(Xt)), , drop = FALSE]
+  Xt <- X[((n_initial + 1):nrow(X)), , drop = FALSE]
   yt <- y[((n_initial + 1 + (n_total - n_train)):nrow(y)), , drop = FALSE]
   
   # Linear observation weights within the interval [1, 2]
@@ -682,41 +819,41 @@ select_inputs <- function(data,
   # Equal observation weights
   obs_weights <- rep(1, nrow(Xt))
   
-  # Prepare model grid
-  names_inputs <- c(colnames(y_const), colnames(y_lag))
-  n_inputs <- length(names_inputs)
   
-  # Create named list with input names and vector with 0 and 1
-  model_grid <- setNames(rep(list(c(0, 1)), n_inputs), names_inputs)
-  # Create all possible combinations of the inputs as tibble
-  model_grid <- cross_df(model_grid)
-  # Drop first row (white noise model)
-  model_grid <- model_grid[-c(1), ]
   
-  # Add fourier terms
-  if (is.null(n_fourier)) {
-    grid_fourier <- NULL
-  } else {
-    # Create grid of fourier terms
-    grid_fourier <- create_grid_fourier(
-      n_fourier = n_fourier,
-      period = period)
-    # Combine const, lags and fourier terms
-    model_grid <- merge(model_grid, grid_fourier)
-  }
+  # Create random grid ========================================================
   
-  # Number of combinations
-  n_models <- nrow(model_grid)
+  n_sample <- 5000
+  set.seed(42)
+  
+  grid_const <- random_const(
+    y_const = y_const,
+    n_sample = n_sample)
+  
+  grid_lags <- random_lags(
+    y_lag = y_lag,
+    n_sample = n_sample)
+  
+  grid_fourier <- random_fourier(
+    n_fourier = n_fourier,
+    period = period,
+    n_sample = n_sample)
+  
+  random_grid <- bind_cols(
+    grid_const,
+    grid_lags,
+    grid_fourier) %>%
+    distinct()
   
   # Ensure feasibility of fourier terms
-  model_grid <- model_grid[, colnames(Xt)]
+  random_grid <- random_grid[, colnames(Xt)]
   
   # Train models via least squares
-  model_metrics <- 1:n_models %>% map_dfr(
+  model_metrics <- 1:nrow(random_grid) %>% map_dfr(
     .f = function(n) {
       # Train individual models
       model <- train_ridge(
-        X = Xt[, which(model_grid[n, ] == 1), drop = FALSE],
+        X = Xt[, which(random_grid[n, ] == 1), drop = FALSE],
         y = yt,
         lambda = 0,
         weights = obs_weights)
@@ -735,6 +872,8 @@ select_inputs <- function(data,
     mutate(id = row_number(), .before = df) %>%
     slice(which.min(!!sym(inf_crit)))
   
+  model_grid <- random_grid
+  
   # Filter for optimal model and transpose to long format
   model_inputs <- model_grid %>%
     slice(model_metrics$id) %>%
@@ -742,7 +881,6 @@ select_inputs <- function(data,
       cols = everything(),
       names_to = "input",
       values_to = "usage")
-  
   
   if (const == TRUE) {
     input_const <- tibble(
