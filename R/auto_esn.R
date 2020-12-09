@@ -21,7 +21,7 @@
 auto_esn <- function(data,
                      period,
                      max_lag = 6,
-                     n_fourier = c(3, 3),
+                     n_fourier = NULL,
                      n_initial = 10,
                      n_res = 200,
                      density = 0.1,
@@ -45,7 +45,7 @@ auto_esn <- function(data,
   
   n_diff <- ur$n_diff
   
-  lags <- list(c(seq(1:max_lag), 48, 72, period))
+  lags <- list(c(seq(1:max_lag), period))
   
   model_inputs <- select_inputs(
     data = data,
