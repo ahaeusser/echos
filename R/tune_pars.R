@@ -1,10 +1,12 @@
 
-#' @title Loss function for minimization.
+#' @title Estimate information criterion for hyperparameter tuning.
 #' 
-#' @description This function calculates the loss (information criterion) for minimization. 
+#' @description This function estimates the information criterion for hyperparameter
+#'    tuning. The function returns a numeric value (= information criterion), which
+#'    is then minimized within a call to \code{optim()} for varying hyperparameters. 
 #'
 #' @param data A \code{tsibble} containing the time series data.
-#' @param par Numeric vector containing the hyperparameters.
+#' @param pars Numeric vector containing the hyperparameters.
 #' @param lags A list containing integer vectors with the lags associated with each output variable.
 #' @param n_fourier Integer vector. The number of fourier terms (seasonal cycles per period).
 #' @param period Integer vector. The periodicity of the time series (e.g. for monthly data \code{period = c(12)}, for hourly data \code{period = c(24, 168)}).
@@ -14,32 +16,34 @@
 #' @param n_initial Integer value. The number of observations of internal states for initial drop out (throw-off).
 #' @param n_seed Integer value. The seed for the random number generator (for reproducibility).
 #' @param density Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).
-#' @param inf_crit Character value. The information criterion \code{inf_crit = c("AIC", "BIC", "HQ")}.
+#' @param inf_crit Character value. The information criterion \code{inf_crit = c("aic", "bic", "hq")}.
 #' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data.
 #'
-#' @return loss Numeric value to be minimized.
+#' @return out Numeric value. The information criterion to be minimized.
+
 #' @export
 
-min_loss <- function(data,
-                     par,
-                     lags,
-                     n_fourier,
-                     period,
-                     const = TRUE,
-                     n_diff = 0,
-                     n_res = 200,
-                     n_initial = 10,
-                     n_seed = 42,
-                     density = 0.1,
-                     inf_crit = "HQ",
-                     scale_inputs = c(-1, 1)) {
+tune_pars <- function(data,
+                      pars,
+                      lags,
+                      n_fourier,
+                      period,
+                      const = TRUE,
+                      n_diff = 0,
+                      n_res = 200,
+                      n_initial = 10,
+                      n_seed = 42,
+                      density = 0.1,
+                      inf_crit = "bic",
+                      scale_inputs = c(-1, 1)) {
   
   # Pre-processing ============================================================
   
-  alpha <- par[1]
-  rho <- par[2]
-  lambda <- par[3]
-  scale_runif <- c(-par[4], par[4])
+  alpha <- pars[1]
+  rho <- pars[2]
+  lambda <- pars[3]
+  # scale_runif <- c(-pars[4], pars[4])
+  scale_runif <- c(-0.5, 0.5)
   
   # Prepare constants as integers
   n_res <- as.integer(n_res)
@@ -79,6 +83,14 @@ min_loss <- function(data,
   
   # Create input layer ========================================================
   
+  # Create constant term (intercept term) as matrix
+  if (const == FALSE) {
+    y_const <- NULL
+  } else {
+    y_const <- create_const(
+      n_obs = nrow(y))
+  }
+  
   # Create lagged variables as matrix
   if (is.null(lags)) {
     y_lag <- NULL
@@ -96,14 +108,6 @@ min_loss <- function(data,
       times = 1:nrow(y),
       n_fourier = n_fourier,
       period = period)
-  }
-  
-  # Create constant term (intercept term) as matrix
-  if (const == FALSE) {
-    y_const <- NULL
-  } else {
-    y_const <- create_const(
-      n_obs = nrow(y))
   }
   
   # Concatenate input matrices
@@ -186,18 +190,8 @@ min_loss <- function(data,
     lambda = lambda,
     weights = obs_weights)
  
-  # Information criteria
-  aic <- model$aic
-  bic <- model$bic
-  hq <- model$hq
+  # Extract information criterion
+  out <- model[[inf_crit]]
   
-  if (inf_crit == "AIC") {
-    loss <- model$aic
-  } else if (inf_crit == "BIC") {
-    loss <- model$bic
-  } else if (inf_crit == "HQ") {
-    loss <- model$hq
-  }
-  
-  return(loss)
+  return(out)
 }
