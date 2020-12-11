@@ -20,6 +20,7 @@ fbl_train_esn <- function(.data,
                           density = 0.1,
                           scale_inputs = c(-1, 1),
                           inf_crit = "BIC",
+                          n_sample = 5000,
                           ...) {
   
   # Number of response variables
@@ -84,7 +85,8 @@ fbl_train_esn <- function(.data,
     n_res = n_res,
     density = density,
     scale_inputs = scale_inputs,
-    inf_crit = inf_crit
+    inf_crit = inf_crit,
+    n_sample = n_sample
   )
   
   # Extract actual values and fitted values

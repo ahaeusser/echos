@@ -15,6 +15,7 @@ fbl_train_esn(
   density = 0.1,
   scale_inputs = c(-1, 1),
   inf_crit = "BIC",
+  n_sample = 5000,
   ...
 )
 }

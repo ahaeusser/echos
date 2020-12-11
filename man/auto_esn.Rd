@@ -13,7 +13,8 @@ auto_esn(
   n_res = 200,
   density = 0.1,
   scale_inputs = c(-1, 1),
-  inf_crit = "BIC"
+  inf_crit = "BIC",
+  n_sample = 5000
 )
 }
 \arguments{
@@ -32,6 +33,8 @@ auto_esn(
 \item{scale_inputs}{Numeric vector. The lower and upper bound for scaling the time series data.}
 
 \item{inf_crit}{Character value. The information criterion \code{inf_crit = c("AIC", "BIC", "HQ")}.}
+
+\item{n_sample}{Integer value. The number of random samples for random search.}
 
 \item{.data}{A \code{tsibble} containing the time series data.}
 }

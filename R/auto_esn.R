@@ -13,6 +13,7 @@
 #' @param density Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).
 #' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data.
 #' @param inf_crit Character value. The information criterion \code{inf_crit = c("AIC", "BIC", "HQ")}.
+#' @param n_sample Integer value. The number of random samples for random search.
 #'
 #' @return An object of class \code{ESN}.
 #' 
@@ -26,7 +27,8 @@ auto_esn <- function(data,
                      n_res = 200,
                      density = 0.1,
                      scale_inputs = c(-1, 1),
-                     inf_crit = "BIC") {
+                     inf_crit = "BIC",
+                     n_sample = 5000) {
   
   # Set seed for reproducibility
   n_seed <- 42
@@ -52,11 +54,11 @@ auto_esn <- function(data,
     lags = lags,
     n_fourier = n_fourier,
     period = period,
-    const = const,
     n_diff = n_diff,
     n_initial = n_initial,
     scale_inputs = scale_inputs,
-    inf_crit = inf_crit)
+    inf_crit = inf_crit,
+    n_sample = n_sample)
   
   const <- model_inputs$const
   lags <- model_inputs$lags
