@@ -19,7 +19,7 @@ fbl_train_esn <- function(.data,
                           n_seed = 42,
                           density = 0.1,
                           scale_inputs = c(-1, 1),
-                          inf_crit = "BIC",
+                          inf_crit = "bic",
                           n_sample = 5000,
                           ...) {
   

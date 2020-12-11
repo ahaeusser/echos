@@ -12,7 +12,7 @@
 #' @param n_res Integer value. The number of internal states within the reservoir (hidden layer).
 #' @param density Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).
 #' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data.
-#' @param inf_crit Character value. The information criterion \code{inf_crit = c("AIC", "BIC", "HQ")}.
+#' @param inf_crit Character value. The information criterion \code{inf_crit = c("aic", "bic", "hq")}.
 #' @param n_sample Integer value. The number of random samples for random search.
 #'
 #' @return An object of class \code{ESN}.
@@ -27,7 +27,7 @@ auto_esn <- function(data,
                      n_res = 200,
                      density = 0.1,
                      scale_inputs = c(-1, 1),
-                     inf_crit = "BIC",
+                     inf_crit = "bic",
                      n_sample = 5000) {
   
   # Set seed for reproducibility
@@ -67,7 +67,7 @@ auto_esn <- function(data,
   # Hyperparameter optimization ===============================================
   
   # Starting values and lower and upper bounds (box constraints)
-  par <- c(
+  pars <- c(
     alpha = 0.8,
     rho = 1,
     lambda = 1,
@@ -87,8 +87,8 @@ auto_esn <- function(data,
   
   # Find optimal hyperparameters
   opt <- optim(
-    par = par,
-    fn = min_loss,
+    par = pars,
+    fn = tune_pars,
     lower = lower,
     upper = upper,
     method = "L-BFGS-B",

@@ -11,7 +11,7 @@
 #' @param n_diff Integer vector. The number of non-seasonal differences.
 #' @param n_initial Integer value. The number of observations of internal states for initial drop out (throw-off).
 #' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data.
-#' @param inf_crit Character value. The information criterion \code{inf_crit = c("AIC", "BIC", "HQ")}.
+#' @param inf_crit Character value. The information criterion \code{inf_crit = c("aic", "bic", "hq")}.
 #' @param n_sample Integer value. The number of random samples for random search.
 #'
 #' @return A list with const (intercept term), lags (lags for input variables)
@@ -150,9 +150,9 @@ select_inputs <- function(data,
       # Store model metrics
       model_metrics <- tibble(
         df = model$df,
-        AIC = model$aic,
-        BIC = model$bic,
-        HQ = model$hq)
+        aic = model$aic,
+        bic = model$bic,
+        hq = model$hq)
     }
   )
   
