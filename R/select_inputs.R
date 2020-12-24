@@ -27,7 +27,8 @@ select_inputs <- function(data,
                           n_initial,
                           scale_inputs,
                           inf_crit,
-                          n_sample) {
+                          n_sample,
+                          n_seed) {
   
   # Pre-processing ============================================================
   
@@ -104,7 +105,7 @@ select_inputs <- function(data,
   # Create random grid ========================================================
   
   # Set seed for reproducibility
-  set.seed(42)
+  set.seed(n_seed)
   
   grid_const <- random_const(
     y_const = y_const,

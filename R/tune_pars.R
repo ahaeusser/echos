@@ -169,11 +169,11 @@ tune_pars <- function(data,
   
   colnames(states_train) <- names_states
   
-  
   # Create output layer (train model) =========================================
   
   # Concatenate inputs and reservoir
   Xt <- cbind(inputs, states_train)
+  
   # Adjust response and design matrix for initial throw-off and lag-length
   Xt <- Xt[((n_initial + 1):nrow(Xt)), , drop = FALSE]
   yt <- y[((n_initial + 1 + (n_total - n_train)):nrow(y)), , drop = FALSE]

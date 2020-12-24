@@ -18,6 +18,7 @@ train_esn(
   alpha = 0.85,
   lambda = 12,
   density = 0.1,
+  weights = NULL,
   scale_runif = c(-0.5, 0.5),
   scale_inputs = c(-1, 1)
 )

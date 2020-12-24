@@ -45,6 +45,7 @@ train_esn <- function(data,
                       alpha = 0.85,
                       lambda = 12,
                       density = 0.1,
+                      weights = NULL,
                       scale_runif = c(-0.5, 0.5),
                       scale_inputs = c(-1, 1)) {
   
@@ -179,6 +180,7 @@ train_esn <- function(data,
   
   # Concatenate inputs and reservoir
   Xt <- cbind(inputs, states_train)
+  
   # Adjust response and design matrix for initial throw-off and lag-length
   Xt <- Xt[((n_initial + 1):nrow(Xt)), , drop = FALSE]
   yt <- y[((n_initial + 1 + (n_total - n_train)):nrow(y)), , drop = FALSE]
@@ -186,14 +188,18 @@ train_esn <- function(data,
   # Linear observation weights within the interval [1, 2]
   # obs_weights <- (0:(nrow(Xt) - 1)) * (1 / (nrow(Xt) - 1)) + 1
   # Equal observation weights
-  obs_weights <- rep(1, nrow(Xt))
+  
+  if (is.null(weights)) {
+    weights <- rep(1, nrow(Xt))
+  }
+  
   
   # Train linear model via ridge regression
   model <- train_ridge(
     X = Xt,
     y = yt,
     lambda = lambda,
-    weights = obs_weights)
+    weights = weights)
   
   # Extract coefficients (output weight matrix)
   wout <- model$wout
@@ -201,11 +207,11 @@ train_esn <- function(data,
   yhat <- model$yhat
   res <- model$res
   
-  # Adjust column- and rownames of wout
+  # Adjust column- and row names of wout
   colnames(wout) <- names_outputs
   rownames(wout) <- colnames(Xt)
   
-  # Adjust column names of actuals, fitted and residuals
+  # Adjust column names of actual values, fitted and residuals
   colnames(yt) <- names_outputs
   colnames(yhat) <- names_outputs
   colnames(res) <- names_outputs
@@ -327,6 +333,8 @@ train_esn <- function(data,
       fitted = fitted,
       resid = resid,
       states_train = states_train,
-      method = method),
+      method = method,
+      Xt = Xt,
+      yt = yt),
     class = "ESN")
 }

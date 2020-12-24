@@ -86,7 +86,8 @@ fbl_train_esn <- function(.data,
     density = density,
     scale_inputs = scale_inputs,
     inf_crit = inf_crit,
-    n_sample = n_sample
+    n_sample = n_sample,
+    n_seed = n_seed
   )
   
   # Extract actual values and fitted values
@@ -212,7 +213,7 @@ model_sum.ESN <- function(x){
 #' @param object Trained model
 #' @param new_data Forecast horizon
 #' @param specials NULL
-#' @param ... Further arguments passed toi bla
+#' @param ... Further arguments passed to bla
 #' 
 #' @return A fable
 #' @export
@@ -221,6 +222,7 @@ forecast.ESN <- function(object,
                          new_data,
                          specials = NULL,
                          n_sim = 100,
+                         n_seed = 42,
                          ...) {
   # Extract model
   model_fit <- object$model
@@ -228,7 +230,8 @@ forecast.ESN <- function(object,
   # Forecast model
   model_fcst <- forecast_esn(
     object = model_fit,
-    n_ahead = nrow(new_data))
+    n_ahead = nrow(new_data),
+    n_seed = n_seed)
   
   # Extract point forecasts
   fcst_mean <- model_fcst$forecast[[".mean"]]

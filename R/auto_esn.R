@@ -25,13 +25,12 @@ auto_esn <- function(data,
                      n_fourier = NULL,
                      n_initial = 10,
                      n_res = 200,
+                     n_seed = 42,
                      density = 0.1,
                      scale_inputs = c(-1, 1),
                      inf_crit = "bic",
                      n_sample = 5000) {
   
-  # Set seed for reproducibility
-  n_seed <- 42
   # Set intercept term
   const <- TRUE
   
@@ -58,7 +57,8 @@ auto_esn <- function(data,
     n_initial = n_initial,
     scale_inputs = scale_inputs,
     inf_crit = inf_crit,
-    n_sample = n_sample)
+    n_sample = n_sample,
+    n_seed = n_seed)
   
   const <- model_inputs$const
   lags <- model_inputs$lags
@@ -75,7 +75,7 @@ auto_esn <- function(data,
   
   lower <- c(
     alpha = 0,
-    rho = 0.1, # 0.25, 0.5
+    rho = 0.1,
     lambda = 0.1,
     scale_runif = 1e-8)
   
@@ -101,7 +101,8 @@ auto_esn <- function(data,
     density = density,
     n_res = n_res,
     inf_crit = inf_crit,
-    scale_inputs = scale_inputs
+    scale_inputs = scale_inputs,
+    n_seed = n_seed
   )
   
   # Train final model =========================================================
@@ -123,5 +124,6 @@ auto_esn <- function(data,
     scale_inputs = scale_inputs,
     scale_runif = c(-opt$par[4], opt$par[4])
   )
+  
   return(model_fit)
 }

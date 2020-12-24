@@ -4,7 +4,7 @@
 \alias{forecast.ESN}
 \title{Forecast a trained ESN}
 \usage{
-\method{forecast}{ESN}(object, new_data, specials = NULL, n_sim = 100, ...)
+\method{forecast}{ESN}(object, new_data, specials = NULL, n_sim = 100, n_seed = 42, ...)
 }
 \arguments{
 \item{object}{Trained model}
@@ -13,7 +13,7 @@
 
 \item{specials}{NULL}
 
-\item{...}{Further arguments passed toi bla}
+\item{...}{Further arguments passed to bla}
 }
 \value{
 A fable

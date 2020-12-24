@@ -13,7 +13,8 @@ select_inputs(
   n_initial,
   scale_inputs,
   inf_crit,
-  n_sample
+  n_sample,
+  n_seed
 )
 }
 \arguments{
