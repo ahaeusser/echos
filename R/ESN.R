@@ -91,8 +91,8 @@ fbl_train_esn <- function(.data,
   )
   
   # Extract actual values and fitted values
-  fitted <- model_fit$fitted[[".fitted"]]
-  resid <- model_fit$resid[[".resid"]]
+  fitted <- model_fit[[1]]$fitted[[".fitted"]]
+  resid <- model_fit[[1]]$resid[[".resid"]]
   # Get length of time series and fitted values
   n_total <- nrow(.data)
   n_fitted <- length(fitted)
@@ -102,7 +102,7 @@ fbl_train_esn <- function(.data,
   resid <- c(rep(NA_real_, n_total - n_fitted), resid)
   
   # Model specification
-  model_spec <- model_fit$method$model_spec
+  model_spec <- model_fit[[1]]$method$model_spec
   
   # Return model
   structure(
@@ -221,33 +221,37 @@ model_sum.ESN <- function(x){
 forecast.ESN <- function(object,
                          new_data,
                          specials = NULL,
-                         n_sim = 100,
+                         n_sim = NULL,
                          n_seed = 42,
                          ...) {
-  # Extract model
-  model_fit <- object$model
   
-  # Forecast model
-  model_fcst <- forecast_esn(
-    object = model_fit,
-    n_ahead = nrow(new_data),
-    n_seed = n_seed)
+  # Forecast fitted models
+  model_fcst <- map_dfc(
+    .x = object$model,
+    .f = ~forecast_esn(
+      object = .x,
+      n_ahead = nrow(new_data),
+      n_sim = NULL)$forecast[[".mean"]]
+  )
   
-  # Extract point forecasts
-  fcst_mean <- model_fcst$forecast[[".mean"]]
+  # Estimate point forecasts of forecast distribution
+  fcst_point <- model_fcst %>%
+    mutate(
+      mean = pmap_dbl(., function(...) mean(c(...))),
+      median = pmap_dbl(., function(...) median(c(...))),
+      mode = pmap_dbl(., function(...) estimate_mode(c(...)))) %>%
+    select(mode) %>%
+    pull()
   
-  # Extract simulations
-  sim <- model_fcst$simulation %>%
-    select(-c(.response)) %>%
-    spread(
-      key = .path,
-      value = .mean)
-  
-  sim <- invoke(cbind, unclass(sim)[measured_vars(sim)])
-  fcst_sd <- rowSds(sim, na.rm = TRUE)
+  # Estimate standard deviation of forecast distribution
+  fcst_std <- model_fcst %>%
+    mutate(
+      std = pmap_dbl(., function(...) sd(c(...)))) %>%
+    select(std) %>%
+    pull()
   
   # Return forecast
-  dist_normal(fcst_mean, fcst_sd)
+  dist_normal(fcst_point, fcst_std)
   
 }
 

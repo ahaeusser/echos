@@ -28,6 +28,7 @@ auto_esn <- function(data,
                      n_seed = 42,
                      density = 0.1,
                      scale_inputs = c(-1, 1),
+                     scale_runif = c(-0.5, 0.5),
                      inf_crit = "bic",
                      n_sample = 5000) {
   
@@ -64,66 +65,43 @@ auto_esn <- function(data,
   lags <- model_inputs$lags
   n_fourier <- model_inputs$n_fourier
   
-  # Hyperparameter optimization ===============================================
+  # Ensemble modeling =========================================================
   
-  # Starting values and lower and upper bounds (box constraints)
-  pars <- c(
-    alpha = 0.8,
-    rho = 1,
-    lambda = 1,
-    scale_runif = 0.5)
+  # Expand a grid with varying hyperparameters
+  pars_alpha <- seq(0, 1, 0.25)
+  pars_rho <- seq(0.25, 2.5, 0.25)
+  pars_lambda <- c(1, 5, 10)
+  pars_density <- 0.1
   
-  lower <- c(
-    alpha = 0,
-    rho = 0.1,
-    lambda = 0.1,
-    scale_runif = 1e-8)
+  model_grid <- expand_grid(
+    alpha = pars_alpha,
+    rho = pars_rho,
+    lambda = pars_lambda,
+    density = pars_density)
   
-  upper <- c(
-    alpha = 1,
-    rho = 2, # 1.5
-    lambda = 100,
-    scale_runif = 5)
-  
-  # Find optimal hyperparameters
-  opt <- optim(
-    par = pars,
-    fn = tune_pars,
-    lower = lower,
-    upper = upper,
-    method = "L-BFGS-B",
-    data = data,
-    lags = lags,
-    const = const,
-    n_fourier = n_fourier,
-    period = period,
-    n_diff = n_diff,
-    density = density,
-    n_res = n_res,
-    inf_crit = inf_crit,
-    scale_inputs = scale_inputs,
-    n_seed = n_seed
+  # Train models for varying hyperparameters
+  model_fit <- map(
+    .x = seq_len(nrow(model_grid)),
+    .f = ~train_esn(
+      data = data,
+      lags = lags,
+      n_fourier = n_fourier,
+      period = period,
+      const = const,
+      n_diff = n_diff,
+      n_res = n_res,
+      n_initial = n_initial,
+      n_seed = n_seed,
+      alpha = model_grid$alpha[.x],
+      rho = model_grid$rho[.x],
+      lambda = model_grid$lambda[.x],
+      density = model_grid$density[.x],
+      scale_inputs = scale_inputs,
+      scale_runif = scale_runif)
   )
   
-  # Train final model =========================================================
-  
-  model_fit <- train_esn(
-    data = data,
-    lags = lags,
-    n_fourier = n_fourier,
-    period = period,
-    const = const,
-    n_diff = n_diff,
-    n_res = n_res,
-    n_initial = n_initial,
-    n_seed = n_seed,
-    alpha = opt$par[1],
-    rho = opt$par[2],
-    lambda = opt$par[3],
-    density = density,
-    scale_inputs = scale_inputs,
-    scale_runif = c(-opt$par[4], opt$par[4])
-  )
+  model_names <- paste0("model","(", formatC(seq_len(nrow(model_grid)), width = nchar(max(seq_len(nrow(model_grid)))), flag = "0"), ")")
+  names(model_fit) <- model_names
   
   return(model_fit)
 }

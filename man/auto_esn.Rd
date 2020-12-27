@@ -14,6 +14,7 @@ auto_esn(
   n_seed = 42,
   density = 0.1,
   scale_inputs = c(-1, 1),
+  scale_runif = c(-0.5, 0.5),
   inf_crit = "bic",
   n_sample = 5000
 )
