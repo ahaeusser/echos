@@ -1,12 +1,12 @@
 
 #' @importFrom purrr map map_dfr invoke cross_df
-#' @importFrom tidyr gather spread pivot_longer
+#' @importFrom tidyr gather spread pivot_longer expand_grid
 #' @importFrom strex str_nth_number
 #' @importFrom matrixStats colCumsums colDiffs colMins colMaxs rowSds
 #' @importFrom Matrix rsparsematrix
 #' @importFrom feasts unitroot_ndiffs unitroot_kpss
 #' @importFrom rlang is_empty .data abort
-#' @importFrom stats complete.cases diffinv na.omit optim pacf qnorm runif
+#' @importFrom stats complete.cases diffinv na.omit optim pacf qnorm runif density
 #' @importFrom utils tail
 #' @importFrom distributional dist_normal
 #' @import Rcpp
