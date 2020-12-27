@@ -984,3 +984,23 @@ simulate_esn <- function(win,
   })
   return(sim)
 }
+
+
+
+
+
+#' @title Calculates the mode of a distribution based on Kernel Density Estimation
+#' 
+#' @description Calculates the mode of a distribution based on Kernel Density Estimation.
+#'
+#' @param x Numeric vector.
+#' @param ... Further arguments passed to \code{stats::densitiy()}.
+#'
+#' @return mode Numeric value. The mode of the distribution.
+
+estimate_mode <- function(x, ...) {
+  object <- density(x = x, ...)
+  mode_id <- which.max(object$y)
+  mode <- object$x[mode_id]
+  return(mode)
+}
