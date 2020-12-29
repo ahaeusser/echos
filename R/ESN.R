@@ -1,7 +1,7 @@
 
 #' @title Automatic train an Echo State Network (ESN)
 #' 
-#' @description This function trains automatically an Echo State Network (ESN)
+#' @description This function trains an Echo State Network (ESN)
 #'   to a univariate time series.
 #'
 #' @param .data A \code{tsibble} containing the time series data.
@@ -30,7 +30,7 @@
 #'    \item{\code{lower}: Numeric vector. The lower bounds for \code{alpha}, \code{rho} and \code{lambda} used in the optimization.}
 #'    \item{\code{upper}: Numeric vector. The upper bounds for \code{alpha}, \code{rho} and \code{lambda} used in the optimization.}
 #'       }
-#' @param ... Currently not in use.
+#' @param ... Further arguments passed to \code{stats::optim()}
 #'
 #' @return
 #' @export
@@ -43,7 +43,7 @@ auto_esn <- function(.data,
                      n_initial = 10,
                      n_res = 200,
                      n_seed = 42,
-                     alpha = 0.8,
+                     alpha = 0.2,
                      rho = 1,
                      lambda = 1,
                      density = 0.1,
@@ -137,7 +137,8 @@ auto_esn <- function(.data,
       inf_crit = inf_crit,
       scale_inputs = scale_inputs,
       scale_runif = scale_runif,
-      n_seed = n_seed)
+      n_seed = n_seed,
+      ...)
     
     # Vector with optimized hyperparameters
     pars <- c(
@@ -200,7 +201,7 @@ specials_esn <- new_specials()
 
 #' @title Automatic train an Echo State Network (ESN)
 #' 
-#' @description This function trains automatically an Echo State Network (ESN)
+#' @description This function trains an Echo State Network (ESN)
 #'   to a univariate time series.
 #'
 #' @param formula Model specification (currently not in use).
@@ -225,12 +226,11 @@ ESN <- function(formula, ...){
 
 
 
-#' @title Extract fitted values from a trained ESN.
+#' @title Extract fitted values from a trained ESN
 #' 
 #' @description Extract fitted values from a trained ESN.
 #'
-#' @param object The time series model used to produce the forecast.
-#' @param ... Additional arguments passed to ...
+#' @param object An object of class \code{ESN}.
 #'
 #' @return
 #' @export
@@ -240,12 +240,11 @@ fitted.ESN <- function(object, ...){
 }
 
 
-#' @title Extract residuals from a trained ESN.
+#' @title Extract residuals from a trained ESN
 #' 
 #' @description Extract residuals from a trained ESN.
 #'
-#' @param object The time series model used to produce the forecast.
-#' @param ... Additional arguments passed to ...
+#' @param object An object of class \code{ESN}.
 #'
 #' @return
 #' @export
@@ -255,11 +254,11 @@ residuals.ESN <- function(object, ...){
 }
 
 
-#' @title Provide a succinct summary of a trained ESN.
+#' @title Provide a succinct summary of a trained ESN
 #' 
 #' @description Provide a succinct summary of a trained ESN.
 #'
-#' @param object The ESN to summarize.
+#' @param object An object of class \code{ESN}.
 #'
 #' @return
 #' @export
@@ -274,14 +273,16 @@ model_sum.ESN <- function(x){
 
 #' @title Forecast a trained ESN
 #' 
-#' @description Forecast a trained ESN
+#' @description Forecast a trained ESN.
 #' 
-#' @param object Trained model
-#' @param new_data Forecast horizon
-#' @param specials NULL
-#' @param ... Further arguments passed to bla
+#' @param object An object of class \code{ESN}.
+#' @param new_data Forecast horizon (n-step ahead forecast)
+#' @param specials Currently not in use
+#' @param n_sim Integer value. The number of future sample path to generate.
+#' @param n_seed Integer value. The seed for the random number generator (for reproducibility).
+#' @param ... Currently not in use.
 #' 
-#' @return A fable
+#' @return An object of class \code{fable}.
 #' @export
 
 forecast.ESN <- function(object,
@@ -297,10 +298,11 @@ forecast.ESN <- function(object,
   model_fcst <- forecast_esn(
     object = model_fit,
     n_ahead = nrow(new_data),
+    n_sim = n_sim,
     n_seed = n_seed)
   
   # Extract point forecasts
-  fcst_mean <- model_fcst$forecast[[".mean"]]
+  fcst_point <- model_fcst$forecast[[".mean"]]
   
   # Extract simulations
   sim <- model_fcst$simulation %>%
@@ -310,18 +312,27 @@ forecast.ESN <- function(object,
       value = .mean)
   
   sim <- invoke(cbind, unclass(sim)[measured_vars(sim)])
-  fcst_sd <- rowSds(sim, na.rm = TRUE)
+  fcst_std <- rowSds(sim, na.rm = TRUE)
   
   # Return forecast
-  dist_normal(fcst_mean, fcst_sd)
+  dist_normal(fcst_point, fcst_std)
   
 }
 
 
 
 
+
+#' @title Provide a detailed summary of a trained ESN
+#' 
+#' @description Provide a detailed summary of a trained ESN.
+#'
+#' @param object An object of class \code{ESN}.
+#'
+#' @return
 #' @export
-report.ESN <- function(object, ...) {
+
+report.ESN <- function(object) {
   
   method <- object$model$method
   
@@ -349,20 +360,19 @@ report.ESN <- function(object, ...) {
   
   cat(
     "\nNetwork size:", "\n",
-    "Inputs        =", n_inputs, "\n",
-    "Reservoir     =", n_res, "\n",
-    "Outputs       =", n_outputs, "\n"
+    "Inputs        = ", n_inputs, "\n",
+    "Reservoir     = ", n_res, "\n",
+    "Outputs       = ", n_outputs, "\n"
   )
   
   cat(
     "\nModel inputs:", "\n",
-    "Constant =", const, "\n",
-    "Lags     =", lags, "\n"
+    "Constant = ", const, "\n",
+    "Lags     = ", lags, "\n"
   )
   
   cat(
-    "\nDifferences: \n",
-    "Non-seasonal = ", n_diff, "\n"
+    "\nDifferences = ", n_diff, "\n"
   )
   
   cat(
@@ -383,9 +393,9 @@ report.ESN <- function(object, ...) {
   cat(
     "\nMetrics:", "\n",
     "df  =", df, "\n",
-    "AIC =", aic, "\n",
-    "BIC =", bic, "\n",
-    "HQ  =", hq, "\n"
+    "aic =", aic, "\n",
+    "bic =", bic, "\n",
+    "hq  =", hq, "\n"
   )
 }
 

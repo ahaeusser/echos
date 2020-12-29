@@ -7,17 +7,21 @@
 \method{forecast}{ESN}(object, new_data, specials = NULL, n_sim = 100, n_seed = 42, ...)
 }
 \arguments{
-\item{object}{Trained model}
+\item{object}{An object of class \code{ESN}.}
 
-\item{new_data}{Forecast horizon}
+\item{new_data}{Forecast horizon (n-step ahead forecast)}
 
-\item{specials}{NULL}
+\item{specials}{Currently not in use}
 
-\item{...}{Further arguments passed to bla}
+\item{n_sim}{Integer value. The number of future sample path to generate.}
+
+\item{n_seed}{Integer value. The seed for the random number generator (for reproducibility).}
+
+\item{...}{Currently not in use.}
 }
 \value{
-A fable
+An object of class \code{fable}.
 }
 \description{
-Forecast a trained ESN
+Forecast a trained ESN.
 }

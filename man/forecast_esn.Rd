@@ -16,13 +16,10 @@ forecast_esn(object, n_ahead = 12, n_sim = 100, n_seed = 42)
 \item{n_seed}{Integer value. The seed for the random number generator (for reproducibility).}
 }
 \value{
-A list containing:
-
+A \code{list} containing:
    \itemize{
       \item{\code{forecast}: A \code{tsibble} containing the forecasts.}
       \item{\code{simulation}: A \code{tsibble} containing the simulated future sample path.}
-      \item{\code{actual}: A \code{tsibble} containing the actual values.}
-      \item{\code{fitted}: A \code{tsibble} containing the fitted values.}
       \item{\code{states_train}: A \code{tsibble} containing the internal states.}
       \item{\code{method}: A list containing several objects and information of the trained ESN (weight matrices, hyperparameters, model metrics, etc.).}
       \item{\code{n_ahead}: Integer value. The number of periods for forecasting (forecast horizon).}
@@ -30,5 +27,5 @@ A list containing:
       }
 }
 \description{
-Forecast an Echo State Network from a trained model (univariate and multivariate ESNs).
+Forecast an Echo State Network from a trained model.
 }

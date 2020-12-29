@@ -1,26 +1,22 @@
 
 #' @title Forecast a trained Echo State Network (ESN).
 #' 
-#' @description Forecast an Echo State Network from a trained model (univariate and multivariate ESNs).
+#' @description Forecast an Echo State Network from a trained model.
 #' 
 #' @param object An object of class \code{ESN}. The result of a call to \code{train_esn()} or \code{auto_esn()}.
 #' @param n_ahead Integer value. The number of periods for forecasting (forecast horizon).
 #' @param n_sim Integer value. The number of simulations (number of future sample paths).
 #' @param n_seed Integer value. The seed for the random number generator (for reproducibility).
 #' 
-#' @return A list containing:
-#' 
+#' @return A \code{list} containing:
 #'    \itemize{
 #'       \item{\code{forecast}: A \code{tsibble} containing the forecasts.}
 #'       \item{\code{simulation}: A \code{tsibble} containing the simulated future sample path.}
-#'       \item{\code{actual}: A \code{tsibble} containing the actual values.}
-#'       \item{\code{fitted}: A \code{tsibble} containing the fitted values.}
 #'       \item{\code{states_train}: A \code{tsibble} containing the internal states.}
 #'       \item{\code{method}: A list containing several objects and information of the trained ESN (weight matrices, hyperparameters, model metrics, etc.).}
 #'       \item{\code{n_ahead}: Integer value. The number of periods for forecasting (forecast horizon).}
 #'       \item{\code{n_sim}: Integer value. The number of simulations (number of future sample paths).}
 #'       }
-#' 
 #' @export
 
 forecast_esn <- function(object,
@@ -34,7 +30,6 @@ forecast_esn <- function(object,
   data <- object$data
   
   # Extract actual and fitted values and internal states
-  actual <- object$actual
   fitted <- object$fitted
   states_train <- object$states_train
   
@@ -267,8 +262,6 @@ forecast_esn <- function(object,
     list(
       forecast = forecast,
       simulation = simulation,
-      actual = actual,
-      fitted = fitted,
       states_fcst = states_fcst,
       method = method,
       n_ahead = n_ahead,

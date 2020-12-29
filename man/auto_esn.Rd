@@ -13,7 +13,7 @@ auto_esn(
   n_initial = 10,
   n_res = 200,
   n_seed = 42,
-  alpha = 0.8,
+  alpha = 0.2,
   rho = 1,
   lambda = 1,
   density = 0.1,
@@ -69,12 +69,12 @@ auto_esn(
   \item{\code{upper}: Numeric vector. The upper bounds for \code{alpha}, \code{rho} and \code{lambda} used in the optimization.}
      }}
 
-\item{...}{Currently not in use.}
+\item{...}{Further arguments passed to \code{stats::optim()}}
 }
 \value{
 
 }
 \description{
-This function trains automatically an Echo State Network (ESN)
+This function trains an Echo State Network (ESN)
   to a univariate time series.
 }

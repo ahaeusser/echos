@@ -4,7 +4,7 @@
 \alias{random_fourier}
 \title{Create random grid of fourier terms}
 \usage{
-random_fourier(n_fourier, period, n_sample = 5000)
+random_fourier(n_fourier, period, n_sample = 1000)
 }
 \arguments{
 \item{n_fourier}{Integer vector. The number of fourier terms per seasonal period.}

@@ -4,7 +4,7 @@
 \alias{random_lags}
 \title{Create random grid of lags}
 \usage{
-random_lags(y_lag, n_sample = 5000)
+random_lags(y_lag, n_sample = 1000)
 }
 \arguments{
 \item{y_lag}{Numeric matrix. The result of a call to \code{create_lags()}.}

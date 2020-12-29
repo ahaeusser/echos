@@ -17,5 +17,6 @@ create_revolved(data, lags, n_ahead)
 y_lag Numeric matrix with the lagged variables of the input data for iterative forecasting.
 }
 \description{
-Create lagged variables of a matrix for iterative forecasting, shifting each column back by a given number of observations and fill with NAs for the updates.
+Create lagged variables of a matrix for iterative forecasting,
+  shifting each column back by a given number of observations and fill with NAs for the updates.
 }

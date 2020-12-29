@@ -2,14 +2,12 @@
 % Please edit documentation in R/ESN.R
 \name{residuals.ESN}
 \alias{residuals.ESN}
-\title{Extract residuals from a trained ESN.}
+\title{Extract residuals from a trained ESN}
 \usage{
 \method{residuals}{ESN}(object, ...)
 }
 \arguments{
-\item{object}{The time series model used to produce the forecast.}
-
-\item{...}{Additional arguments passed to ...}
+\item{object}{An object of class \code{ESN}.}
 }
 \value{
 

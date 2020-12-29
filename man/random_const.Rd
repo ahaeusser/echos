@@ -4,7 +4,7 @@
 \alias{random_const}
 \title{Create random grid of constant terms}
 \usage{
-random_const(y_const, n_sample = 5000)
+random_const(y_const, n_sample = 1000)
 }
 \arguments{
 \item{y_const}{Numeric matrix. The result of a call to \code{create_const()}.}

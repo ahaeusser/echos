@@ -1,7 +1,8 @@
 
 #' @title Create constant (intercept term)
 #' 
-#' @description This functions creates the constant (intercept term) for the design matrix as numeric matrix.
+#' @description This functions creates the constant (intercept term)
+#'   for the design matrix as numeric matrix.
 #'
 #' @param n_obs Integer value. The number of observations.
 #'
@@ -21,7 +22,8 @@ create_const <- function(n_obs) {
 
 #' @title Create lagged variables of a matrix
 #' 
-#' @description Create lagged variables of a matrix, shifting each column back by a given number of observations.
+#' @description Create lagged variables of a matrix, shifting each column
+#'   back by a given number of observations.
 #' 
 #' @param data Numeric vector or matrix. Each column is a variable and each row an observation.
 #' @param lags List containing vectors with the number of lags (in units of observations) per variable.
@@ -76,7 +78,8 @@ create_lags <- function(data, lags) {
 
 #' @title Create lagged variables of a matrix for iterative forecasting
 #' 
-#' @description Create lagged variables of a matrix for iterative forecasting, shifting each column back by a given number of observations and fill with NAs for the updates.
+#' @description Create lagged variables of a matrix for iterative forecasting,
+#'   shifting each column back by a given number of observations and fill with NAs for the updates.
 #' 
 #' @param data Numeric vector or matrix. Each column is a variable and each row an observation.
 #' @param lags List containing vectors with the number of lags (in units of observations) per variable.
@@ -84,7 +87,10 @@ create_lags <- function(data, lags) {
 #' 
 #' @return y_lag Numeric matrix with the lagged variables of the input data for iterative forecasting.
 
-create_revolved <- function(data, lags, n_ahead) {
+create_revolved <- function(data,
+                            lags,
+                            n_ahead) {
+  
   # Number of input variables
   n_inputs <- ncol(data)
   # Maximum number of lags (overall)
@@ -413,9 +419,7 @@ create_wres <- function(n_res,
 #' @param .data A \code{tsibble} in wide format.
 #' @param alpha Numeric value. The significance level for the statistical test.
 #'
-#' @return A list with the number of non-seasonal differences (\code{n_diff}).
-#'    
-#' @export
+#' @return A \code{list} with the number of non-seasonal differences (\code{n_diff}).
 
 check_unitroots <- function(.data,
                             alpha = 0.05) {
@@ -586,11 +590,10 @@ inv_diff_vec <- function(y,
 #' @param y_const Numeric matrix. The result of a call to \code{create_const()}.
 #' @param n_sample Integer value. The number of random samples.
 #'
-#' @return out Random grid of constant terms as \code{tibble}. 
-#' @export
+#' @return out Random grid of constant terms as \code{tibble}.
 
 random_const <- function(y_const,
-                         n_sample = 5000) {
+                         n_sample = 1000) {
   
   out <- matrix(
     data = 1,
@@ -616,10 +619,9 @@ random_const <- function(y_const,
 #' @param n_sample Integer value. The number of random samples.
 #'
 #' @return out Random grid of lags as \code{tibble}. 
-#' @export
 
 random_lags <- function(y_lag,
-                        n_sample = 5000) {
+                        n_sample = 1000) {
   
   out <- matrix(
     data = 0,
@@ -656,11 +658,10 @@ random_lags <- function(y_lag,
 #' @param n_sample Integer value. The number of random samples.
 #'
 #' @return out Random grid of fourier terms as \code{tibble}. 
-#' @export
 
 random_fourier <- function(n_fourier,
                            period,
-                           n_sample = 5000) {
+                           n_sample = 1000) {
   # Initialize empty list
   out <- vector(
     mode = "list",
@@ -823,11 +824,6 @@ predict_esn <- function(win,
 rescale_data <- function(data,
                          old_range,
                          new_range) {
-  
-  # # Check y for missing values
-  # if (anyNA(data) == TRUE) {
-  #   stop("data contains at least one missing value")
-  # }
   
   # Number of rows and columns in data
   n_rows <- nrow(data)

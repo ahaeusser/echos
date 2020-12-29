@@ -12,7 +12,7 @@ check_unitroots(.data, alpha = 0.05)
 \item{alpha}{Numeric value. The significance level for the statistical test.}
 }
 \value{
-A list with the number of non-seasonal differences (\code{n_diff}).
+A \code{list} with the number of non-seasonal differences (\code{n_diff}).
 }
 \description{
 This function tests for the number of

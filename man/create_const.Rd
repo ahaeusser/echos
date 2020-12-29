@@ -13,5 +13,6 @@ create_const(n_obs)
 y_const Numeric matrix with dimension (n_obs x 1).
 }
 \description{
-This functions creates the constant (intercept term) for the design matrix as numeric matrix.
+This functions creates the constant (intercept term)
+  for the design matrix as numeric matrix.
 }

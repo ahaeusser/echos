@@ -15,6 +15,6 @@ ESN(formula, ...)
 esn_model An object of class \code{ESN}.
 }
 \description{
-This function trains automatically an Echo State Network (ESN)
+This function trains an Echo State Network (ESN)
   to a univariate time series.
 }

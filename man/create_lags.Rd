@@ -15,5 +15,6 @@ create_lags(data, lags)
 y_lag Numeric matrix with lagged variables of the input data.
 }
 \description{
-Create lagged variables of a matrix, shifting each column back by a given number of observations.
+Create lagged variables of a matrix, shifting each column
+  back by a given number of observations.
 }

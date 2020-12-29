@@ -2,12 +2,12 @@
 % Please edit documentation in R/ESN.R
 \name{model_sum.ESN}
 \alias{model_sum.ESN}
-\title{Provide a succinct summary of a trained ESN.}
+\title{Provide a succinct summary of a trained ESN}
 \usage{
 \method{model_sum}{ESN}(x)
 }
 \arguments{
-\item{object}{The ESN to summarize.}
+\item{object}{An object of class \code{ESN}.}
 }
 \value{
 
