@@ -1,49 +1,48 @@
 
-#' @title Estimate information criterion for hyperparameter tuning.
+#' @title Estimate information criterion for hyperparameter tuning
 #' 
-#' @description This function estimates the information criterion for hyperparameter
-#'    tuning. The function returns a numeric value (= information criterion), which
-#'    is then minimized within a call to \code{optim()} for varying hyperparameters. 
+#' @description The function \code{tune_pars()} estimates the information criterion for hyperparameter
+#'   tuning. The function returns a numeric value (= information criterion), which
+#'   is then minimized within a call to \code{optim()} for varying hyperparameters. 
 #'
 #' @param data A \code{tsibble} containing the time series data.
 #' @param pars Numeric vector containing the hyperparameters.
-#' @param lags A list containing integer vectors with the lags associated with each output variable.
-#' @param n_fourier Integer vector. The number of fourier terms (seasonal cycles per period).
-#' @param period Integer vector. The periodicity of the time series (e.g. for monthly data \code{period = c(12)}, for hourly data \code{period = c(24, 168)}).
 #' @param const Logical value. If \code{TRUE}, a constant term (intercept) is used.
+#' @param lags A \code{list} containing integer vectors with the lags associated with each input variable.
+#' @param n_fourier Integer vector. The number of fourier terms (seasonal cycles per period).
+#' @param period Integer vector. The periodicity of the time series (e.g. \code{period = c(12)} for monthly data or \code{period = c(24, 168)} for hourly data).
 #' @param n_diff Integer value. The number of differences.
-#' @param n_res Integer value. The number of internal states within the reservoir (hidden layer).
 #' @param n_initial Integer value. The number of observations of internal states for initial drop out (throw-off).
+#' @param n_res Integer value. The number of internal states within the reservoir (hidden layer).
 #' @param n_seed Integer value. The seed for the random number generator (for reproducibility).
 #' @param density Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).
 #' @param inf_crit Character value. The information criterion \code{inf_crit = c("aic", "bic", "hq")}.
 #' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data.
+#' @param scale_runif Numeric vector. The lower and upper bound of the uniform distribution.
 #'
-#' @return out Numeric value. The information criterion to be minimized.
-
+#' @return model_value Numeric value. The information criterion to be minimized.
 #' @export
 
 tune_pars <- function(data,
                       pars,
+                      const,
                       lags,
                       n_fourier,
                       period,
-                      const = TRUE,
-                      n_diff = 0,
-                      n_res = 200,
-                      n_initial = 10,
-                      n_seed = 42,
-                      density = 0.1,
-                      inf_crit = "bic",
-                      scale_inputs = c(-1, 1)) {
+                      n_diff,
+                      n_res,
+                      n_initial,
+                      n_seed,
+                      density,
+                      inf_crit,
+                      scale_inputs,
+                      scale_runif) {
   
   # Pre-processing ============================================================
   
   alpha <- pars[1]
   rho <- pars[2]
   lambda <- pars[3]
-  # scale_runif <- c(-pars[4], pars[4])
-  scale_runif <- c(-0.5, 0.5)
   
   # Prepare constants as integers
   n_res <- as.integer(n_res)
@@ -191,7 +190,7 @@ tune_pars <- function(data,
     weights = obs_weights)
  
   # Extract information criterion
-  out <- model[[inf_crit]]
+  model_value <- model[[inf_crit]]
   
-  return(out)
+  return(model_value)
 }

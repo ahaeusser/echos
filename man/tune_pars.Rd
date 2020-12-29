@@ -2,22 +2,23 @@
 % Please edit documentation in R/tune_pars.R
 \name{tune_pars}
 \alias{tune_pars}
-\title{Estimate information criterion for hyperparameter tuning.}
+\title{Estimate information criterion for hyperparameter tuning}
 \usage{
 tune_pars(
   data,
   pars,
+  const,
   lags,
   n_fourier,
   period,
-  const = TRUE,
-  n_diff = 0,
-  n_res = 200,
-  n_initial = 10,
-  n_seed = 42,
-  density = 0.1,
-  inf_crit = "bic",
-  scale_inputs = c(-1, 1)
+  n_diff,
+  n_res,
+  n_initial,
+  n_seed,
+  density,
+  inf_crit,
+  scale_inputs,
+  scale_runif
 )
 }
 \arguments{
@@ -25,13 +26,13 @@ tune_pars(
 
 \item{pars}{Numeric vector containing the hyperparameters.}
 
-\item{lags}{A list containing integer vectors with the lags associated with each output variable.}
+\item{const}{Logical value. If \code{TRUE}, a constant term (intercept) is used.}
+
+\item{lags}{A \code{list} containing integer vectors with the lags associated with each input variable.}
 
 \item{n_fourier}{Integer vector. The number of fourier terms (seasonal cycles per period).}
 
-\item{period}{Integer vector. The periodicity of the time series (e.g. for monthly data \code{period = c(12)}, for hourly data \code{period = c(24, 168)}).}
-
-\item{const}{Logical value. If \code{TRUE}, a constant term (intercept) is used.}
+\item{period}{Integer vector. The periodicity of the time series (e.g. \code{period = c(12)} for monthly data or \code{period = c(24, 168)} for hourly data).}
 
 \item{n_diff}{Integer value. The number of differences.}
 
@@ -46,12 +47,14 @@ tune_pars(
 \item{inf_crit}{Character value. The information criterion \code{inf_crit = c("aic", "bic", "hq")}.}
 
 \item{scale_inputs}{Numeric vector. The lower and upper bound for scaling the time series data.}
+
+\item{scale_runif}{Numeric vector. The lower and upper bound of the uniform distribution.}
 }
 \value{
-out Numeric value. The information criterion to be minimized.
+model_value Numeric value. The information criterion to be minimized.
 }
 \description{
-This function estimates the information criterion for hyperparameter
-   tuning. The function returns a numeric value (= information criterion), which
-   is then minimized within a call to \code{optim()} for varying hyperparameters.
+The function \code{tune_pars()} estimates the information criterion for hyperparameter
+  tuning. The function returns a numeric value (= information criterion), which
+  is then minimized within a call to \code{optim()} for varying hyperparameters.
 }
