@@ -7,13 +7,19 @@
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+[![Licence](https://img.shields.io/badge/licence-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 <!-- badges: end -->
 
-This package provides a tidy R interface for modeling and forecasting
+The package provides a tidy interface for modeling and forecasting
 univariate time series using Echo State Networks (ESNs). The model works
 within the `fable` framework provided by the `fabletools` package, which
-provides the tools to evaluate, visualise, and combine models in a
+provides the tools to evaluate, visualize, and combine models in a
 workflow consistent with the tidyverse.
+
+***Disclaimer:*** The `echos` package is highly experimental and it is
+very likely that there will be (substantial) changes in the near future.
+These changes will probably affect the interface (e.g. arguments within
+`ESN()`) and the underlying modeling procedure itself.
 
 ## Installation
 
@@ -36,8 +42,6 @@ library(dplyr)
 library(tsibble)
 library(fabletools)
 library(fable)
-Sys.setlocale("LC_TIME", "C")
-#> [1] "C"
 ```
 
 ### Prepare data
@@ -65,7 +69,7 @@ data <- data %>%
 
 # Use only a small sample of data
 data <- data %>%
-  filter(BZN == "SE1") %>%
+  filter(BZN == "DE") %>%
   filter(split == 10)
 
 data
@@ -73,16 +77,16 @@ data
 #> # Key:       Series, Unit, BZN, split [1]
 #>    Time                Series      Unit   BZN   Value split    id sample horizon
 #>    <dttm>              <chr>       <chr>  <chr> <dbl> <int> <int> <chr>    <int>
-#>  1 2019-01-10 00:00:00 Day-ahead ~ [EUR/~ SE1    50.0    10   217 train       NA
-#>  2 2019-01-10 01:00:00 Day-ahead ~ [EUR/~ SE1    49.6    10   218 train       NA
-#>  3 2019-01-10 02:00:00 Day-ahead ~ [EUR/~ SE1    50.0    10   219 train       NA
-#>  4 2019-01-10 03:00:00 Day-ahead ~ [EUR/~ SE1    49.9    10   220 train       NA
-#>  5 2019-01-10 04:00:00 Day-ahead ~ [EUR/~ SE1    51.9    10   221 train       NA
-#>  6 2019-01-10 05:00:00 Day-ahead ~ [EUR/~ SE1    50.7    10   222 train       NA
-#>  7 2019-01-10 06:00:00 Day-ahead ~ [EUR/~ SE1    50.4    10   223 train       NA
-#>  8 2019-01-10 07:00:00 Day-ahead ~ [EUR/~ SE1    50.6    10   224 train       NA
-#>  9 2019-01-10 08:00:00 Day-ahead ~ [EUR/~ SE1    50.4    10   225 train       NA
-#> 10 2019-01-10 09:00:00 Day-ahead ~ [EUR/~ SE1    50.2    10   226 train       NA
+#>  1 2019-01-10 00:00:00 Day-ahead ~ [EUR/~ DE     49.1    10   217 train       NA
+#>  2 2019-01-10 01:00:00 Day-ahead ~ [EUR/~ DE     47.1    10   218 train       NA
+#>  3 2019-01-10 02:00:00 Day-ahead ~ [EUR/~ DE     48.8    10   219 train       NA
+#>  4 2019-01-10 03:00:00 Day-ahead ~ [EUR/~ DE     48.5    10   220 train       NA
+#>  5 2019-01-10 04:00:00 Day-ahead ~ [EUR/~ DE     49.8    10   221 train       NA
+#>  6 2019-01-10 05:00:00 Day-ahead ~ [EUR/~ DE     57.0    10   222 train       NA
+#>  7 2019-01-10 06:00:00 Day-ahead ~ [EUR/~ DE     72.6    10   223 train       NA
+#>  8 2019-01-10 07:00:00 Day-ahead ~ [EUR/~ DE     81.2    10   224 train       NA
+#>  9 2019-01-10 08:00:00 Day-ahead ~ [EUR/~ DE     81.8    10   225 train       NA
+#> 10 2019-01-10 09:00:00 Day-ahead ~ [EUR/~ DE     81.2    10   226 train       NA
 #> # ... with 2,414 more rows
 ```
 
@@ -93,108 +97,90 @@ data
 models <- data %>%
   filter(sample == "train") %>%
   model(
-    "ESN" = ESN(
-      Value,
-      inf_crit = "BIC",
-      max_lag = 6,
-      n_fourier = c(3, 3),
-      n_initial = 50,
-      n_res = 200,
-      scale_inputs = c(-1, 1)),
+    "ESN" = ESN(Value, lags = list(c(1, 2, 3, 24, 168))),
     "sNaive" = SNAIVE(Value ~ lag("week")))
 
 models
 #> # A mable: 1 x 6
 #> # Key:     Series, Unit, BZN, split [1]
-#>   Series Unit  BZN   split                                                   ESN
-#>   <chr>  <chr> <chr> <int>                                               <model>
-#> 1 Day-a~ [EUR~ SE1      10 <ESN({12,200,1}, {0.64,1.26,5.13}, {(24-2),(168-0)})>
-#> # ... with 1 more variable: sNaive <model>
+#>   Series         Unit     BZN   split                               ESN   sNaive
+#>   <chr>          <chr>    <chr> <int>                           <model>  <model>
+#> 1 Day-ahead Pri~ [EUR/MW~ DE       10 <ESN({6,200,1}, {0.54,0.78,0.1})> <SNAIVE>
 
-# Detailed report of ESN
+# Detailed report of ESN for split 10
 models %>%
   select(ESN) %>%
   report()
 #> Series: Value 
-#> Model: ESN({12,200,1}, {0.64,1.26,5.13}, {(24-2),(168-0)}) 
+#> Model: ESN({6,200,1}, {0.54,0.78,0.1}) 
 #> 
 #> Network size: 
-#>  Inputs        = 12 
-#>  Reservoir     = 200 
-#>  Outputs       = 1 
+#>  Inputs        =  6 
+#>  Reservoir     =  200 
+#>  Outputs       =  1 
 #> 
 #> Model inputs: 
-#>  Constant = TRUE 
-#>  Lags     = 1 2 3 4 5 24 168 
+#>  Constant =  TRUE 
+#>  Lags     =  1 2 3 24 168 
 #> 
-#> Differences: 
-#>  Non-seasonal =  1 
+#> Differences =  1 
 #> 
 #> Scaling: 
 #>  Inputs         = (-1, 1)
-#>  Random uniform = (-0.65, 0.65)
+#>  Random uniform = (-0.5, 0.5)
 #> 
 #> Hyperparameters: 
-#>  alpha   = 0.64 
-#>  rho     = 1.26 
-#>  lambda  = 5.13 
+#>  alpha   = 0.54 
+#>  rho     = 0.78 
+#>  lambda  = 0.1 
 #>  density = 0.1 
 #> 
 #> Metrics: 
-#>  df  = 60.11 
-#>  AIC = -5.16 
-#>  BIC = -5 
-#>  HQ  = -5.1
+#>  df  = 41.3 
+#>  aic = -4.46 
+#>  bic = -4.35 
+#>  hq  = -4.42
 ```
 
 ### Forecast
 
 ``` r
 # Forecast models
-fcsts <- models %>%
+fcst <- models %>%
   forecast(h = n_ahead)
 
-fcsts
+fcst
 #> # A fable: 48 x 8 [1h] <UTC>
 #> # Key:     Series, Unit, BZN, split, .model [2]
 #>    Series        Unit    BZN   split .model Time                     Value .mean
 #>    <chr>         <chr>   <chr> <int> <chr>  <dttm>                  <dist> <dbl>
-#>  1 Day-ahead Pr~ [EUR/M~ SE1      10 ESN    2019-04-20 00:00:00 N(40, 2.9)  40.0
-#>  2 Day-ahead Pr~ [EUR/M~ SE1      10 ESN    2019-04-20 01:00:00 N(40, 6.1)  39.7
-#>  3 Day-ahead Pr~ [EUR/M~ SE1      10 ESN    2019-04-20 02:00:00 N(40, 9.2)  39.6
-#>  4 Day-ahead Pr~ [EUR/M~ SE1      10 ESN    2019-04-20 03:00:00  N(41, 12)  40.7
-#>  5 Day-ahead Pr~ [EUR/M~ SE1      10 ESN    2019-04-20 04:00:00  N(42, 11)  41.8
-#>  6 Day-ahead Pr~ [EUR/M~ SE1      10 ESN    2019-04-20 05:00:00  N(43, 11)  42.6
-#>  7 Day-ahead Pr~ [EUR/M~ SE1      10 ESN    2019-04-20 06:00:00  N(43, 11)  43.3
-#>  8 Day-ahead Pr~ [EUR/M~ SE1      10 ESN    2019-04-20 07:00:00 N(43, 9.7)  42.9
-#>  9 Day-ahead Pr~ [EUR/M~ SE1      10 ESN    2019-04-20 08:00:00  N(42, 11)  42.2
-#> 10 Day-ahead Pr~ [EUR/M~ SE1      10 ESN    2019-04-20 09:00:00  N(42, 11)  41.9
+#>  1 Day-ahead Pr~ [EUR/M~ DE       10 ESN    2019-04-20 00:00:00  N(31, 13)  30.9
+#>  2 Day-ahead Pr~ [EUR/M~ DE       10 ESN    2019-04-20 01:00:00  N(31, 23)  30.9
+#>  3 Day-ahead Pr~ [EUR/M~ DE       10 ESN    2019-04-20 02:00:00  N(32, 35)  31.9
+#>  4 Day-ahead Pr~ [EUR/M~ DE       10 ESN    2019-04-20 03:00:00  N(34, 51)  34.1
+#>  5 Day-ahead Pr~ [EUR/M~ DE       10 ESN    2019-04-20 04:00:00  N(37, 60)  37.2
+#>  6 Day-ahead Pr~ [EUR/M~ DE       10 ESN    2019-04-20 05:00:00  N(39, 85)  39.3
+#>  7 Day-ahead Pr~ [EUR/M~ DE       10 ESN    2019-04-20 06:00:00 N(41, 101)  40.8
+#>  8 Day-ahead Pr~ [EUR/M~ DE       10 ESN    2019-04-20 07:00:00  N(40, 98)  39.9
+#>  9 Day-ahead Pr~ [EUR/M~ DE       10 ESN    2019-04-20 08:00:00  N(36, 99)  36.5
+#> 10 Day-ahead Pr~ [EUR/M~ DE       10 ESN    2019-04-20 09:00:00  N(33, 91)  33.3
 #> # ... with 38 more rows
 ```
 
 ### Visualize
 
 ``` r
-actuals <- data %>%
-  filter_index("2019-04-10" ~ .)
-
-fcsts %>%
-  autoplot(
-    actuals,
-    level = NULL,
-    size = 1)
+tscv::plot_forecast(
+  fcst = fcst,         # forecasts as fable
+  data = data,         # training and test data
+  split = 10,          # only split 10 is visualized
+  include = 48)        # plot only the last 48 observations of training data
 ```
 
 <img src="man/figures/README-plot-1.svg" width="100%" />
 
 ## Work in Progress
 
-  - Implement specials
-      - `const()` - intercept term
-      - `lags()` - autoregressive lags
-      - `fourier()` - fourier terms (trigonometric terms) for
-        seasonality
-      - `xreg()` - exogenuous regressors
   - Implement further functions
       - `refit.ESN()`
       - `generate.ESN()`
@@ -202,4 +188,4 @@ fcsts %>%
       - `reservoir.ESN()`
       - `plot_reservoir()`
       - …
-  - Enhance `ESN()` to mulitvariate time series
+  - Enhance `ESN()` to multivariate time series

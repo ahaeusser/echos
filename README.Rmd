@@ -18,9 +18,13 @@ knitr::opts_chunk$set(
 
 <!-- badges: start -->
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+[![Licence](https://img.shields.io/badge/licence-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 <!-- badges: end -->
 
-This package provides a tidy R interface for modeling and forecasting univariate time series using Echo State Networks (ESNs). The model works within the `fable` framework provided by the `fabletools` package, which provides the tools to evaluate, visualise, and combine models in a workflow consistent with the tidyverse.
+The package provides a tidy interface for modeling and forecasting univariate time series using Echo State Networks (ESNs). The model works within the `fable` framework provided by the `fabletools` package, which provides the tools to evaluate, visualize, and combine models in a workflow consistent with the tidyverse.
+
+***Disclaimer:*** The `echos` package is highly experimental and it is very likely that there will be (substantial) changes in the near future. These changes will probably affect the interface (e.g. arguments within `ESN()`) and the underlying modeling procedure itself.
+
 
 ## Installation
 
@@ -40,6 +44,9 @@ library(dplyr)
 library(tsibble)
 library(fabletools)
 library(fable)
+```
+
+```{r abbreviations, echo=FALSE, warning=FALSE, message=FALSE, results='hide'}
 Sys.setlocale("LC_TIME", "C")
 ```
 
@@ -67,7 +74,7 @@ data <- data %>%
 
 # Use only a small sample of data
 data <- data %>%
-  filter(BZN == "SE1") %>%
+  filter(BZN == "DE") %>%
   filter(split == 10)
 
 data
@@ -79,19 +86,12 @@ data
 models <- data %>%
   filter(sample == "train") %>%
   model(
-    "ESN" = ESN(
-      Value,
-      inf_crit = "BIC",
-      max_lag = 6,
-      n_fourier = c(3, 3),
-      n_initial = 50,
-      n_res = 200,
-      scale_inputs = c(-1, 1)),
+    "ESN" = ESN(Value, lags = list(c(1, 2, 3, 24, 168))),
     "sNaive" = SNAIVE(Value ~ lag("week")))
 
 models
 
-# Detailed report of ESN
+# Detailed report of ESN for split 10
 models %>%
   select(ESN) %>%
   report()
@@ -101,32 +101,25 @@ models %>%
 ### Forecast
 ```{r forecast}
 # Forecast models
-fcsts <- models %>%
+fcst <- models %>%
   forecast(h = n_ahead)
 
-fcsts
+fcst
 ```
 
 ### Visualize
 ```{r plot}
-actuals <- data %>%
-  filter_index("2019-04-10" ~ .)
+tscv::plot_forecast(
+  fcst = fcst,         # forecasts as fable
+  data = data,         # training and test data
+  split = 10,          # only split 10 is visualized
+  include = 48)        # plot only the last 48 observations of training data
 
-fcsts %>%
-  autoplot(
-    actuals,
-    level = NULL,
-    size = 1)
 ```
 
 
 ## Work in Progress
 
-* Implement specials
-  + `const()` - intercept term
-  + `lags()` - autoregressive lags
-  + `fourier()` - fourier terms (trigonometric terms) for seasonality
-  + `xreg()` - exogenuous regressors
 * Implement further functions
   + `refit.ESN()`
   + `generate.ESN()`
@@ -134,4 +127,4 @@ fcsts %>%
   + `reservoir.ESN()`
   + `plot_reservoir()`
   + ...
-* Enhance `ESN()` to mulitvariate time series
+* Enhance `ESN()` to multivariate time series
