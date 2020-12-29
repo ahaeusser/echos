@@ -1,10 +1,11 @@
 
 #' @title Train an Echo State Network (ESN).
 #' 
-#' @description This function trains an Echo State Network (ESN) to a univariate or multivariate time series.
+#' @description This function trains an Echo State Network (ESN) to a
+#'   univariate time series.
 #' 
 #' @param data A \code{tsibble} containing the time series data.
-#' @param lags A list containing integer vectors with the lags associated with each output variable.
+#' @param lags A \code{list} containing integer vectors with the lags associated with each input variable.
 #' @param n_fourier Integer vector. The number of fourier terms (seasonal cycles per period).
 #' @param period Integer vector. The periodicity of the time series (e.g. for monthly data \code{period = c(12)}, for hourly data \code{period = c(24, 168)}).
 #' @param const Logical value. If \code{TRUE}, a constant term (intercept) is used.
@@ -19,17 +20,15 @@
 #' @param scale_runif Numeric vector. The lower and upper bound of the uniform distribution.
 #' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data.
 #' 
-#' @return A list containing:
-#' 
+#' @return A \code{list} containing:
 #'    \itemize{
 #'       \item{\code{data}: The original input data as \code{tsibble}.}
-#'       \item{\code{actual}: A \code{tsibble} containing the actual values in long format.}
-#'       \item{\code{fitted}: A \code{tsibble} containing the fitted values in long format.}
-#'       \item{\code{error}: A \code{tsibble} containing the errors (= residuals, i.e. actual - fitted) in long format.}
-#'       \item{\code{states_train}: A \code{tsibble} containing the internal states in long format.}
-#'       \item{\code{method}: A list containing several objects and information of the trained ESN (weight matrices, hyperparameters, model metrics, etc.).}
+#'       \item{\code{actual}: A \code{tsibble} containing the actual values.}
+#'       \item{\code{fitted}: A \code{tsibble} containing the fitted values.}
+#'       \item{\code{error}: A \code{tsibble} containing the residuals (i.e. actual - fitted).}
+#'       \item{\code{states_train}: A \code{tsibble} containing the internal states.}
+#'       \item{\code{method}: A \code{list} containing several objects and information of the trained ESN (weight matrices, hyperparameters, model metrics, etc.).}
 #'       }
-#' 
 #' @export
 
 train_esn <- function(data,
@@ -193,7 +192,6 @@ train_esn <- function(data,
     weights <- rep(1, nrow(Xt))
   }
   
-  
   # Train linear model via ridge regression
   model <- train_ridge(
     X = Xt,
@@ -333,8 +331,6 @@ train_esn <- function(data,
       fitted = fitted,
       resid = resid,
       states_train = states_train,
-      method = method,
-      Xt = Xt,
-      yt = yt),
+      method = method),
     class = "ESN")
 }

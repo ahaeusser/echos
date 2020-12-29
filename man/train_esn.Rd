@@ -26,7 +26,7 @@ train_esn(
 \arguments{
 \item{data}{A \code{tsibble} containing the time series data.}
 
-\item{lags}{A list containing integer vectors with the lags associated with each output variable.}
+\item{lags}{A \code{list} containing integer vectors with the lags associated with each input variable.}
 
 \item{n_fourier}{Integer vector. The number of fourier terms (seasonal cycles per period).}
 
@@ -55,17 +55,17 @@ train_esn(
 \item{scale_inputs}{Numeric vector. The lower and upper bound for scaling the time series data.}
 }
 \value{
-A list containing:
-
+A \code{list} containing:
    \itemize{
       \item{\code{data}: The original input data as \code{tsibble}.}
-      \item{\code{actual}: A \code{tsibble} containing the actual values in long format.}
-      \item{\code{fitted}: A \code{tsibble} containing the fitted values in long format.}
-      \item{\code{error}: A \code{tsibble} containing the errors (= residuals, i.e. actual - fitted) in long format.}
-      \item{\code{states_train}: A \code{tsibble} containing the internal states in long format.}
-      \item{\code{method}: A list containing several objects and information of the trained ESN (weight matrices, hyperparameters, model metrics, etc.).}
+      \item{\code{actual}: A \code{tsibble} containing the actual values.}
+      \item{\code{fitted}: A \code{tsibble} containing the fitted values.}
+      \item{\code{error}: A \code{tsibble} containing the residuals (i.e. actual - fitted).}
+      \item{\code{states_train}: A \code{tsibble} containing the internal states.}
+      \item{\code{method}: A \code{list} containing several objects and information of the trained ESN (weight matrices, hyperparameters, model metrics, etc.).}
       }
 }
 \description{
-This function trains an Echo State Network (ESN) to a univariate or multivariate time series.
+This function trains an Echo State Network (ESN) to a
+  univariate time series.
 }
