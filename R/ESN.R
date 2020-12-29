@@ -1,27 +1,63 @@
 
-#' @title Train an Echo State Network (ESN)
+#' @title Automatic train an Echo State Network (ESN)
 #' 
-#' @description Train an Echo State Network (ESN).
+#' @description This function trains automatically an Echo State Network (ESN)
+#'   to a univariate time series.
 #'
-#' @param .data Input data as \code{tsibble}.
-#' @param specials Specials as list defined in \code{specials_esn}.
-#' @param max_lag Integer value. Maximum number of non-seasonal lags.
-#' @param ... Further arguments passed to \code{train_esn()}.
+#' @param .data A \code{tsibble} containing the time series data.
+#' @param specials Currently not is use.
+#' @param const Logical value. If \code{TRUE}, a constant term (intercept) is used.
+#' @param lags A \code{list} containing integer vectors with the lags associated with each input variable.
+#' @param n_fourier Integer vector. The number of fourier terms (seasonal cycles per period).
+#' @param n_initial Integer value. The number of observations of internal states for initial drop out (throw-off).
+#' @param n_res Integer value. The number of internal states within the reservoir (hidden layer).
+#' @param n_seed Integer value. The seed for the random number generator (for reproducibility).
+#' @param alpha Numeric value. The leakage rate (smoothing parameter) applied to the reservoir.
+#' @param rho Numeric value. The spectral radius for scaling the reservoir weight matrix.
+#' @param lambda Numeric value. The regularization (shrinkage) parameter for ridge regression.
+#' @param density Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).
+#' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data.
+#' @param scale_runif Numeric vector. The lower and upper bound of the uniform distribution.
+#' @param inf_crit Character value. The information criterion \code{inf_crit = c("aic", "bic", "hq")}.
+#' @param control_inputs A \code{list} containing control values for the automatic selection of model inputs:
+#'  \itemize{
+#'    \item{\code{tune}: Logical value. If \code{TRUE}, the model inputs are tuned, otherwise model inputs are used as defined.}
+#'    \item{\code{n_sample}: Integer value. The number of samples for the random grid.}
+#'       }
+#' @param control_pars A \code{list} containing control values for the hyperparameter tuning:
+#'  \itemize{
+#'    \item{\code{tune}: Logical value. If \code{TRUE}, the hyperparameters are tuned, otherwise hyperparameters are used as defined.}
+#'    \item{\code{lower}: Numeric vector. The lower bounds for \code{alpha}, \code{rho} and \code{lambda} used in the optimization.}
+#'    \item{\code{upper}: Numeric vector. The upper bounds for \code{alpha}, \code{rho} and \code{lambda} used in the optimization.}
+#'       }
+#' @param ... Currently not in use.
 #'
-#' @return An object of class \code{ESN}.
+#' @return
+#' @export
 
-fbl_train_esn <- function(.data,
-                          specials,
-                          max_lag = NULL,
-                          n_initial = 10,
-                          n_res = 200,
-                          n_fourier = NULL,
-                          n_seed = 42,
-                          density = 0.1,
-                          scale_inputs = c(-1, 1),
-                          inf_crit = "bic",
-                          n_sample = 5000,
-                          ...) {
+auto_esn <- function(.data,
+                     specials,
+                     const = TRUE,
+                     lags = NULL,
+                     n_fourier = NULL,
+                     n_initial = 10,
+                     n_res = 200,
+                     n_seed = 42,
+                     alpha = 0.8,
+                     rho = 1,
+                     lambda = 1,
+                     density = 0.1,
+                     scale_inputs = c(-1, 1),
+                     scale_runif = c(-0.5, 0.5),
+                     inf_crit = "bic",
+                     control_inputs = list(
+                       tune = TRUE,
+                       n_sample = 1000),
+                     control_pars = list(
+                       tune = TRUE,
+                       lower = c(0, 0.1, 0.1),
+                       upper = c(1, 5, 10)),
+                     ...) {
   
   # Number of response variables
   n_outputs <- length(tsibble::measured_vars(.data))
@@ -40,55 +76,95 @@ fbl_train_esn <- function(.data,
   period <- common_periods(.data)
   period <- sort(as.numeric(period[period < n_obs]))
   
-  # Default maximum non-seasonal lag to minimum seasonal period minus one
-  if (is.null(max_lag)) {
-    max_lag <- min(period) - 1
+  # Check stationarity of time series
+  n_diff <- check_unitroots(
+    .data = .data,
+    alpha = 0.05)$n_diff
+  
+  
+  # Select model inputs (lags, fourier terms) =================================
+  
+  if (is.null(lags)) {
+    lags <- list(c(1, period))
   }
   
-  # # Extract specials ==========================================================
-  # 
-  # # Intercept term
-  # if ("const" %in% names(specials)) {
-  #   const <- TRUE
-  # } else {
-  #   const <- FALSE
-  # }
-  # 
-  # # Autoregressive terms
-  # if ("ar" %in% names(specials)) {
-  #   lags <- specials$ar[[1]]
-  # } else {
-  #   period <- common_periods(.data)
-  #   period <- sort(as.numeric(period[period < n_obs]))
-  #   
-  #   lags <- seq(1, min(period), 1)
-  #   lags <- rep(list(lags), n_outputs)
-  # }
-  # 
-  # # Fourier terms
-  # if ("fourier" %in% names(specials)) {
-  #   n_fourier <- specials$fourier[[1]]$n_fourier
-  #   # period <- specials$fourier[[1]]$period
-  # } else {
-  #   n_fourier <- NULL
-  # }
-  # 
-  # # Reservoir size (number of internal states)
-  # n_res <- specials$states[[1]]
+  if (control_inputs$tune == TRUE) {
+    model_inputs <- tune_inputs(
+      data = .data,
+      lags = lags,
+      n_fourier = n_fourier,
+      period = period,
+      n_diff = n_diff,
+      n_initial = n_initial,
+      scale_inputs = scale_inputs,
+      inf_crit = inf_crit,
+      n_sample = control_inputs$n_sample,
+      n_seed = n_seed)
+    
+    const <- model_inputs$const
+    lags <- model_inputs$lags
+    n_fourier <- model_inputs$n_fourier
+  }
   
-  model_fit <- auto_esn(
+  
+  # Hyperparameter optimization ===============================================
+  
+  # Starting values
+  pars <- c(alpha, rho, lambda)
+  
+  # Tune hyperparameters via L-BFGS-B
+  if (control_pars$tune == TRUE) {
+    
+    # Lower and upper bounds (box constraints)
+    lower <- control_pars$lower
+    upper <- control_pars$upper
+    
+    model_pars <- optim(
+      par = pars,
+      fn = tune_pars,
+      lower = lower,
+      upper = upper,
+      method = "L-BFGS-B",
+      data = .data,
+      lags = lags,
+      const = const,
+      n_fourier = n_fourier,
+      period = period,
+      n_diff = n_diff,
+      density = density,
+      n_initial = n_initial,
+      n_res = n_res,
+      inf_crit = inf_crit,
+      scale_inputs = scale_inputs,
+      scale_runif = scale_runif,
+      n_seed = n_seed)
+    
+    # Vector with optimized hyperparameters
+    pars <- c(
+      model_pars$par[1],
+      model_pars$par[2],
+      model_pars$par[3])
+  }
+  
+  
+  # Train final model =========================================================
+  
+  model_fit <- train_esn(
     data = .data,
-    period = period,
-    max_lag = max_lag,
+    lags = lags,
     n_fourier = n_fourier,
-    n_initial = n_initial,
+    period = period,
+    const = const,
+    n_diff = n_diff,
     n_res = n_res,
+    n_initial = n_initial,
+    n_seed = n_seed,
+    alpha = pars[1],
+    rho = pars[2],
+    lambda = pars[3],
     density = density,
     scale_inputs = scale_inputs,
-    inf_crit = inf_crit,
-    n_sample = n_sample,
-    n_seed = n_seed
-  )
+    scale_runif = scale_runif)
   
   # Extract actual values and fitted values
   fitted <- model_fit$fitted[[".fitted"]]
@@ -98,8 +174,8 @@ fbl_train_esn <- function(.data,
   n_fitted <- length(fitted)
   
   # Fill NAs in front of fitted values (adjust to equal length of actual values) 
-  fitted <- c(rep(NA_real_, n_total - n_fitted), fitted)
-  resid <- c(rep(NA_real_, n_total - n_fitted), resid)
+  fitted <- c(rep(NA_real_, n_obs - length(fitted)), fitted)
+  resid <- c(rep(NA_real_, n_obs - length(resid)), resid)
   
   # Model specification
   model_spec <- model_fit$method$model_spec
@@ -116,28 +192,18 @@ fbl_train_esn <- function(.data,
 }
 
 
-# specials_esn <- new_specials(
-# 
-#   const = function() {},
-#   ar = function(p = list(c(1, 2))) {p},
-#   states = function(n = 150) {n},
-#   fourier = function(period, n_terms) {
-#     list(
-#       period = period,
-#       n_terms = n_terms)
-#   },
-#   .required_specials = c("states")
-# )
+
 
 
 specials_esn <- new_specials()
 
 
-#' @title Automatic training of ESNs.
+#' @title Automatic train an Echo State Network (ESN)
 #' 
-#' @description Automatic training of ESNs.
+#' @description This function trains automatically an Echo State Network (ESN)
+#'   to a univariate time series.
 #'
-#' @param formula Model specification (see "Specials" section, currently not in use...)
+#' @param formula Model specification (currently not in use).
 #' @param ... Further arguments passed to \code{echos::auto_esn(...)}.
 #'
 #' @return esn_model An object of class \code{ESN}.
@@ -146,7 +212,7 @@ specials_esn <- new_specials()
 ESN <- function(formula, ...){
   esn_model <- new_model_class(
     model = "ESN",
-    train = fbl_train_esn,
+    train = auto_esn,
     specials = specials_esn)
   
   new_model_definition(

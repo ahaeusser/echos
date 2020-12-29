@@ -2,12 +2,12 @@
 % Please edit documentation in R/ESN.R
 \name{ESN}
 \alias{ESN}
-\title{Automatic training of ESNs.}
+\title{Automatic train an Echo State Network (ESN)}
 \usage{
 ESN(formula, ...)
 }
 \arguments{
-\item{formula}{Model specification (see "Specials" section, currently not in use...)}
+\item{formula}{Model specification (currently not in use).}
 
 \item{...}{Further arguments passed to \code{echos::auto_esn(...)}.}
 }
@@ -15,5 +15,6 @@ ESN(formula, ...)
 esn_model An object of class \code{ESN}.
 }
 \description{
-Automatic training of ESNs.
+This function trains automatically an Echo State Network (ESN)
+  to a univariate time series.
 }
