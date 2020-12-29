@@ -2,7 +2,7 @@ Package: echos
 Type: Package
 Title: Echo State Networks for Time Series Modeling and Forecasting
 Version: 0.0.3
-Description: This package provides a tidy interface for modeling and forecasting univariate time series using
+Description: The package provides a tidy interface for modeling and forecasting univariate time series using
    Echo State Networks (ESNs). The model works within the fable framework provided by the fabletools package, which
    provides the tools to evaluate, visualise, and combine models in a workflow consistent with the tidyverse.
 Authors@R: 
