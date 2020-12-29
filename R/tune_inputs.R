@@ -1,34 +1,39 @@
 
-#' @title Automatic model selection procedure
+#' @title Best subset regression to select model inputs
 #' 
-#' @description Automatic model selection procedure to find best model inputs
-#'    (lags and fourier terms) for ESN.
+#' @description The function \code{tune_inputs()} performs best subset
+#'   regression to identify the optimal model inputs. The models are estimated
+#'   via Ordinary Least Squares (OLS). If the number of all possible models
+#'   exceeds \code{n_sample}, a random search is performed.
 #'
 #' @param data A \code{tsibble} containing the time series data.
-#' @param lags A list containing integer vectors with the lags associated with each output variable.
+#' @param lags A \code{list} containing integer vectors with the lags associated with each input variable.
 #' @param n_fourier Integer vector. The number of fourier terms (seasonal cycles per period).
-#' @param period Integer vector. The periodicity of the time series (e.g. for monthly data \code{period = c(12)}, for hourly data \code{period = c(24, 168)}).
+#' @param period Integer vector. The periodicity of the time series (e.g. \code{period = c(12)} for monthly data or \code{period = c(24, 168)} for hourly data).
 #' @param n_diff Integer vector. The number of non-seasonal differences.
 #' @param n_initial Integer value. The number of observations of internal states for initial drop out (throw-off).
 #' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data.
 #' @param inf_crit Character value. The information criterion \code{inf_crit = c("aic", "bic", "hq")}.
 #' @param n_sample Integer value. The number of random samples for random search.
 #'
-#' @return A list with const (intercept term), lags (lags for input variables)
-#'    and n_fourier (number of fourier terms per period).
-#'    
+#' @return A \code{list} containing:
+#'   \itemize{
+#'     \item{\code{const}: Logical value. If \code{TRUE}, an intercept term is used.}
+#'     \item{\code{lags}: A \code{list} containing integer vectors with the lags associated with each input variable.}
+#'     \item{\code{n_fourier}: Integer vector. The number of fourier terms (seasonal cycles per period).}
+#'     } 
 #' @export
 
-select_inputs <- function(data,
-                          lags,
-                          n_fourier,
-                          period,
-                          n_diff,
-                          n_initial,
-                          scale_inputs,
-                          inf_crit,
-                          n_sample,
-                          n_seed) {
+tune_inputs <- function(data,
+                        lags,
+                        n_fourier,
+                        period,
+                        n_diff,
+                        n_initial,
+                        scale_inputs,
+                        inf_crit,
+                        n_sample,
+                        n_seed) {
   
   # Pre-processing ============================================================
   
