@@ -12,16 +12,24 @@
 
 fbl_train_esn <- function(.data,
                           specials,
-                          max_lag = NULL,
+                          const = TRUE,
+                          lags = NULL,
+                          n_fourier = NULL,
                           n_initial = 10,
                           n_res = 200,
-                          n_fourier = NULL,
                           n_seed = 42,
+                          n_sample = 5000,
+                          alpha = seq(0, 1, 0.25),
+                          rho = seq(0.25, 2.5, 0.25),
+                          lambda = c(1, 5, 10),
                           density = 0.1,
                           scale_inputs = c(-1, 1),
+                          scale_runif = c(-0.5, 0.5),
                           inf_crit = "bic",
-                          n_sample = 5000,
+                          type = "mode",
                           ...) {
+  
+  # Preparation ===============================================================
   
   # Number of response variables
   n_outputs <- length(tsibble::measured_vars(.data))
@@ -40,69 +48,105 @@ fbl_train_esn <- function(.data,
   period <- common_periods(.data)
   period <- sort(as.numeric(period[period < n_obs]))
   
-  # Default maximum non-seasonal lag to minimum seasonal period minus one
-  if (is.null(max_lag)) {
-    max_lag <- min(period) - 1
+  # Check stationarity of time series
+  n_diff <- check_unitroots(
+    .data = .data,
+    alpha = 0.05)$n_diff
+  
+  
+  # Select model inputs (lags, fourier terms) =================================
+  
+  # # Default maximum non-seasonal lag to minimum seasonal period minus one
+  # if (is.null(max_lag)) {
+  #   max_lag <- min(period) - 1
+  # }
+  # 
+  # # Lags as list
+  # lags <- list(c(seq(1:max_lag), period))
+  # 
+  # model_inputs <- select_inputs(
+  #   data = .data,
+  #   lags = lags,
+  #   n_fourier = n_fourier,
+  #   period = period,
+  #   n_diff = n_diff,
+  #   n_initial = n_initial,
+  #   scale_inputs = scale_inputs,
+  #   inf_crit = inf_crit,
+  #   n_sample = n_sample,
+  #   n_seed = n_seed)
+  # 
+  # const <- model_inputs$const
+  # lags <- model_inputs$lags
+  # n_fourier <- model_inputs$n_fourier
+  
+  
+  if (is.null(lags)) {
+    lags <- list(c(1, period))
   }
   
-  # # Extract specials ==========================================================
-  # 
-  # # Intercept term
-  # if ("const" %in% names(specials)) {
-  #   const <- TRUE
-  # } else {
-  #   const <- FALSE
-  # }
-  # 
-  # # Autoregressive terms
-  # if ("ar" %in% names(specials)) {
-  #   lags <- specials$ar[[1]]
-  # } else {
-  #   period <- common_periods(.data)
-  #   period <- sort(as.numeric(period[period < n_obs]))
-  #   
-  #   lags <- seq(1, min(period), 1)
-  #   lags <- rep(list(lags), n_outputs)
-  # }
-  # 
-  # # Fourier terms
-  # if ("fourier" %in% names(specials)) {
-  #   n_fourier <- specials$fourier[[1]]$n_fourier
-  #   # period <- specials$fourier[[1]]$period
-  # } else {
-  #   n_fourier <- NULL
-  # }
-  # 
-  # # Reservoir size (number of internal states)
-  # n_res <- specials$states[[1]]
+  n_inputs <- lengths(lags)
   
-  model_fit <- auto_esn(
-    data = .data,
-    period = period,
-    max_lag = max_lag,
-    n_fourier = n_fourier,
-    n_initial = n_initial,
-    n_res = n_res,
-    density = density,
-    scale_inputs = scale_inputs,
-    inf_crit = inf_crit,
-    n_sample = n_sample,
-    n_seed = n_seed
+  # Ensemble modeling =========================================================
+  
+  # Expand a grid with varying hyperparameters
+  model_grid <- expand_grid(
+    alpha = alpha,
+    rho = rho,
+    lambda = lambda,
+    density = density)
+  
+  # Train models for varying hyperparameters
+  model_fit <- map(
+    .x = seq_len(nrow(model_grid)),
+    .f = ~train_esn(
+      data = .data,
+      lags = lags,
+      n_fourier = n_fourier,
+      period = period,
+      const = const,
+      n_diff = n_diff,
+      n_res = n_res,
+      n_initial = n_initial,
+      n_seed = n_seed,
+      alpha = model_grid$alpha[.x],
+      rho = model_grid$rho[.x],
+      lambda = model_grid$lambda[.x],
+      density = model_grid$density[.x],
+      scale_inputs = scale_inputs,
+      scale_runif = scale_runif)
   )
   
-  # Extract actual values and fitted values
-  fitted <- model_fit[[1]]$fitted[[".fitted"]]
-  resid <- model_fit[[1]]$resid[[".resid"]]
-  # Get length of time series and fitted values
-  n_total <- nrow(.data)
-  n_fitted <- length(fitted)
+  model_names <- paste0("model","(", formatC(seq_len(nrow(model_grid)), width = nchar(max(seq_len(nrow(model_grid)))), flag = "0"), ")")
+  names(model_fit) <- model_names
+  
+  # Prepare fitted values (extract fitted values of all models and estimate ensemble)
+  fitted <- model_fit %>%
+    map(.f = `[[`, "fitted") %>%
+    map_dfc(.f = `[[`, ".fitted") %>%
+    mutate(fitted = pmap_dbl(., function(...) estimate_center(c(...), type = type))) %>%
+    pull(fitted)
+  
+  # Prepare actual values
+  actual <- invoke(cbind, unclass(.data)[measured_vars(.data)])
+  actual <- tail(x = as.numeric(actual), n = length(fitted))
+  
+  # Calculate residuals
+  resid <- actual - fitted
   
   # Fill NAs in front of fitted values (adjust to equal length of actual values) 
-  fitted <- c(rep(NA_real_, n_total - n_fitted), fitted)
-  resid <- c(rep(NA_real_, n_total - n_fitted), resid)
+  fitted <- c(rep(NA_real_, n_obs - length(fitted)), fitted)
+  resid <- c(rep(NA_real_, n_obs - length(resid)), resid)
   
-  # Model specification
-  model_spec <- model_fit[[1]]$method$model_spec
+  # Model specification (inputs, reservoir size and outputs)
+  model_spec <- paste0(
+    "ESN",
+    "(", 
+    n_inputs, ",",
+    n_res, ",",
+    n_outputs,
+    ")"
+  )
   
   # Return model
   structure(
@@ -223,6 +267,7 @@ forecast.ESN <- function(object,
                          specials = NULL,
                          n_sim = NULL,
                          n_seed = 42,
+                         type = "mode",
                          ...) {
   
   # Forecast fitted models
@@ -236,23 +281,16 @@ forecast.ESN <- function(object,
   
   # Estimate point forecasts of forecast distribution
   fcst_point <- model_fcst %>%
-    mutate(
-      mean = pmap_dbl(., function(...) mean(c(...))),
-      median = pmap_dbl(., function(...) median(c(...))),
-      mode = pmap_dbl(., function(...) estimate_mode(c(...)))) %>%
-    select(mode) %>%
-    pull()
+    mutate(point = pmap_dbl(., function(...) estimate_center(c(...), type = type))) %>%
+    pull(point)
   
   # Estimate standard deviation of forecast distribution
   fcst_std <- model_fcst %>%
-    mutate(
-      std = pmap_dbl(., function(...) sd(c(...)))) %>%
-    select(std) %>%
-    pull()
+    mutate(std = pmap_dbl(., function(...) sd(c(...)))) %>%
+    pull(std)
   
   # Return forecast
   dist_normal(fcst_point, fcst_std)
-  
 }
 
 

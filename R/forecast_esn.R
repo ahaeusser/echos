@@ -33,8 +33,7 @@ forecast_esn <- function(object,
   # Original time series data (wide format tibble)
   data <- object$data
   
-  # Extract actual and fitted values and internal states
-  actual <- object$actual
+  # Extract fitted values and internal states
   fitted <- object$fitted
   states_train <- object$states_train
   
@@ -267,8 +266,6 @@ forecast_esn <- function(object,
     list(
       forecast = forecast,
       simulation = simulation,
-      actual = actual,
-      fitted = fitted,
       states_fcst = states_fcst,
       method = method,
       n_ahead = n_ahead,

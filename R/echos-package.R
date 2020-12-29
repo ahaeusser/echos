@@ -1,5 +1,5 @@
 
-#' @importFrom purrr map map_dfr invoke cross_df
+#' @importFrom purrr map map_dfr map_dfc pmap_dbl invoke cross_df
 #' @importFrom tidyr gather spread pivot_longer expand_grid
 #' @importFrom strex str_nth_number
 #' @importFrom matrixStats colCumsums colDiffs colMins colMaxs rowSds

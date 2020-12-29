@@ -7,15 +7,21 @@
 fbl_train_esn(
   .data,
   specials,
-  max_lag = NULL,
+  const = TRUE,
+  lags = NULL,
+  n_fourier = NULL,
   n_initial = 10,
   n_res = 200,
-  n_fourier = NULL,
   n_seed = 42,
+  n_sample = 5000,
+  alpha = seq(0, 1, 0.25),
+  rho = seq(0.25, 2.5, 0.25),
+  lambda = c(1, 5, 10),
   density = 0.1,
   scale_inputs = c(-1, 1),
+  scale_runif = c(-0.5, 0.5),
   inf_crit = "bic",
-  n_sample = 5000,
+  type = "mode",
   ...
 )
 }
@@ -24,9 +30,9 @@ fbl_train_esn(
 
 \item{specials}{Specials as list defined in \code{specials_esn}.}
 
-\item{max_lag}{Integer value. Maximum number of non-seasonal lags.}
-
 \item{...}{Further arguments passed to \code{train_esn()}.}
+
+\item{max_lag}{Integer value. Maximum number of non-seasonal lags.}
 }
 \value{
 An object of class \code{ESN}.

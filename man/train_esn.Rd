@@ -59,9 +59,7 @@ A list containing:
 
    \itemize{
       \item{\code{data}: The original input data as \code{tsibble}.}
-      \item{\code{actual}: A \code{tsibble} containing the actual values in long format.}
       \item{\code{fitted}: A \code{tsibble} containing the fitted values in long format.}
-      \item{\code{error}: A \code{tsibble} containing the errors (= residuals, i.e. actual - fitted) in long format.}
       \item{\code{states_train}: A \code{tsibble} containing the internal states in long format.}
       \item{\code{method}: A list containing several objects and information of the trained ESN (weight matrices, hyperparameters, model metrics, etc.).}
       }

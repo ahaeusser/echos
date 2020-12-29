@@ -286,46 +286,20 @@ create_grid_fourier <- function(n_fourier,
 #' @description This function creates the model specification (short summary) as a string.
 #'
 #' @param model_layers List containing the number of inputs (n_inputs), reservoir size (n_res) and the number of outputs (n_outputs).
-#' @param model_pars List containing the hyperparameters alpha, rho, lambda and density.
-#' @param model_inputs List containing the model inputs (constant, lags, n_fourier, period).
 #'
 #' @return model_spec Character value. The model specification as string.
 
-create_spec <- function(model_layers,
-                        model_pars,
-                        model_inputs) {
+create_spec <- function(model_layers) {
   
-  # Number of inputs and outputs and reservoir size
-  str_layer <- paste0(
-    "{",
+  # Model specification (inputs, reservoir size and outputs)
+  model_spec <- paste0(
+    "ESN",
+    "(", 
     model_layers$n_inputs, ",",
     model_layers$n_res, ",",
     model_layers$n_outputs,
-    "}")
-  
-  # Hyperparameters
-  str_pars <- paste0(
-    "{",
-    round(model_pars$alpha, 2), ",",
-    round(model_pars$rho, 2), ",",
-    round(model_pars$lambda, 2),
-    "}")
-  
-  # Seasonality and periodicity
-  if (is.null(model_inputs$n_fourier)) {
-    str_season <- NULL
-  } else {
-    str_season <- paste(
-      ", {",
-      paste("(", model_inputs$period, "-", model_inputs$n_fourier, ")",
-            collapse = ",",
-            sep = ""), "}",
-      sep = "")
-  }
-  
-  # Model specification
-  model_spec <- paste0(
-    "ESN", "(", str_layer, ", ", str_pars, str_season, ")")
+    ")"
+    )
   
   return(model_spec)
 }
@@ -998,9 +972,36 @@ simulate_esn <- function(win,
 #'
 #' @return mode Numeric value. The mode of the distribution.
 
-estimate_mode <- function(x, ...) {
+estimate_mode <- function(x,
+                          ...) {
+  
   object <- density(x = x, ...)
   mode_id <- which.max(object$y)
   mode <- object$x[mode_id]
+  
   return(mode)
+}
+
+
+
+#' @title Estimate the central tendency.
+#' 
+#' @description The function estimates the central tendency either by the
+#'    arithmetic mean, median or mode of a numeric vector.
+#'
+#' @param x Numeric vector.
+#' @param type Character value. Possible values are \code{"mean"}, \code{"median"} or \code{"mode"}.
+#' @param ... Further arguments passed to \code{base::mean()}, \code{stats::median()} or \code{stats::densitiy()}.
+#'
+#' @return out The central tendency as numeric value.
+
+estimate_center <- function(x,
+                            type = "median",
+                            ...) {
+  
+  if (type == "median") {out <- median(x, ...)}
+  if (type == "mean") {out <- mean(x, ...)}
+  if (type == "mode") {out <- estimate_mode(x, ...)}
+  
+  return(out)
 }

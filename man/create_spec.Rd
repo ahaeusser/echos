@@ -4,14 +4,10 @@
 \alias{create_spec}
 \title{Create model specification}
 \usage{
-create_spec(model_layers, model_pars, model_inputs)
+create_spec(model_layers)
 }
 \arguments{
 \item{model_layers}{List containing the number of inputs (n_inputs), reservoir size (n_res) and the number of outputs (n_outputs).}
-
-\item{model_pars}{List containing the hyperparameters alpha, rho, lambda and density.}
-
-\item{model_inputs}{List containing the model inputs (constant, lags, n_fourier, period).}
 }
 \value{
 model_spec Character value. The model specification as string.

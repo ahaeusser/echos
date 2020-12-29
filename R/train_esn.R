@@ -23,9 +23,7 @@
 #' 
 #'    \itemize{
 #'       \item{\code{data}: The original input data as \code{tsibble}.}
-#'       \item{\code{actual}: A \code{tsibble} containing the actual values in long format.}
 #'       \item{\code{fitted}: A \code{tsibble} containing the fitted values in long format.}
-#'       \item{\code{error}: A \code{tsibble} containing the errors (= residuals, i.e. actual - fitted) in long format.}
 #'       \item{\code{states_train}: A \code{tsibble} containing the internal states in long format.}
 #'       \item{\code{method}: A list containing several objects and information of the trained ESN (weight matrices, hyperparameters, model metrics, etc.).}
 #'       }
@@ -193,7 +191,6 @@ train_esn <- function(data,
     weights <- rep(1, nrow(Xt))
   }
   
-  
   # Train linear model via ridge regression
   model <- train_ridge(
     X = Xt,
@@ -233,34 +230,13 @@ train_esn <- function(data,
     fitted <- actual + fitted
   }
   
-  # Calculate residuals (1-step ahead forecast errors)
-  resid <- actual - fitted
-  
   # Convert data from numeric matrix to tsibble
-  actual <- bind_cols(
-    dttm_train,
-    as_tibble(actual)) %>%
-    gather(
-      key = ".response",
-      value = ".actual") %>%
-    update_tsibble(
-      key = ".response")
-  
   fitted <- bind_cols(
     dttm_train,
     as_tibble(fitted)) %>%
     gather(
       key = ".response",
       value = ".fitted") %>%
-    update_tsibble(
-      key = ".response")
-  
-  resid <- bind_cols(
-    dttm_train,
-    as_tibble(resid)) %>%
-    gather(
-      key = ".response",
-      value = ".resid") %>%
     update_tsibble(
       key = ".response")
   
@@ -304,19 +280,12 @@ train_esn <- function(data,
     wres = wres,
     wout = wout)
   
-  # Create model specification (short summary)
-  model_spec <- create_spec(
-    model_layers = model_layers,
-    model_pars = model_pars,
-    model_inputs = model_inputs)
-  
   diff_inputs <- list(n_diff = n_diff)
   
   # Store results
   method <- list(
     model_inputs = model_inputs,
     model_metrics = model_metrics,
-    model_spec = model_spec,
     model_pars = model_pars,
     model_layers = model_layers,
     model_weights = model_weights,
@@ -329,12 +298,8 @@ train_esn <- function(data,
   structure(
     list(
       data = data,
-      actual = actual,
       fitted = fitted,
-      resid = resid,
       states_train = states_train,
-      method = method,
-      Xt = Xt,
-      yt = yt),
+      method = method),
     class = "ESN")
 }
