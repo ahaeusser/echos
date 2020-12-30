@@ -50,7 +50,11 @@ library(fable)
 Sys.setlocale("LC_TIME", "C")
 ```
 
+
 ### Prepare data
+
+The dataset `elec_price` is a hourly `tsibble` with day-ahead electricity spot prices in [EUR/MWh] from the ENTSO-E Transparency Platform. The dataset contains time series data from 2019-01-01 to 2019-12-31 for 8 european bidding zones (BZN). In this example, we will only model and forecast the data for Germany (`DE`) and for one specific split (`176`). The training data ranges from 2019-06-25 00:00:00 to 2019-10-02 23:00:00 and we want to forecast the next day (24-steps ahead) from 2019-10-03 00:00:00 to 2019-10-03 23:00:00.
+
 ```{r data}
 
 # Prepare dataset
@@ -72,48 +76,86 @@ data <- data %>%
     n_skip = n_skip,
     n_lag = n_lag)
 
-# Use only a small sample of data
+# Use only a single time series
 data <- data %>%
-  filter(BZN == "DE") %>%
-  filter(split == 10)
+  filter(BZN == "DE") %>%  # filter to bidding zone Germany
+  filter(split == 176)     # filter to split 176
 
-data
+# Use only training data for modeling
+data_train <- data %>%
+  filter(sample == "train")
+
 ```
 
 ### Model
+
+The function `fabletools::model()` is used to automatically train an ESN to the time series data. The object `mdl` is a `mable` containing the trained ESN.
+
 ```{r model}
-# Train models
-models <- data %>%
-  filter(sample == "train") %>%
-  model(
-    "ESN" = ESN(Value, lags = list(c(1, 2, 3, 24, 168))),
-    "sNaive" = SNAIVE(Value ~ lag("week")))
+# Automatic model training of ESN
+mdl <- data_train %>%
+  fabletools::model("ESN" = ESN(Value))
 
-models
+mdl
+```
 
-# Detailed report of ESN for split 10
-models %>%
+The function `report` is used to get a detailed summary of the trained ESN. From the output below, you get the following information about the trained model:
+
+* Network size
+  * `Inputs`: The number of input variables
+  * `Reservoir`: The number of internal states (the reservoir is the hidden layer of an ESN)
+  * `Outputs`: The number of output variables (= response variables)
+* Model inputs (from the output, you can see that four model inputs are used (three lags plus the intercept term))
+  * `Constant`: Indicates whether an intercept term is used or not
+  * `Lags`: The lags of the output variable, which are used as model input
+* Differences: First differences are calculated to achieve stationarity
+* Scaling
+  * `Inputs`: The training data are scaled to the interval `(-1, 1)`
+  * `Random uniform`: The input weights matrix and the reservoir weight matrix are drawn from a random uniform distribution with interval `(-0.5, 0.5)`
+* Hyperparameters:
+  * `alpha`: Leakage rate (smoothing parameter)
+  * `rho`: Spectral radius for scaling the reservoir weight matrix
+  * `lambda`: Regularization parameter for the ridge regression
+  * `density`: The density of the reservoir weight matrix
+* Metrics:
+  * `df`: Effective Degrees of Freedom
+  * `aic`: Akaike Information Criterion
+  * `bic`: Bayesian Information Criterion
+  * `hq`: Hannan-Quinn Information Criterion
+
+
+```{r summary}
+# Detailed report of ESN
+mdl %>%
   select(ESN) %>%
   report()
 
 ```
 
+
 ### Forecast
+
+The function `fabletools::forecast()` is used to forecast the trained model 24-steps ahead. The object `fcst` is a `fable` containing the forecasts of the ESN.
+
 ```{r forecast}
 # Forecast models
-fcst <- models %>%
-  forecast(h = n_ahead)
+fcst <- mdl %>%
+  fabletools::forecast(h = n_ahead)
 
 fcst
 ```
 
+
 ### Visualize
+
+Plot the forecast along the actual values.
+
 ```{r plot}
 tscv::plot_forecast(
   fcst = fcst,         # forecasts as fable
   data = data,         # training and test data
-  split = 10,          # only split 10 is visualized
-  include = 48)        # plot only the last 48 observations of training data
+  split = 176,         # only one split is visualized
+  include = 72)        # plot only the last 72 observations of training data
 
 ```
 
