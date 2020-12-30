@@ -13,7 +13,7 @@ auto_esn(
   n_initial = 10,
   n_res = 200,
   n_seed = 42,
-  alpha = 0.2,
+  alpha = 0.8,
   rho = 1,
   lambda = 1,
   density = 0.1,
