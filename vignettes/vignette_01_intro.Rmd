@@ -1,0 +1,157 @@
+---
+title: "Introduction"
+author: "Alexander Häußer"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{vignette_01_intro}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.height = 5,
+  fig.width = 7
+)
+```
+
+The package provides a tidy interface for modeling and forecasting univariate time series using Echo State Networks (ESNs). The model works within the `fable` framework provided by the `fabletools` package, which provides the tools to evaluate, visualize, and combine models in a workflow consistent with the tidyverse.
+
+***Disclaimer:*** The `echos` package is highly experimental and it is very likely that there will be (substantial) changes in the near future. These changes will probably affect the interface (e.g. arguments within `ESN()`) and the underlying modeling procedure itself.
+
+
+## Installation
+
+You can install the development version from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("ahaeusser/echos")
+```
+## Usage
+
+### Load packages
+```{r packages, warning=FALSE, message=FALSE}
+library(echos)
+library(tscv)
+library(dplyr)
+library(tsibble)
+library(fabletools)
+library(fable)
+```
+
+```{r abbreviations, echo=FALSE, warning=FALSE, message=FALSE, results='hide'}
+Sys.setlocale("LC_TIME", "C")
+```
+
+
+### Prepare data
+
+The dataset `elec_price` is a hourly `tsibble` with day-ahead electricity spot prices in [EUR/MWh] from the ENTSO-E Transparency Platform. The dataset contains time series data from 2019-01-01 to 2019-12-31 for 8 european bidding zones (BZN). In this example, we will only model and forecast the data for Germany (`BZN == DE`) and for one specific split (`split == 176`). The training data ranges from 2019-06-25 00:00:00 to 2019-10-02 23:00:00 and we want to forecast the next day (24-steps ahead) from 2019-10-03 00:00:00 to 2019-10-03 23:00:00.
+
+```{r data}
+
+# Prepare dataset
+data <- elec_price %>%
+  tscv::clean_data()
+
+# Setup for time series cross validation
+n_init <- 2400   # size for training window
+n_ahead <- 24    # size for testing window (forecast horizon)
+mode <- "slide"  # fixed window approach
+n_skip <- 23     # skip 23 observations
+n_lag <- 0       # no lag
+
+data <- data %>%
+  tscv::split_data(
+    n_init = n_init,
+    n_ahead = n_ahead,
+    mode = mode,
+    n_skip = n_skip,
+    n_lag = n_lag)
+
+# Use only a single time series
+data <- data %>%
+  filter(BZN == "DE") %>%  # filter to bidding zone Germany
+  filter(split == 176)     # filter to split 176
+
+# Use only training data for modeling
+data_train <- data %>%
+  filter(sample == "train")
+
+```
+
+### Model
+
+The function `fabletools::model()` is used to automatically train an ESN to the time series data. The object `mdl` is a `mable` containing the trained ESN.
+
+```{r model}
+# Automatic model training of ESN
+mdl <- data_train %>%
+  fabletools::model("ESN" = ESN(Value))
+
+mdl
+```
+
+The function `report` is used to get a detailed summary of the trained ESN. From the output below, you get the following information about the trained model:
+
+* Network size
+  * `Inputs`: The number of input variables
+  * `Reservoir`: The number of internal states (the reservoir is the hidden layer of an ESN)
+  * `Outputs`: The number of output variables (= response variables)
+* Model inputs (from the output, you can see that four model inputs are used (three lags plus the intercept term))
+  * `Constant`: Indicates whether an intercept term is used or not
+  * `Lags`: The lags of the output variable, which are used as model input
+* Differences: First differences are calculated to achieve stationarity
+* Scaling
+  * `Inputs`: The training data are scaled to the interval `(-1, 1)`
+  * `Random uniform`: The input weights matrix and the reservoir weight matrix are drawn from a random uniform distribution with interval `(-0.5, 0.5)`
+* Hyperparameters:
+  * `alpha`: Leakage rate (smoothing parameter)
+  * `rho`: Spectral radius for scaling the reservoir weight matrix
+  * `lambda`: Regularization parameter for the ridge regression
+  * `density`: The density of the reservoir weight matrix
+* Metrics:
+  * `df`: Effective Degrees of Freedom
+  * `aic`: Akaike Information Criterion
+  * `bic`: Bayesian Information Criterion
+  * `hq`: Hannan-Quinn Information Criterion
+
+
+```{r summary}
+# Detailed report of ESN
+mdl %>%
+  select(ESN) %>%
+  report()
+
+```
+
+
+### Forecast
+
+The function `fabletools::forecast()` is used to forecast the trained model 24-steps ahead. The object `fcst` is a `fable` containing the forecasts of the ESN.
+
+```{r forecast}
+# Forecast models
+fcst <- mdl %>%
+  fabletools::forecast(h = n_ahead)
+
+fcst
+```
+
+
+### Visualize
+
+Plot the forecast along the actual values.
+
+```{r plot}
+tscv::plot_forecast(
+  fcst = fcst,         # forecasts as fable
+  data = data,         # training and test data
+  split = 176,         # only one split is visualized
+  include = 72)        # plot only the last 72 observations of training data
+
+```
