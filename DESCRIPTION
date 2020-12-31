@@ -11,7 +11,7 @@ Authors@R:
            email = "alexander-haeusser@gmx.de",
            role = c("aut", "cre"))
 License: GPL-3
-URL: https://github.com/ahaeusser/echos
+URL: https://github.com/ahaeusser/echos, https://ahaeusser.github.io/echos/
 BugReports: https://github.com/ahaeusser/echos/issues
 Depends: 
     R (>= 4.0.0)
