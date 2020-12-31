@@ -1,5 +1,5 @@
 
-#' @title Forecast a trained Echo State Network (ESN).
+#' @title Forecast a trained Echo State Network
 #' 
 #' @description Forecast an Echo State Network from a trained model.
 #' 

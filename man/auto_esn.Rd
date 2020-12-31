@@ -2,7 +2,7 @@
 % Please edit documentation in R/ESN.R
 \name{auto_esn}
 \alias{auto_esn}
-\title{Automatic train an Echo State Network (ESN)}
+\title{Automatic train an Echo State Network}
 \usage{
 auto_esn(
   .data,
@@ -72,7 +72,7 @@ auto_esn(
 \item{...}{Further arguments passed to \code{stats::optim()}}
 }
 \value{
-
+An object of class \code{ESN}.
 }
 \description{
 This function trains an Echo State Network (ESN)

@@ -1,5 +1,5 @@
 
-#' @title Train an Echo State Network (ESN).
+#' @title Train an Echo State Network
 #' 
 #' @description This function trains an Echo State Network (ESN) to a
 #'   univariate time series.

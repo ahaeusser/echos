@@ -2,17 +2,17 @@
 % Please edit documentation in R/ESN.R
 \name{ESN}
 \alias{ESN}
-\title{Automatic train an Echo State Network (ESN)}
+\title{Automatic train an Echo State Network}
 \usage{
 ESN(formula, ...)
 }
 \arguments{
 \item{formula}{Model specification (currently not in use).}
 
-\item{...}{Further arguments passed to \code{echos::auto_esn(...)}.}
+\item{...}{Further arguments passed to \code{auto_esn()}.}
 }
 \value{
-esn_model An object of class \code{ESN}.
+An object of class \code{ESN}.
 }
 \description{
 This function trains an Echo State Network (ESN)

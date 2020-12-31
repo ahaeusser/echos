@@ -7,6 +7,7 @@
 #' @param n_obs Integer value. The number of observations.
 #'
 #' @return y_const Numeric matrix with dimension (n_obs x 1).
+#' @noRd
 
 create_const <- function(n_obs) {
   y_const <- matrix(
@@ -29,6 +30,7 @@ create_const <- function(n_obs) {
 #' @param lags List containing vectors with the number of lags (in units of observations) per variable.
 #' 
 #' @return y_lag Numeric matrix with lagged variables of the input data.
+#' @noRd
 
 create_lags <- function(data, lags) {
   # Number of input variables
@@ -86,6 +88,7 @@ create_lags <- function(data, lags) {
 #' @param n_ahead Integer value. The forecast horizon (n-step ahead).
 #' 
 #' @return y_lag Numeric matrix with the lagged variables of the input data for iterative forecasting.
+#' @noRd
 
 create_revolved <- function(data,
                             lags,
@@ -148,7 +151,8 @@ create_revolved <- function(data,
 #' @param n_fourier Integer vector. The number of fourier terms per period (i.e. the number of sines and cosines for each period).
 #' @param period Integer vector. The periodicity of the time series.
 #' 
-#' @return
+#' @return X Numeric matrix containing the specified fourier terms.
+#' @noRd
 
 create_fourier <- function(times,
                            n_fourier,
@@ -215,74 +219,13 @@ create_fourier <- function(times,
 #' @description Little helper function to rotate a matrix. If you apply rotate
 #'    two times, the matrix is flipped (\code{rotate(rotate(x))}).
 #'
-#' @param x A matrix.
+#' @param x Numeric matrix.
 #'
-#' @return A matrix.
+#' @return Numeric matrix.
+#' @noRd
 
 rotate <- function(x) {
   t(apply(x, 2, rev))
-}
-
-
-
-#' @title Create a grid of fourier terms for best subset regression
-#' 
-#' @description \code{create_grid_fourier} creates a grid of all combinations
-#'    of fourier terms. One fourier term is always a pair of sine and cosine
-#'    terms. If higher order fourier terms are used, it is assumed that the
-#'    previous terms are added too. 
-#'
-#' @param n_fourier Integer vector. The number of fourier terms (seasonal cycles) per period.
-#' @param period Integer vector. The periodicity of the time series (e.g. for monthly data \code{period = c(12)}, for hourly data \code{period = c(24, 168)}).
-#'
-#' @return blocks A tibble containing zeros and ones for all combinations of fourier terms.
-
-create_grid_fourier <- function(n_fourier,
-                                period) {
-  
-  # Initialize empty list
-  blocks <- vector(
-    mode = "list",
-    length = length(period)
-  )
-  
-  # Create matrices with zeros and ones as blocks
-  for (j in 1:length(period)) {
-    
-    # Initialize matrix with zeros
-    mat <- matrix(
-      data = 0,
-      nrow = n_fourier[j],
-      ncol = n_fourier[j])
-    
-    # Fill lower triangular with ones
-    mat[lower.tri(mat, diag = TRUE)] <- 1
-    
-    # Repeat each column two times (one for sine and one for cosine)
-    mat <- matrix(
-      data = rep(mat, each = 2),
-      ncol = 2 * ncol(mat), 
-      byrow = TRUE)
-    
-    # Add row with zeros and flip matrix
-    mat <- rbind(mat, 0)
-    mat <- rotate(rotate(mat))
-    
-    colnames(mat) <- paste0(
-      paste0(c("sin(", "cos("), rep(1:n_fourier[j], rep(2, n_fourier[j]))),
-      "-", round(period[j]), ")")
-    
-    # Store matrices in list
-    blocks[[j]] <- mat
-  }
-  
-  # Merge matrices for multiple periods or extract just the matrix
-  if (length(period) > 1) {
-    blocks <- as_tibble(do.call(merge, blocks))
-  } else {
-    blocks <- as_tibble(blocks[[1]])
-  }
-  return(blocks)
 }
 
 
@@ -296,6 +239,7 @@ create_grid_fourier <- function(n_fourier,
 #' @param model_inputs List containing the model inputs (constant, lags, n_fourier, period).
 #'
 #' @return model_spec Character value. The model specification as string.
+#' @noRd
 
 create_spec <- function(model_layers,
                         model_pars,
@@ -347,6 +291,7 @@ create_spec <- function(model_layers,
 #' @param scale_runif Numeric vector. The lower and upper bound of the uniform distribution.
 #' 
 #' @return win List containing the input weight matrices.
+#' @noRd
 
 create_win <- function(n_inputs,
                        n_res,
@@ -375,6 +320,7 @@ create_win <- function(n_inputs,
 #' @param symmetric Logical value. If \code{TRUE}, the matrix is symmetric.
 #' 
 #' @return wres Numeric matrix. The final reservoir weight matrix.
+#' @noRd
 
 create_wres <- function(n_res,
                         rho,
@@ -420,6 +366,7 @@ create_wres <- function(n_res,
 #' @param alpha Numeric value. The significance level for the statistical test.
 #'
 #' @return A \code{list} with the number of non-seasonal differences (\code{n_diff}).
+#' @noRd
 
 check_unitroots <- function(.data,
                             alpha = 0.05) {
@@ -441,7 +388,7 @@ check_unitroots <- function(.data,
 
 
 
-#' @title Calculate (non-seasonal) differences of a numeric matrix
+#' @title Calculate differences of a numeric matrix
 #'
 #' @description This function takes a numeric matrix and calculates 
 #'    (non-seasonal) differences for each column.
@@ -450,6 +397,7 @@ check_unitroots <- function(.data,
 #' @param n_diff Integer vector. The number of non-seasonal differences.
 #'
 #' @return y_diff Numeric matrix with the differenced data.
+#' @noRd
 
 diff_data <- function(data, n_diff) {
   
@@ -470,7 +418,7 @@ diff_data <- function(data, n_diff) {
 
 
 
-#' @title Calculate (non-seasonal) differences of a numeric vector
+#' @title Calculate differences of a numeric vector
 #'
 #' @description This function takes a numeric vector and calculates
 #'    (non-seasonal) differences.
@@ -479,6 +427,7 @@ diff_data <- function(data, n_diff) {
 #' @param n_diff Integer value. The number of non-seasonal differences.
 #'
 #' @return y_diff Numeric vector with the differenced data.
+#' @noRd
 
 diff_vec <- function(y, n_diff) {
   
@@ -501,8 +450,7 @@ diff_vec <- function(y, n_diff) {
 
 
 
-#' @title Integrate (non-seasonal) differences of a numeric matrix
-#'    ("inverse difference")
+#' @title Integrate differences of a numeric matrix ("inverse difference")
 #'
 #' @description This function takes a numeric matrix and integrates
 #'    (non-seasonal) differences for each column ("inverse difference").
@@ -512,6 +460,7 @@ diff_vec <- function(y, n_diff) {
 #' @param n_diff Integer vector. The number of non-seasonal differences.
 #' 
 #' @return y_int Numeric matrix with the inverse differenced data.
+#' @noRd
 
 inv_diff_data <- function(data,
                           data_diff,
@@ -535,8 +484,7 @@ inv_diff_data <- function(data,
 
 
 
-#' @title Integrate (non-seasonal) differences of a numeric vector
-#'    ("inverse difference")
+#' @title Integrate differences of a numeric vector ("inverse difference")
 #'
 #' @description This function takes a numeric vector and integrates
 #'    (non-seasonal) differences ("inverse difference").
@@ -546,6 +494,7 @@ inv_diff_data <- function(data,
 #' @param n_diff Integer value. The number of non-seasonal differences.
 #'
 #' @return y_int Numeric vector with the inverse differenced data.
+#' @noRd
 
 inv_diff_vec <- function(y,
                          y_diff,
@@ -591,6 +540,7 @@ inv_diff_vec <- function(y,
 #' @param n_sample Integer value. The number of random samples.
 #'
 #' @return out Random grid of constant terms as \code{tibble}.
+#' @noRd
 
 random_const <- function(y_const,
                          n_sample = 1000) {
@@ -608,7 +558,7 @@ random_const <- function(y_const,
 
 
 
-#' Create random grid of lags
+#' @title Create random grid of lags
 #' 
 #' @description The function creates a \code{tibble} with random combinations
 #'    of lags (sampling with replacement). The number of combinations (rows)
@@ -618,7 +568,8 @@ random_const <- function(y_const,
 #' @param y_lag Numeric matrix. The result of a call to \code{create_lags()}.
 #' @param n_sample Integer value. The number of random samples.
 #'
-#' @return out Random grid of lags as \code{tibble}. 
+#' @return out Random grid of lags as \code{tibble}.
+#' @noRd 
 
 random_lags <- function(y_lag,
                         n_sample = 1000) {
@@ -646,18 +597,85 @@ random_lags <- function(y_lag,
 
 
 
-#' Create random grid of fourier terms
+
+#' @title Create a grid of fourier terms for best subset regression
+#' 
+#' @description \code{create_grid_fourier} creates a grid of all combinations
+#'    of fourier terms. One fourier term is always a pair of sine and cosine
+#'    terms. If higher order fourier terms are used, it is assumed that the
+#'    previous terms are added too. 
+#'
+#' @param n_fourier Integer vector. The number of fourier terms (seasonal cycles) per period.
+#' @param period Integer vector. The periodicity of the time series (e.g. for monthly data \code{period = c(12)}, for hourly data \code{period = c(24, 168)}).
+#'
+#' @return blocks A tibble containing zeros and ones for all combinations of fourier terms.
+#' @noRd
+
+create_grid_fourier <- function(n_fourier,
+                                period) {
+  
+  # Initialize empty list
+  blocks <- vector(
+    mode = "list",
+    length = length(period)
+  )
+  
+  # Create matrices with zeros and ones as blocks
+  for (j in 1:length(period)) {
+    
+    # Initialize matrix with zeros
+    mat <- matrix(
+      data = 0,
+      nrow = n_fourier[j],
+      ncol = n_fourier[j])
+    
+    # Fill lower triangular with ones
+    mat[lower.tri(mat, diag = TRUE)] <- 1
+    
+    # Repeat each column two times (one for sine and one for cosine)
+    mat <- matrix(
+      data = rep(mat, each = 2),
+      ncol = 2 * ncol(mat), 
+      byrow = TRUE)
+    
+    # Add row with zeros and flip matrix
+    mat <- rbind(mat, 0)
+    mat <- rotate(rotate(mat))
+    
+    colnames(mat) <- paste0(
+      paste0(c("sin(", "cos("), rep(1:n_fourier[j], rep(2, n_fourier[j]))),
+      "-", round(period[j]), ")")
+    
+    # Store matrices in list
+    blocks[[j]] <- mat
+  }
+  
+  # Merge matrices for multiple periods or extract just the matrix
+  if (length(period) > 1) {
+    blocks <- as_tibble(do.call(merge, blocks))
+  } else {
+    blocks <- as_tibble(blocks[[1]])
+  }
+  return(blocks)
+}
+
+
+
+#' @title Create random grid of fourier terms
 #' 
 #' @description The function creates a \code{tibble} with random combinations
 #'    of fourier terms (sampling with replacement). The number of combinations
 #'    (rows) is given by \code{n_sample} and the number of columns is
-#'    determined by \code{n_fourier} and \code{period}.
+#'    determined by \code{n_fourier} and \code{period}. One fourier term is 
+#'    always a pair of sine and cosine terms. If higher order fourier terms
+#'    are used, it is assumed that the previous terms are added too.
 #'
 #' @param n_fourier Integer vector. The number of fourier terms per seasonal period.
 #' @param period Integer vector. The seasonal periods.
 #' @param n_sample Integer value. The number of random samples.
 #'
-#' @return out Random grid of fourier terms as \code{tibble}. 
+#' @return out Random grid of fourier terms as \code{tibble}.
+#' @noRd
 
 random_fourier <- function(n_fourier,
                            period,
@@ -715,9 +733,10 @@ random_fourier <- function(n_fourier,
 
 
 
-#' @title Forecast a fitted ESN
+#' @title Forecast a trained Echo State Network (internal function)
 #' 
-#' @description Calculate point forecasts for a fitted ESN (internally).
+#' @description Calculate point forecasts of a trained Echo State Network
+#'   (internal function).
 #' 
 #' @param win Numeric matrix. Weights for the input variables.
 #' @param wres Numeric matrix. Weights for the reservoir.
@@ -729,8 +748,12 @@ random_fourier <- function(n_fourier,
 #' @param states_train Numeric matrix. Internal states from training (necessary due to last values).
 #' @param innov Numeric matrix. The innovations for simulation.
 #' 
-#' @return fcst Numeric matrix with point forecasts.
-#' @return states_fcst Numeric matrix with internal states used for forecasting.
+#' @return A \code{list} containing:
+#'    \itemize{
+#'       \item{\code{fcst}: A numeric matrix containing the forecasts.}
+#'       \item{\code{states_train}: A numeric matrix with internal states used for forecasting.}
+#'       }
+#' @noRd
 
 predict_esn <- function(win,
                         wres,
@@ -820,6 +843,7 @@ predict_esn <- function(win,
 #' @param new_range Numeric vector with new (scaled) interval.
 #' 
 #' @return data Numeric matrix with rescaled columns.
+#' @noRd
 
 rescale_data <- function(data,
                          old_range,
@@ -874,6 +898,7 @@ rescale_data <- function(data,
 #' @param new_range Numeric vector. The range for scaling (first value represents the replacement for the min value, the second is the substitute for the max value).
 #' 
 #' @return data Numeric matrix with scaled columns.
+#' @noRd
 
 scale_data <- function(data,
                        new_range = c(-1, 1)) {
@@ -942,7 +967,8 @@ scale_data <- function(data,
 #' @param error Numeric matrix. The innovations for simulation (re-sampled residuals from fitted model).
 #' @param n_sim Integer value. The number of simulations.
 #' 
-#' @return sim List with simulated future sample paths as numeric matrix.
+#' @return sim A \code{list} with simulated future sample paths as numeric matrix.
+#' @noRd
 
 simulate_esn <- function(win,
                          wres,

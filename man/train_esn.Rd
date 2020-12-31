@@ -2,7 +2,7 @@
 % Please edit documentation in R/train_esn.R
 \name{train_esn}
 \alias{train_esn}
-\title{Train an Echo State Network (ESN).}
+\title{Train an Echo State Network}
 \usage{
 train_esn(
   data,

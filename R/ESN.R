@@ -1,5 +1,5 @@
 
-#' @title Automatic train an Echo State Network (ESN)
+#' @title Automatic train an Echo State Network
 #' 
 #' @description This function trains an Echo State Network (ESN)
 #'   to a univariate time series.
@@ -32,7 +32,7 @@
 #'       }
 #' @param ... Further arguments passed to \code{stats::optim()}
 #'
-#' @return
+#' @return An object of class \code{ESN}.
 #' @export
 
 auto_esn <- function(.data,
@@ -199,15 +199,15 @@ auto_esn <- function(.data,
 specials_esn <- new_specials()
 
 
-#' @title Automatic train an Echo State Network (ESN)
+#' @title Automatic train an Echo State Network
 #' 
 #' @description This function trains an Echo State Network (ESN)
 #'   to a univariate time series.
 #'
 #' @param formula Model specification (currently not in use).
-#' @param ... Further arguments passed to \code{echos::auto_esn(...)}.
+#' @param ... Further arguments passed to \code{auto_esn()}.
 #'
-#' @return esn_model An object of class \code{ESN}.
+#' @return An object of class \code{ESN}.
 #' @export
 
 ESN <- function(formula, ...){

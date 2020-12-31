@@ -2,7 +2,7 @@
 % Please edit documentation in R/forecast_esn.R
 \name{forecast_esn}
 \alias{forecast_esn}
-\title{Forecast a trained Echo State Network (ESN).}
+\title{Forecast a trained Echo State Network}
 \usage{
 forecast_esn(object, n_ahead = 12, n_sim = 100, n_seed = 42)
 }
