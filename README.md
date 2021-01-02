@@ -37,8 +37,7 @@ devtools::install_github("ahaeusser/echos")
 
 ``` r
 library(echos)
-library(tscv)
-library(dplyr)
+library(tidyverse)
 library(tsibble)
 library(fabletools)
 library(fable)
@@ -46,44 +45,53 @@ library(fable)
 
 ### Prepare data
 
-The dataset `elec_price` is a hourly `tsibble` with day-ahead
-electricity spot prices in \[EUR/MWh\] from the ENTSO-E Transparency
-Platform. The dataset contains time series data from 2019-01-01 to
-2019-12-31 for 8 european bidding zones (BZN). In this example, we will
-only model and forecast the data for Germany (`DE`) and for one specific
-split (`176`). The training data ranges from 2019-06-25 00:00:00 to
-2019-10-02 23:00:00 and we want to forecast the next day (24-steps
-ahead) from 2019-10-03 00:00:00 to 2019-10-03 23:00:00.
+The dataset `m4_monthly` is a monthly `tsibble` contains the time series
+with the ID `"M10960"` from the M4 Forecasting Competition. The first
+300 observations are used for model training and last 24 observations
+are used for testing (hold-out data).
 
 ``` r
+# Split data into training and testing
+data_train <- m4_monthly %>%
+  slice_head(n = 300)
 
-# Prepare dataset
-data <- elec_price %>%
-  tscv::clean_data()
+data_train
+#> # A tsibble: 300 x 4 [1M]
+#> # Key:       series_id, category [1]
+#>    date_time series_id category value
+#>        <mth> <chr>     <chr>    <dbl>
+#>  1  1990 Jan M10960    Micro     2040
+#>  2  1990 Feb M10960    Micro     1977
+#>  3  1990 Mar M10960    Micro     1966
+#>  4  1990 Apr M10960    Micro     1955
+#>  5  1990 May M10960    Micro     1959
+#>  6  1990 Jun M10960    Micro     1979
+#>  7  1990 Jul M10960    Micro     2015
+#>  8  1990 Aug M10960    Micro     2011
+#>  9  1990 Sep M10960    Micro     2007
+#> 10  1990 Oct M10960    Micro     2037
+#> # ... with 290 more rows
 
-# Setup for time series cross validation
-n_init <- 2400   # size for training window
-n_ahead <- 24    # size for testing window (forecast horizon)
-mode <- "slide"  # fixed window approach
-n_skip <- 23     # skip 23 observations
-n_lag <- 0       # no lag
 
-data <- data %>%
-  tscv::split_data(
-    n_init = n_init,
-    n_ahead = n_ahead,
-    mode = mode,
-    n_skip = n_skip,
-    n_lag = n_lag)
+data_test <- m4_monthly %>%
+  slice_tail(n = 24)
 
-# Use only a single time series
-data <- data %>%
-  filter(BZN == "DE") %>%  # filter to bidding zone Germany
-  filter(split == 176)     # filter to split 176
-
-# Use only training data for modeling
-data_train <- data %>%
-  filter(sample == "train")
+data_test
+#> # A tsibble: 24 x 4 [1M]
+#> # Key:       series_id, category [1]
+#>    date_time series_id category value
+#>        <mth> <chr>     <chr>    <dbl>
+#>  1  2015 Jan M10960    Micro     2071
+#>  2  2015 Feb M10960    Micro     2038
+#>  3  2015 Mar M10960    Micro     2036
+#>  4  2015 Apr M10960    Micro     2039
+#>  5  2015 May M10960    Micro     2048
+#>  6  2015 Jun M10960    Micro     2056
+#>  7  2015 Jul M10960    Micro     2074
+#>  8  2015 Aug M10960    Micro     2082
+#>  9  2015 Sep M10960    Micro     2075
+#> 10  2015 Oct M10960    Micro     2111
+#> # ... with 14 more rows
 ```
 
 ### Model
@@ -95,14 +103,14 @@ trained ESN.
 ``` r
 # Automatic model training of ESN
 mdl <- data_train %>%
-  fabletools::model("ESN" = ESN(Value))
+  model("ESN" = ESN(value))
 
 mdl
-#> # A mable: 1 x 5
-#> # Key:     Series, Unit, BZN, split [1]
-#>   Series           Unit      BZN   split                               ESN
-#>   <chr>            <chr>     <chr> <int>                           <model>
-#> 1 Day-ahead Prices [EUR/MWh] DE      176 <ESN({4,200,1}, {0.95,0.59,0.1})>
+#> # A mable: 1 x 3
+#> # Key:     series_id, category [1]
+#>   series_id category                            ESN
+#>   <chr>     <chr>                           <model>
+#> 1 M10960    Micro    <ESN({2,200,1}, {1,0.1,9.55})>
 ```
 
 The function `report` is used to get a detailed summary of the trained
@@ -114,8 +122,8 @@ trained model:
       - `Reservoir`: The number of internal states (the reservoir is the
         hidden layer of an ESN)
       - `Outputs`: The number of output variables (= response variables)
-  - Model inputs (from the output, you can see that four model inputs
-    are used (three lags plus the intercept term))
+  - Model inputs (from the output, you can see that two model inputs are
+    used (one lag plus the intercept term))
       - `Constant`: Indicates whether an intercept term is used or not
       - `Lags`: The lags of the output variable, which are used as model
         input
@@ -144,35 +152,35 @@ trained model:
 mdl %>%
   select(ESN) %>%
   report()
-#> Series: Value 
-#> Model: ESN({4,200,1}, {0.95,0.59,0.1}) 
+#> Series: value 
+#> Model: ESN({2,200,1}, {1,0.1,9.55}) 
 #> 
 #> Network size: 
-#>  Inputs        =  4 
+#>  Inputs        =  2 
 #>  Reservoir     =  200 
 #>  Outputs       =  1 
 #> 
 #> Model inputs: 
 #>  Constant =  TRUE 
-#>  Lags     =  1 24 168 
+#>  Lags     =  12 
 #> 
-#> Differences =  0 
+#> Differences =  1 
 #> 
 #> Scaling: 
 #>  Inputs         = (-1, 1)
 #>  Random uniform = (-0.5, 0.5)
 #> 
 #> Hyperparameters: 
-#>  alpha   = 0.95 
-#>  rho     = 0.59 
-#>  lambda  = 0.1 
+#>  alpha   = 1 
+#>  rho     = 0.1 
+#>  lambda  = 9.55 
 #>  density = 0.1 
 #> 
 #> Metrics: 
-#>  df  = 30.12 
-#>  aic = -6.09 
-#>  bic = -6.01 
-#>  hq  = -6.06
+#>  df  = 2.42 
+#>  aic = -4.55 
+#>  bic = -4.51 
+#>  hq  = -4.53
 ```
 
 ### Forecast
@@ -184,36 +192,37 @@ forecasts of the ESN.
 ``` r
 # Forecast models
 fcst <- mdl %>%
-  fabletools::forecast(h = n_ahead)
+  forecast(h = 24)
 
 fcst
-#> # A fable: 24 x 8 [1h] <UTC>
-#> # Key:     Series, Unit, BZN, split, .model [1]
-#>    Series         Unit    BZN   split .model Time                    Value .mean
-#>    <chr>          <chr>   <chr> <int> <chr>  <dttm>                 <dist> <dbl>
-#>  1 Day-ahead Pri~ [EUR/M~ DE      176 ESN    2019-10-03 00:00:00 N(27, 15)  26.9
-#>  2 Day-ahead Pri~ [EUR/M~ DE      176 ESN    2019-10-03 01:00:00 N(28, 30)  27.7
-#>  3 Day-ahead Pri~ [EUR/M~ DE      176 ESN    2019-10-03 02:00:00 N(29, 51)  29.0
-#>  4 Day-ahead Pri~ [EUR/M~ DE      176 ESN    2019-10-03 03:00:00 N(31, 61)  31.4
-#>  5 Day-ahead Pri~ [EUR/M~ DE      176 ESN    2019-10-03 04:00:00 N(40, 65)  39.8
-#>  6 Day-ahead Pri~ [EUR/M~ DE      176 ESN    2019-10-03 05:00:00 N(45, 60)  45.2
-#>  7 Day-ahead Pri~ [EUR/M~ DE      176 ESN    2019-10-03 06:00:00 N(47, 64)  46.9
-#>  8 Day-ahead Pri~ [EUR/M~ DE      176 ESN    2019-10-03 07:00:00 N(46, 64)  46.1
-#>  9 Day-ahead Pri~ [EUR/M~ DE      176 ESN    2019-10-03 08:00:00 N(45, 59)  44.6
-#> 10 Day-ahead Pri~ [EUR/M~ DE      176 ESN    2019-10-03 09:00:00 N(43, 59)  42.9
+#> # A fable: 24 x 6 [1M]
+#> # Key:     series_id, category, .model [1]
+#>    series_id category .model date_time         value .mean
+#>    <chr>     <chr>    <chr>      <mth>        <dist> <dbl>
+#>  1 M10960    Micro    ESN     2015 Jan  N(2070, 206) 2070.
+#>  2 M10960    Micro    ESN     2015 Feb  N(2035, 353) 2035.
+#>  3 M10960    Micro    ESN     2015 Mar  N(2038, 496) 2038.
+#>  4 M10960    Micro    ESN     2015 Apr  N(2041, 664) 2041.
+#>  5 M10960    Micro    ESN     2015 May  N(2048, 799) 2048.
+#>  6 M10960    Micro    ESN     2015 Jun N(2061, 1174) 2061.
+#>  7 M10960    Micro    ESN     2015 Jul N(2070, 1231) 2070.
+#>  8 M10960    Micro    ESN     2015 Aug N(2083, 1473) 2083.
+#>  9 M10960    Micro    ESN     2015 Sep N(2065, 1782) 2065.
+#> 10 M10960    Micro    ESN     2015 Oct N(2086, 1829) 2086.
 #> # ... with 14 more rows
 ```
 
 ### Visualize
 
-Plot the forecast along the actual values.
+Plot the forecast along the actual values (training and test data).
 
 ``` r
-tscv::plot_forecast(
-  fcst = fcst,         # forecasts as fable
-  data = data,         # training and test data
-  split = 176,         # only one split is visualized
-  include = 72)        # plot only the last 72 observations of training data
+# Visualize forecast and actual values
+fcst %>%
+  autoplot(
+    bind_rows(
+      data_train,
+      data_test))
 ```
 
 <img src="man/figures/README-plot-1.svg" width="100%" />
