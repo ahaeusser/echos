@@ -231,11 +231,12 @@ ESN <- function(formula, ...){
 #' @description Extract fitted values from a trained ESN.
 #'
 #' @param object An object of class \code{ESN}.
+#' @param ... Currently not in use.
 #'
 #' @return
 #' @export
 
-fitted.ESN <- function(object){
+fitted.ESN <- function(object, ...){
   object$est[[".fitted"]]
 }
 
@@ -245,11 +246,12 @@ fitted.ESN <- function(object){
 #' @description Extract residuals from a trained ESN.
 #'
 #' @param object An object of class \code{ESN}.
+#' @param ... Currently not in use.
 #'
 #' @return
 #' @export
 
-residuals.ESN <- function(object){
+residuals.ESN <- function(object, ...){
   object$est[[".resid"]]
 }
 

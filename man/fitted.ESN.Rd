@@ -4,10 +4,12 @@
 \alias{fitted.ESN}
 \title{Extract fitted values from a trained ESN}
 \usage{
-\method{fitted}{ESN}(object)
+\method{fitted}{ESN}(object, ...)
 }
 \arguments{
 \item{object}{An object of class \code{ESN}.}
+
+\item{...}{Currently not in use.}
 }
 \value{
 
