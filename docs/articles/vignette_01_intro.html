@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Introduction • echos</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/flatly/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
@@ -82,7 +82,6 @@
       <h1 data-toc-skip>Introduction</h1>
                         <h4 class="author">Alexander Häußer</h4>
             
-            <h4 class="date">2020-12-30</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ahaeusser/echos/blob/master/vignettes/vignette_01_intro.Rmd"><code>vignettes/vignette_01_intro.Rmd</code></a></small>
       <div class="hidden name"><code>vignette_01_intro.Rmd</code></div>
@@ -109,8 +108,7 @@
 <a href="#load-packages" class="anchor"></a>Load packages</h3>
 <div class="sourceCode" id="cb2"><pre class="downlit">
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ahaeusser/echos">echos</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ahaeusser/tscv">tscv</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org">dplyr</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tsibble.tidyverts.org">tsibble</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://fabletools.tidyverts.org/">fabletools</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://fable.tidyverts.org">fable</a></span><span class="op">)</span></pre></div>
@@ -118,36 +116,49 @@
 <div id="prepare-data" class="section level3">
 <h3 class="hasAnchor">
 <a href="#prepare-data" class="anchor"></a>Prepare data</h3>
-<p>The dataset <code>elec_price</code> is a hourly <code>tsibble</code> with day-ahead electricity spot prices in [EUR/MWh] from the ENTSO-E Transparency Platform. The dataset contains time series data from 2019-01-01 to 2019-12-31 for 8 european bidding zones (BZN). In this example, we will only model and forecast the data for Germany (<code>BZN == DE</code>) and for one specific split (<code>split == 176</code>). The training data ranges from 2019-06-25 00:00:00 to 2019-10-02 23:00:00 and we want to forecast the next day (24-steps ahead) from 2019-10-03 00:00:00 to 2019-10-03 23:00:00.</p>
+<p>The dataset <code>m4_monthly</code> is a monthly <code>tsibble</code> contains the time series with the ID <code>"M10960"</code> from the M4 Forecasting Competition. The first 300 observations are used for model training and last 24 observations are used for testing (hold-out data).</p>
 <div class="sourceCode" id="cb3"><pre class="downlit">
+<span class="co"># Split data into training and testing</span>
+<span class="va">data_train</span> <span class="op">&lt;-</span> <span class="va">m4_monthly</span> <span class="op">%&gt;%</span>
+  <span class="fu">slice_head</span><span class="op">(</span>n <span class="op">=</span> <span class="fl">300</span><span class="op">)</span>
 
-<span class="co"># Prepare dataset</span>
-<span class="va">data</span> <span class="op">&lt;-</span> <span class="va">elec_price</span> <span class="op">%&gt;%</span>
-  <span class="fu">tscv</span><span class="fu">::</span><span class="fu"><a href="https://ahaeusser.github.io/tscv/reference/clean_data.html">clean_data</a></span><span class="op">(</span><span class="op">)</span>
+<span class="va">data_train</span>
+<span class="co">#&gt; # A tsibble: 300 x 4 [1M]</span>
+<span class="co">#&gt; # Key:       series_id, category [1]</span>
+<span class="co">#&gt;    date_time series_id category value</span>
+<span class="co">#&gt;        &lt;mth&gt; &lt;chr&gt;     &lt;chr&gt;    &lt;dbl&gt;</span>
+<span class="co">#&gt;  1  1990 Jan M10960    Micro     2040</span>
+<span class="co">#&gt;  2  1990 Feb M10960    Micro     1977</span>
+<span class="co">#&gt;  3  1990 Mar M10960    Micro     1966</span>
+<span class="co">#&gt;  4  1990 Apr M10960    Micro     1955</span>
+<span class="co">#&gt;  5  1990 May M10960    Micro     1959</span>
+<span class="co">#&gt;  6  1990 Jun M10960    Micro     1979</span>
+<span class="co">#&gt;  7  1990 Jul M10960    Micro     2015</span>
+<span class="co">#&gt;  8  1990 Aug M10960    Micro     2011</span>
+<span class="co">#&gt;  9  1990 Sep M10960    Micro     2007</span>
+<span class="co">#&gt; 10  1990 Oct M10960    Micro     2037</span>
+<span class="co">#&gt; # ... with 290 more rows</span>
 
-<span class="co"># Setup for time series cross validation</span>
-<span class="va">n_init</span> <span class="op">&lt;-</span> <span class="fl">2400</span>   <span class="co"># size for training window</span>
-<span class="va">n_ahead</span> <span class="op">&lt;-</span> <span class="fl">24</span>    <span class="co"># size for testing window (forecast horizon)</span>
-<span class="va">mode</span> <span class="op">&lt;-</span> <span class="st">"slide"</span>  <span class="co"># fixed window approach</span>
-<span class="va">n_skip</span> <span class="op">&lt;-</span> <span class="fl">23</span>     <span class="co"># skip 23 observations</span>
-<span class="va">n_lag</span> <span class="op">&lt;-</span> <span class="fl">0</span>       <span class="co"># no lag</span>
 
-<span class="va">data</span> <span class="op">&lt;-</span> <span class="va">data</span> <span class="op">%&gt;%</span>
-  <span class="fu">tscv</span><span class="fu">::</span><span class="fu"><a href="https://ahaeusser.github.io/tscv/reference/split_data.html">split_data</a></span><span class="op">(</span>
-    n_init <span class="op">=</span> <span class="va">n_init</span>,
-    n_ahead <span class="op">=</span> <span class="va">n_ahead</span>,
-    mode <span class="op">=</span> <span class="va">mode</span>,
-    n_skip <span class="op">=</span> <span class="va">n_skip</span>,
-    n_lag <span class="op">=</span> <span class="va">n_lag</span><span class="op">)</span>
+<span class="va">data_test</span> <span class="op">&lt;-</span> <span class="va">m4_monthly</span> <span class="op">%&gt;%</span>
+  <span class="fu">slice_tail</span><span class="op">(</span>n <span class="op">=</span> <span class="fl">24</span><span class="op">)</span>
 
-<span class="co"># Use only a single time series</span>
-<span class="va">data</span> <span class="op">&lt;-</span> <span class="va">data</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">BZN</span> <span class="op">==</span> <span class="st">"DE"</span><span class="op">)</span> <span class="op">%&gt;%</span>  <span class="co"># filter to bidding zone Germany</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">split</span> <span class="op">==</span> <span class="fl">176</span><span class="op">)</span>     <span class="co"># filter to split 176</span>
-
-<span class="co"># Use only training data for modeling</span>
-<span class="va">data_train</span> <span class="op">&lt;-</span> <span class="va">data</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">sample</span> <span class="op">==</span> <span class="st">"train"</span><span class="op">)</span></pre></div>
+<span class="va">data_test</span>
+<span class="co">#&gt; # A tsibble: 24 x 4 [1M]</span>
+<span class="co">#&gt; # Key:       series_id, category [1]</span>
+<span class="co">#&gt;    date_time series_id category value</span>
+<span class="co">#&gt;        &lt;mth&gt; &lt;chr&gt;     &lt;chr&gt;    &lt;dbl&gt;</span>
+<span class="co">#&gt;  1  2015 Jan M10960    Micro     2071</span>
+<span class="co">#&gt;  2  2015 Feb M10960    Micro     2038</span>
+<span class="co">#&gt;  3  2015 Mar M10960    Micro     2036</span>
+<span class="co">#&gt;  4  2015 Apr M10960    Micro     2039</span>
+<span class="co">#&gt;  5  2015 May M10960    Micro     2048</span>
+<span class="co">#&gt;  6  2015 Jun M10960    Micro     2056</span>
+<span class="co">#&gt;  7  2015 Jul M10960    Micro     2074</span>
+<span class="co">#&gt;  8  2015 Aug M10960    Micro     2082</span>
+<span class="co">#&gt;  9  2015 Sep M10960    Micro     2075</span>
+<span class="co">#&gt; 10  2015 Oct M10960    Micro     2111</span>
+<span class="co">#&gt; # ... with 14 more rows</span></pre></div>
 </div>
 <div id="model" class="section level3">
 <h3 class="hasAnchor">
@@ -156,14 +167,14 @@
 <div class="sourceCode" id="cb4"><pre class="downlit">
 <span class="co"># Automatic model training of ESN</span>
 <span class="va">mdl</span> <span class="op">&lt;-</span> <span class="va">data_train</span> <span class="op">%&gt;%</span>
-  <span class="fu">fabletools</span><span class="fu">::</span><span class="fu"><a href="https://fabletools.tidyverts.org/reference/model.html">model</a></span><span class="op">(</span><span class="st">"ESN"</span> <span class="op">=</span> <span class="fu"><a href="../reference/ESN.html">ESN</a></span><span class="op">(</span><span class="va">Value</span><span class="op">)</span><span class="op">)</span>
+  <span class="fu"><a href="https://fabletools.tidyverts.org/reference/model.html">model</a></span><span class="op">(</span><span class="st">"ESN"</span> <span class="op">=</span> <span class="fu"><a href="../reference/ESN.html">ESN</a></span><span class="op">(</span><span class="va">value</span><span class="op">)</span><span class="op">)</span>
 
 <span class="va">mdl</span>
-<span class="co">#&gt; # A mable: 1 x 5</span>
-<span class="co">#&gt; # Key:     Series, Unit, BZN, split [1]</span>
-<span class="co">#&gt;   Series           Unit      BZN   split                               ESN</span>
-<span class="co">#&gt;   &lt;chr&gt;            &lt;chr&gt;     &lt;chr&gt; &lt;int&gt;                           &lt;model&gt;</span>
-<span class="co">#&gt; 1 Day-ahead Prices [EUR/MWh] DE      176 &lt;ESN({4,200,1}, {0.95,0.59,0.1})&gt;</span></pre></div>
+<span class="co">#&gt; # A mable: 1 x 3</span>
+<span class="co">#&gt; # Key:     series_id, category [1]</span>
+<span class="co">#&gt;   series_id category                            ESN</span>
+<span class="co">#&gt;   &lt;chr&gt;     &lt;chr&gt;                           &lt;model&gt;</span>
+<span class="co">#&gt; 1 M10960    Micro    &lt;ESN({2,200,1}, {1,0.1,9.55})&gt;</span></pre></div>
 <p>The function <code>report</code> is used to get a detailed summary of the trained ESN. From the output below, you get the following information about the trained model:</p>
 <ul>
 <li>Network size
@@ -176,7 +187,7 @@
 <code>Outputs</code>: The number of output variables (= response variables)</li>
 </ul>
 </li>
-<li>Model inputs (from the output, you can see that four model inputs are used (three lags plus the intercept term))
+<li>Model inputs (from the output, you can see that two model inputs are used (one lag plus the intercept term))
 <ul>
 <li>
 <code>Constant</code>: Indicates whether an intercept term is used or not</li>
@@ -223,37 +234,37 @@
 <div class="sourceCode" id="cb5"><pre class="downlit">
 <span class="co"># Detailed report of ESN</span>
 <span class="va">mdl</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">ESN</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">select</span><span class="op">(</span><span class="va">ESN</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://fabletools.tidyverts.org/reference/report.html">report</a></span><span class="op">(</span><span class="op">)</span>
-<span class="co">#&gt; Series: Value </span>
-<span class="co">#&gt; Model: ESN({4,200,1}, {0.95,0.59,0.1}) </span>
+<span class="co">#&gt; Series: value </span>
+<span class="co">#&gt; Model: ESN({2,200,1}, {1,0.1,9.55}) </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Network size: </span>
-<span class="co">#&gt;  Inputs        =  4 </span>
+<span class="co">#&gt;  Inputs        =  2 </span>
 <span class="co">#&gt;  Reservoir     =  200 </span>
 <span class="co">#&gt;  Outputs       =  1 </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Model inputs: </span>
 <span class="co">#&gt;  Constant =  TRUE </span>
-<span class="co">#&gt;  Lags     =  1 24 168 </span>
+<span class="co">#&gt;  Lags     =  12 </span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Differences =  0 </span>
+<span class="co">#&gt; Differences =  1 </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Scaling: </span>
 <span class="co">#&gt;  Inputs         = (-1, 1)</span>
 <span class="co">#&gt;  Random uniform = (-0.5, 0.5)</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Hyperparameters: </span>
-<span class="co">#&gt;  alpha   = 0.95 </span>
-<span class="co">#&gt;  rho     = 0.59 </span>
-<span class="co">#&gt;  lambda  = 0.1 </span>
+<span class="co">#&gt;  alpha   = 1 </span>
+<span class="co">#&gt;  rho     = 0.1 </span>
+<span class="co">#&gt;  lambda  = 9.55 </span>
 <span class="co">#&gt;  density = 0.1 </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Metrics: </span>
-<span class="co">#&gt;  df  = 30.12 </span>
-<span class="co">#&gt;  aic = -6.09 </span>
-<span class="co">#&gt;  bic = -6.01 </span>
-<span class="co">#&gt;  hq  = -6.06</span></pre></div>
+<span class="co">#&gt;  df  = 2.42 </span>
+<span class="co">#&gt;  aic = -4.55 </span>
+<span class="co">#&gt;  bic = -4.51 </span>
+<span class="co">#&gt;  hq  = -4.53</span></pre></div>
 </div>
 <div id="forecast" class="section level3">
 <h3 class="hasAnchor">
@@ -262,35 +273,36 @@
 <div class="sourceCode" id="cb6"><pre class="downlit">
 <span class="co"># Forecast models</span>
 <span class="va">fcst</span> <span class="op">&lt;-</span> <span class="va">mdl</span> <span class="op">%&gt;%</span>
-  <span class="fu">fabletools</span><span class="fu">::</span><span class="fu"><a href="https://fabletools.tidyverts.org/reference/forecast.html">forecast</a></span><span class="op">(</span>h <span class="op">=</span> <span class="va">n_ahead</span><span class="op">)</span>
+  <span class="fu"><a href="https://fabletools.tidyverts.org/reference/forecast.html">forecast</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">24</span><span class="op">)</span>
 
 <span class="va">fcst</span>
-<span class="co">#&gt; # A fable: 24 x 8 [1h] &lt;UTC&gt;</span>
-<span class="co">#&gt; # Key:     Series, Unit, BZN, split, .model [1]</span>
-<span class="co">#&gt;    Series         Unit    BZN   split .model Time                    Value .mean</span>
-<span class="co">#&gt;    &lt;chr&gt;          &lt;chr&gt;   &lt;chr&gt; &lt;int&gt; &lt;chr&gt;  &lt;dttm&gt;                 &lt;dist&gt; &lt;dbl&gt;</span>
-<span class="co">#&gt;  1 Day-ahead Pri~ [EUR/M~ DE      176 ESN    2019-10-03 00:00:00 N(27, 15)  26.9</span>
-<span class="co">#&gt;  2 Day-ahead Pri~ [EUR/M~ DE      176 ESN    2019-10-03 01:00:00 N(28, 30)  27.7</span>
-<span class="co">#&gt;  3 Day-ahead Pri~ [EUR/M~ DE      176 ESN    2019-10-03 02:00:00 N(29, 51)  29.0</span>
-<span class="co">#&gt;  4 Day-ahead Pri~ [EUR/M~ DE      176 ESN    2019-10-03 03:00:00 N(31, 61)  31.4</span>
-<span class="co">#&gt;  5 Day-ahead Pri~ [EUR/M~ DE      176 ESN    2019-10-03 04:00:00 N(40, 65)  39.8</span>
-<span class="co">#&gt;  6 Day-ahead Pri~ [EUR/M~ DE      176 ESN    2019-10-03 05:00:00 N(45, 60)  45.2</span>
-<span class="co">#&gt;  7 Day-ahead Pri~ [EUR/M~ DE      176 ESN    2019-10-03 06:00:00 N(47, 64)  46.9</span>
-<span class="co">#&gt;  8 Day-ahead Pri~ [EUR/M~ DE      176 ESN    2019-10-03 07:00:00 N(46, 64)  46.1</span>
-<span class="co">#&gt;  9 Day-ahead Pri~ [EUR/M~ DE      176 ESN    2019-10-03 08:00:00 N(45, 59)  44.6</span>
-<span class="co">#&gt; 10 Day-ahead Pri~ [EUR/M~ DE      176 ESN    2019-10-03 09:00:00 N(43, 59)  42.9</span>
+<span class="co">#&gt; # A fable: 24 x 6 [1M]</span>
+<span class="co">#&gt; # Key:     series_id, category, .model [1]</span>
+<span class="co">#&gt;    series_id category .model date_time         value .mean</span>
+<span class="co">#&gt;    &lt;chr&gt;     &lt;chr&gt;    &lt;chr&gt;      &lt;mth&gt;        &lt;dist&gt; &lt;dbl&gt;</span>
+<span class="co">#&gt;  1 M10960    Micro    ESN     2015 Jan  N(2070, 206) 2070.</span>
+<span class="co">#&gt;  2 M10960    Micro    ESN     2015 Feb  N(2035, 353) 2035.</span>
+<span class="co">#&gt;  3 M10960    Micro    ESN     2015 Mar  N(2038, 496) 2038.</span>
+<span class="co">#&gt;  4 M10960    Micro    ESN     2015 Apr  N(2041, 664) 2041.</span>
+<span class="co">#&gt;  5 M10960    Micro    ESN     2015 May  N(2048, 799) 2048.</span>
+<span class="co">#&gt;  6 M10960    Micro    ESN     2015 Jun N(2061, 1174) 2061.</span>
+<span class="co">#&gt;  7 M10960    Micro    ESN     2015 Jul N(2070, 1231) 2070.</span>
+<span class="co">#&gt;  8 M10960    Micro    ESN     2015 Aug N(2083, 1473) 2083.</span>
+<span class="co">#&gt;  9 M10960    Micro    ESN     2015 Sep N(2065, 1782) 2065.</span>
+<span class="co">#&gt; 10 M10960    Micro    ESN     2015 Oct N(2086, 1829) 2086.</span>
 <span class="co">#&gt; # ... with 14 more rows</span></pre></div>
 </div>
 <div id="visualize" class="section level3">
 <h3 class="hasAnchor">
 <a href="#visualize" class="anchor"></a>Visualize</h3>
-<p>Plot the forecast along the actual values.</p>
+<p>Plot the forecast along the actual values (training and test data).</p>
 <div class="sourceCode" id="cb7"><pre class="downlit">
-<span class="fu">tscv</span><span class="fu">::</span><span class="fu"><a href="https://ahaeusser.github.io/tscv/reference/plot_forecast.html">plot_forecast</a></span><span class="op">(</span>
-  fcst <span class="op">=</span> <span class="va">fcst</span>,         <span class="co"># forecasts as fable</span>
-  data <span class="op">=</span> <span class="va">data</span>,         <span class="co"># training and test data</span>
-  split <span class="op">=</span> <span class="fl">176</span>,         <span class="co"># only one split is visualized</span>
-  include <span class="op">=</span> <span class="fl">72</span><span class="op">)</span>        <span class="co"># plot only the last 72 observations of training data</span></pre></div>
+<span class="co"># Visualize forecast and actual values</span>
+<span class="va">fcst</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/autoplot.html">autoplot</a></span><span class="op">(</span>
+    <span class="fu">bind_rows</span><span class="op">(</span>
+      <span class="va">data_train</span>,
+      <span class="va">data_test</span><span class="op">)</span><span class="op">)</span></pre></div>
 <p><img src="vignette_01_intro_files/figure-html/plot-1.png" width="672"></p>
 </div>
 </div>
