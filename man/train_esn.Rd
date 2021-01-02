@@ -50,6 +50,8 @@ train_esn(
 
 \item{density}{Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).}
 
+\item{weights}{Numeric vector. Observation weights for weighted least squares estimation.}
+
 \item{scale_runif}{Numeric vector. The lower and upper bound of the uniform distribution.}
 
 \item{scale_inputs}{Numeric vector. The lower and upper bound for scaling the time series data.}

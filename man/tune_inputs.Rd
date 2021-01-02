@@ -35,6 +35,8 @@ tune_inputs(
 \item{inf_crit}{Character value. The information criterion \code{inf_crit = c("aic", "bic", "hq")}.}
 
 \item{n_sample}{Integer value. The number of random samples for random search.}
+
+\item{n_seed}{Integer value. The seed for the random number generator (for reproducibility).}
 }
 \value{
 A \code{list} containing:

@@ -4,7 +4,7 @@
 \alias{residuals.ESN}
 \title{Extract residuals from a trained ESN}
 \usage{
-\method{residuals}{ESN}(object, ...)
+\method{residuals}{ESN}(object)
 }
 \arguments{
 \item{object}{An object of class \code{ESN}.}

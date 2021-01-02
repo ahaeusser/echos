@@ -235,7 +235,7 @@ ESN <- function(formula, ...){
 #' @return
 #' @export
 
-fitted.ESN <- function(object, ...){
+fitted.ESN <- function(object){
   object$est[[".fitted"]]
 }
 
@@ -249,7 +249,7 @@ fitted.ESN <- function(object, ...){
 #' @return
 #' @export
 
-residuals.ESN <- function(object, ...){
+residuals.ESN <- function(object){
   object$est[[".resid"]]
 }
 
@@ -263,8 +263,8 @@ residuals.ESN <- function(object, ...){
 #' @return
 #' @export
 
-model_sum.ESN <- function(x){
-  x$spec
+model_sum.ESN <- function(object){
+  object$spec
 }
 
 
