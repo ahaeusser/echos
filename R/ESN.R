@@ -481,6 +481,7 @@ reservoir.mdl_df <- function(object) {
       values_to = ".spec")
   
   key_tbl <- object %>%
+    as_tibble() %>%
     select(-c(.spec))
   
   # Extract states_train
@@ -533,6 +534,7 @@ pars.mdl_df <- function(object, ...) {
       values_to = ".spec")
   
   key_tbl <- object %>%
+    as_tibble() %>%
     select(-c(.spec))
   
   # Extract states_train
