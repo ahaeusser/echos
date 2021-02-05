@@ -401,3 +401,157 @@ report.ESN <- function(object) {
   )
 }
 
+
+
+
+
+
+#' @title Estimated coefficients
+#' 
+#' @description Return the estimated coefficients from a trained ESN as tibble.
+#'
+#' @param object An object of class \code{ESN}.
+#'
+#' @return A tibble containing the estimated coefficients.
+#' @export
+
+tidy.ESN <- function(object) {
+  
+  tibble(
+    term = rownames(object$model$method$model_weights$wout),
+    estimate = as.numeric(object$model$method$model_weights$wout)
+  )
+  
+}
+
+
+
+
+
+#' @title Summary of model fit
+#' 
+#' @description Return summary statistics from a trained ESN as tibble.
+#'  \itemize{
+#'    \item{\code{df}: Effective degrees of freedom.}
+#'    \item{\code{aic}: Akaike information criterion.}
+#'    \item{\code{bic}: Bayesian information criterion.}
+#'    \item{\code{hq}: Hannan-Quinn information criterion.}
+#'       }
+#'
+#' @param object An object of class \code{ESN}.
+#'
+#' @return A tibble containing the summary statistics.
+#' @export
+
+glance.ESN <- function(object) {
+  
+  object$model$method$model_metrics
+  
+}
+
+
+
+
+
+
+
+#' @title Return the reservoir from a trained ESN as tibble
+#' 
+#' @description Return the reservoir (internal states) from a
+#'   trained ESN as tibble. The function works only if the
+#'   model within the \code{mdl_df} is of class \code{ESN}.
+#'
+#' @param object An object of class \code{mdl_df}.
+#'
+#' @return A tibble containing the reservoir (internal states).
+#' @export
+
+reservoir <- function(object) {
+  UseMethod("reservoir")
+}
+
+
+#' @export
+reservoir.mdl_df <- function(object) {
+  
+  object <- object %>%
+    pivot_longer(
+      cols = mable_vars(object),
+      names_to = ".model",
+      values_to = ".spec")
+  
+  key_tbl <- object %>%
+    select(-c(.spec))
+  
+  # Extract states_train
+  object <- map(
+    .x = seq_len(nrow(key_tbl)),
+    .f = ~{as_tibble(object[[".spec"]][[.x]]$fit$model$states_train)})
+  
+  # Add columns with key variables
+  object <- map(
+    .x = seq_len(nrow(key_tbl)),
+    .f = ~{
+      bind_cols(
+        key_tbl[.x, ],
+        object[[.x]])
+    })
+  
+  # Flatten list row-wise
+  object <- bind_rows(object)
+  
+  return(object)
+}
+
+
+
+
+
+#' @title Return hyper-parameters from a trained ESN as tibble
+#' 
+#' @description Return the hyper-parameters from a
+#'   trained ESN as tibble. The function works only if the
+#'   model within the \code{mdl_df} is of class \code{ESN}.
+#'
+#' @param object An object of class \code{mdl_df}.
+#'
+#' @return A tibble containing the hyper-parameters.
+#' @export
+
+pars <- function(object, ...) {
+  UseMethod("pars")
+}
+
+
+#' @export
+pars.mdl_df <- function(object, ...) {
+  
+  object <- object %>%
+    pivot_longer(
+      cols = mable_vars(object),
+      names_to = ".model",
+      values_to = ".spec")
+  
+  key_tbl <- object %>%
+    select(-c(.spec))
+  
+  # Extract states_train
+  object <- map(
+    .x = seq_len(nrow(key_tbl)),
+    .f = ~{as_tibble(object[[".spec"]][[.x]]$fit$model$method$model_pars)})
+  
+  # Add columns with key variables
+  object <- map(
+    .x = seq_len(nrow(key_tbl)),
+    .f = ~{
+      bind_cols(
+        key_tbl[.x, ],
+        object[[.x]])
+    })
+  
+  # Flatten list row-wise
+  object <- bind_rows(object)
+  
+  return(object)
+}
+
