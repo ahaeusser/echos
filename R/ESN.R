@@ -508,24 +508,45 @@ reservoir.mdl_df <- function(object) {
 
 
 
-#' @title Return hyper-parameters from a trained ESN as tibble
+#' @title Extract and return values from a trained ESN as tibble
 #' 
-#' @description Return the hyper-parameters from a
-#'   trained ESN as tibble. The function works only if the
+#' @description Extract and return values from a trained ESN
+#'   as tibble. The function works only if the
 #'   model within the \code{mdl_df} is of class \code{ESN}.
+#'   The extracted values are are stored in a tibble with
+#'   the following columns:
+#'   
+#'   \itemize{
+#'     \item{\code{spec}: Character value. Succinct summary of model specifications.}
+#'     \item{\code{n_inputs}: Integer value. The number of model inputs.}
+#'     \item{\code{n_res}: Integer value. The number of internal states within the reservoir (hidden layer).}
+#'     \item{\code{n_outputs}: Integer value. The number of model outputs.}
+#'     \item{\code{n_diff}: Integer value. The number of non-seasonal differences.}
+#'     \item{\code{const}: Logical value. If \code{TRUE}, a constant term (intercept) is used.}
+#'     \item{\code{lags}: A \code{list} containing integer vectors with the lags associated with each input variable.}
+#'     \item{\code{period}: A \code{list} containing the periodicity as integer vector.}
+#'     \item{\code{alpha}: Numeric value. The leakage rate (smoothing parameter) applied to the reservoir.}
+#'     \item{\code{rho}: Numeric value. The spectral radius for scaling the reservoir weight matrix.}
+#'     \item{\code{lambda}: Numeric value. The regularization (shrinkage) parameter for ridge regression.}
+#'     \item{\code{density}: Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).}
+#'     \item{\code{df}: Numeric value. The effective degree of freedom.}
+#'     \item{\code{aic}: Numeric value. The Akaike information criterion.}
+#'     \item{\code{bic}: Numeric value. The Bayesian information criterion.}
+#'     \item{\code{hq}: Numeric value. The Hannan-Quinn information criterion.}
+#'     }
 #'
 #' @param object An object of class \code{mdl_df}.
 #'
 #' @return A tibble containing the hyper-parameters.
 #' @export
 
-pars <- function(object, ...) {
-  UseMethod("pars")
+extract_esn <- function(object, ...) {
+  UseMethod("extract_esn")
 }
 
 
 #' @export
-pars.mdl_df <- function(object, ...) {
+extract_esn.mdl_df <- function(object, ...) {
   
   object <- object %>%
     pivot_longer(
@@ -537,10 +558,33 @@ pars.mdl_df <- function(object, ...) {
     as_tibble() %>%
     select(-c(.spec))
   
-  # Extract states_train
-  object <- map(
+  # Extract model details
+  mdl_tbl <- map(
     .x = seq_len(nrow(key_tbl)),
-    .f = ~{as_tibble(object[[".spec"]][[.x]]$fit$model$method$model_pars)})
+    .f = ~{
+      
+      lst_mdl <- object[[".spec"]][[.x]]$fit$model$method
+      
+      tibble(
+        spec      = lst_mdl[["model_spec"]],
+        n_inputs  = lst_mdl[["model_layers"]][["n_inputs"]],
+        n_res     = lst_mdl[["model_layers"]][["n_res"]],
+        n_outputs = lst_mdl[["model_layers"]][["n_outputs"]],
+        n_diff    = lst_mdl[["diff_inputs"]][["n_diff"]],
+        const     = lst_mdl[["model_inputs"]][["const"]],
+        lags      = lst_mdl[["model_inputs"]][["lags"]],
+        period    = list(lst_mdl[["model_inputs"]][["period"]]),
+        alpha     = lst_mdl[["model_pars"]][["alpha"]],
+        rho       = lst_mdl[["model_pars"]][["rho"]],
+        lambda    = lst_mdl[["model_pars"]][["lambda"]],
+        density   = lst_mdl[["model_pars"]][["density"]],
+        df        = lst_mdl[["model_metrics"]][["df"]],
+        aic       = lst_mdl[["model_metrics"]][["aic"]],
+        bic       = lst_mdl[["model_metrics"]][["bic"]],
+        hq        = lst_mdl[["model_metrics"]][["hq"]]
+      )
+    })
+  
   
   # Add columns with key variables
   object <- map(
@@ -548,7 +592,8 @@ pars.mdl_df <- function(object, ...) {
     .f = ~{
       bind_cols(
         key_tbl[.x, ],
-        object[[.x]])
+        mdl_tbl[[.x]]
+      )
     })
   
   # Flatten list row-wise
