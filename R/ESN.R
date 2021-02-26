@@ -11,6 +11,7 @@
 #' @param n_fourier Integer vector. The number of fourier terms (seasonal cycles per period).
 #' @param n_initial Integer value. The number of observations of internal states for initial drop out (throw-off).
 #' @param n_res Integer value. The number of internal states within the reservoir (hidden layer).
+#' @param n_diff Integer value. The number of non-seasonal differences. If \code{NULL}, automatic differencing is applied.
 #' @param n_seed Integer value. The seed for the random number generator (for reproducibility).
 #' @param alpha Numeric value. The leakage rate (smoothing parameter) applied to the reservoir.
 #' @param rho Numeric value. The spectral radius for scaling the reservoir weight matrix.
@@ -42,6 +43,7 @@ auto_esn <- function(.data,
                      n_fourier = NULL,
                      n_initial = 10,
                      n_res = 200,
+                     n_diff = NULL,
                      n_seed = 42,
                      alpha = 0.8,
                      rho = 1,
@@ -77,10 +79,11 @@ auto_esn <- function(.data,
   period <- sort(as.numeric(period[period < n_obs]))
   
   # Check stationarity of time series
-  n_diff <- check_unitroots(
-    .data = .data,
-    alpha = 0.05)$n_diff
-  
+  if (is.null(n_diff)) {
+    n_diff <- check_unitroots(
+      .data = .data,
+      alpha = 0.05)$n_diff
+  }
   
   # Select model inputs (lags, fourier terms) =================================
   

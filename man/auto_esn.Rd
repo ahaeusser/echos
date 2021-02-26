@@ -12,6 +12,7 @@ auto_esn(
   n_fourier = NULL,
   n_initial = 10,
   n_res = 200,
+  n_diff = NULL,
   n_seed = 42,
   alpha = 0.8,
   rho = 1,
@@ -39,6 +40,8 @@ auto_esn(
 \item{n_initial}{Integer value. The number of observations of internal states for initial drop out (throw-off).}
 
 \item{n_res}{Integer value. The number of internal states within the reservoir (hidden layer).}
+
+\item{n_diff}{Integer value. The number of non-seasonal differences. If \code{NULL}, automatic differencing is applied.}
 
 \item{n_seed}{Integer value. The seed for the random number generator (for reproducibility).}
 
