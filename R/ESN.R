@@ -40,25 +40,27 @@ auto_esn <- function(.data,
                      specials,
                      const = TRUE,
                      lags = NULL,
-                     n_fourier = NULL,
-                     n_initial = 10,
+                     fourier = NULL,
+                     xreg = NULL,
+                     n_initial = 100,
                      n_res = 200,
-                     n_diff = NULL,
+                     dy = 0,
+                     dx = 0,
                      n_seed = 42,
                      alpha = 0.8,
                      rho = 1,
                      lambda = 1,
                      density = 0.1,
+                     weights = NULL,
                      scale_inputs = c(-1, 1),
                      scale_runif = c(-0.5, 0.5),
-                     inf_crit = "bic",
-                     control_inputs = list(
-                       tune = TRUE,
-                       n_sample = 1000),
-                     control_pars = list(
-                       tune = TRUE,
-                       lower = c(0, 0.1, 0.1),
-                       upper = c(1, 5, 10)),
+                     control_tuning = list(
+                       inf_crit = "aic",
+                       inputs_tune = TRUE,
+                       n_sample = 1000,
+                       pars_tune = TRUE,
+                       lower = c(1e-4, 1e-2, 1e-2),
+                       upper = c(0.9999, 2.5, 100)),
                      ...) {
   
   # Number of response variables
@@ -79,11 +81,14 @@ auto_esn <- function(.data,
   period <- sort(as.numeric(period[period < n_obs]))
   
   # Check stationarity of time series
-  if (is.null(n_diff)) {
-    n_diff <- check_unitroots(
-      .data = .data,
-      alpha = 0.05)$n_diff
+  if (is.null(dy)) {
+    dy <- unitroot_ndiffs(
+      x = .data[[measured_vars(.data)]],
+      alpha = 0.05,
+      unitroot_fn = ~unitroot_kpss(.)["kpss_pvalue"],
+      differences = 0:1)
   }
+  
   
   # Select model inputs (lags, fourier terms) =================================
   
@@ -91,22 +96,24 @@ auto_esn <- function(.data,
     lags <- list(c(1, period))
   }
   
-  if (control_inputs$tune == TRUE) {
+  if (control_tuning$inputs_tune == TRUE) {
     model_inputs <- tune_inputs(
       data = .data,
       lags = lags,
-      n_fourier = n_fourier,
-      period = period,
-      n_diff = n_diff,
+      fourier = fourier,
+      xreg = xreg,
+      dy = dy,
+      dx = dx,
       n_initial = n_initial,
+      weights = weights,
       scale_inputs = scale_inputs,
-      inf_crit = inf_crit,
-      n_sample = control_inputs$n_sample,
+      inf_crit = control_tuning$inf_crit,
+      n_sample = control_tuning$n_sample,
       n_seed = n_seed)
     
     const <- model_inputs$const
     lags <- model_inputs$lags
-    n_fourier <- model_inputs$n_fourier
+    fourier <- model_inputs$fourier
   }
   
   
@@ -116,38 +123,37 @@ auto_esn <- function(.data,
   pars <- c(alpha, rho, lambda)
   
   # Tune hyperparameters via L-BFGS-B
-  if (control_pars$tune == TRUE) {
-    
-    # Lower and upper bounds (box constraints)
-    lower <- control_pars$lower
-    upper <- control_pars$upper
+  if (control_tuning$pars_tune == TRUE) {
     
     model_pars <- optim(
       par = pars,
       fn = tune_pars,
-      lower = lower,
-      upper = upper,
+      lower = control_tuning$lower,
+      upper = control_tuning$upper,
       method = "L-BFGS-B",
       data = .data,
+      inf_crit = control_tuning$inf_crit,
       lags = lags,
+      fourier = fourier,
+      xreg = xreg,
       const = const,
-      n_fourier = n_fourier,
-      period = period,
-      n_diff = n_diff,
-      density = density,
-      n_initial = n_initial,
+      dy = dy,
+      dx = dx,
       n_res = n_res,
-      inf_crit = inf_crit,
-      scale_inputs = scale_inputs,
-      scale_runif = scale_runif,
+      n_initial = n_initial,
       n_seed = n_seed,
-      ...)
+      density = density,
+      weights = weights,
+      scale_runif = scale_runif,
+      scale_inputs = scale_inputs
+    )
     
     # Vector with optimized hyperparameters
     pars <- c(
       model_pars$par[1],
       model_pars$par[2],
-      model_pars$par[3])
+      model_pars$par[3]
+    )
   }
   
   
@@ -156,10 +162,11 @@ auto_esn <- function(.data,
   model_fit <- train_esn(
     data = .data,
     lags = lags,
-    n_fourier = n_fourier,
-    period = period,
+    fourier = fourier,
+    xreg = xreg,
     const = const,
-    n_diff = n_diff,
+    dy = dy,
+    dx = dx,
     n_res = n_res,
     n_initial = n_initial,
     n_seed = n_seed,
@@ -167,21 +174,14 @@ auto_esn <- function(.data,
     rho = pars[2],
     lambda = pars[3],
     density = density,
-    scale_inputs = scale_inputs,
-    scale_runif = scale_runif)
+    weights = weights,
+    scale_runif = scale_runif,
+    scale_inputs = scale_inputs
+  )
   
-  # Extract actual values and fitted values
-  fitted <- model_fit$fitted[[".fitted"]]
-  resid <- model_fit$resid[[".resid"]]
-  # Get length of time series and fitted values
-  n_total <- nrow(.data)
-  n_fitted <- length(fitted)
-  
-  # Fill NAs in front of fitted values (adjust to equal length of actual values) 
-  fitted <- c(rep(NA_real_, n_obs - length(fitted)), fitted)
-  resid <- c(rep(NA_real_, n_obs - length(resid)), resid)
-  
-  # Model specification
+  # Extract actual values, fitted values and model specification
+  fitted <- model_fit$fitted
+  resid <- model_fit$resid
   model_spec <- model_fit$method$model_spec
   
   # Return model
@@ -295,6 +295,7 @@ forecast.ESN <- function(object,
                          specials = NULL,
                          n_sim = 100,
                          n_seed = 42,
+                         xreg = NULL,
                          ...) {
   # Extract model
   model_fit <- object$model
@@ -304,21 +305,13 @@ forecast.ESN <- function(object,
     object = model_fit,
     n_ahead = nrow(new_data),
     n_sim = n_sim,
-    n_seed = n_seed)
+    n_seed = n_seed,
+    xreg = xreg)
   
   # Extract point forecasts
-  fcst_point <- model_fcst$forecast[[".mean"]]
-  
+  fcst_point <- model_fcst$point
   # Extract simulations
-  sim <- model_fcst$simulation %>%
-    select(-c(.response)) %>%
-    spread(
-      key = .path,
-      value = .mean)
-  
-  sim <- invoke(cbind, unclass(sim)[measured_vars(sim)])
-  fcst_std <- rowSds(sim, na.rm = TRUE)
-  
+  fcst_std <- rowSds(model_fcst$sim, na.rm = TRUE)
   # Return forecast
   dist_normal(fcst_point, fcst_std)
   
@@ -348,14 +341,22 @@ report.ESN <- function(object) {
   const <- method$model_inputs$const
   lags <- unlist(method$model_inputs$lags)
   
-  n_diff <- as.numeric(method$diff_inputs$n_diff)
+  if (is.null(method$model_inputs$fourier)) {
+    period <- "none"
+    k <- "none"
+  } else {
+    period <- unlist(method$model_inputs$fourier[[1]])
+    k <- unlist(method$model_inputs$fourier[[2]])
+  }
+  
+  dy <- as.numeric(method$model_inputs$dy)
   
   alpha <- round(method$model_pars$alpha, 2)
   rho <- round(method$model_pars$rho, 2)
   lambda <- round(method$model_pars$lambda, 2)
   density <- round(method$model_pars$density, 2)
   
-  df <- round(method$model_metrics$df, 2)
+  dof <- round(method$model_metrics$dof, 2)
   aic <- round(method$model_metrics$aic, 2)
   bic <- round(method$model_metrics$bic, 2)
   hq <- round(method$model_metrics$hq, 2)
@@ -372,12 +373,15 @@ report.ESN <- function(object) {
   
   cat(
     "\nModel inputs:", "\n",
-    "Constant = ", const, "\n",
-    "Lags     = ", lags, "\n"
+    "const    = ", const, "\n",
+    "lags     = ", lags, "\n",
+    "period   = ", period, "\n",
+    "k        = ", k, "\n"
   )
   
   cat(
-    "\nDifferences = ", n_diff, "\n"
+    "\nDifferences:", "\n",
+    "dy = ", dy, "\n"
   )
   
   cat(
@@ -397,10 +401,10 @@ report.ESN <- function(object) {
   
   cat(
     "\nMetrics:", "\n",
-    "df  =", df, "\n",
-    "aic =", aic, "\n",
-    "bic =", bic, "\n",
-    "hq  =", hq, "\n"
+    "dof  =", dof, "\n",
+    "aic  =", aic, "\n",
+    "bic  =", bic, "\n",
+    "hq   =", hq, "\n"
   )
 }
 

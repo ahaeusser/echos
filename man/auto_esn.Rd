@@ -9,20 +9,22 @@ auto_esn(
   specials,
   const = TRUE,
   lags = NULL,
-  n_fourier = NULL,
-  n_initial = 10,
+  fourier = NULL,
+  xreg = NULL,
+  n_initial = 100,
   n_res = 200,
-  n_diff = NULL,
+  dy = 0,
+  dx = 0,
   n_seed = 42,
   alpha = 0.8,
   rho = 1,
   lambda = 1,
   density = 0.1,
+  weights = NULL,
   scale_inputs = c(-1, 1),
   scale_runif = c(-0.5, 0.5),
-  inf_crit = "bic",
-  control_inputs = list(tune = TRUE, n_sample = 1000),
-  control_pars = list(tune = TRUE, lower = c(0, 0.1, 0.1), upper = c(1, 5, 10)),
+  control_tuning = list(inf_crit = "aic", inputs_tune = TRUE, n_sample = 1000,
+    pars_tune = TRUE, lower = c(1e-04, 0.01, 0.01), upper = c(0.9999, 2.5, 100)),
   ...
 )
 }
@@ -35,13 +37,9 @@ auto_esn(
 
 \item{lags}{A \code{list} containing integer vectors with the lags associated with each input variable.}
 
-\item{n_fourier}{Integer vector. The number of fourier terms (seasonal cycles per period).}
-
 \item{n_initial}{Integer value. The number of observations of internal states for initial drop out (throw-off).}
 
 \item{n_res}{Integer value. The number of internal states within the reservoir (hidden layer).}
-
-\item{n_diff}{Integer value. The number of non-seasonal differences. If \code{NULL}, automatic differencing is applied.}
 
 \item{n_seed}{Integer value. The seed for the random number generator (for reproducibility).}
 
@@ -57,6 +55,12 @@ auto_esn(
 
 \item{scale_runif}{Numeric vector. The lower and upper bound of the uniform distribution.}
 
+\item{...}{Further arguments passed to \code{stats::optim()}}
+
+\item{n_fourier}{Integer vector. The number of fourier terms (seasonal cycles per period).}
+
+\item{n_diff}{Integer value. The number of non-seasonal differences. If \code{NULL}, automatic differencing is applied.}
+
 \item{inf_crit}{Character value. The information criterion \code{inf_crit = c("aic", "bic", "hq")}.}
 
 \item{control_inputs}{A \code{list} containing control values for the automatic selection of model inputs:
@@ -71,8 +75,6 @@ auto_esn(
   \item{\code{lower}: Numeric vector. The lower bounds for \code{alpha}, \code{rho} and \code{lambda} used in the optimization.}
   \item{\code{upper}: Numeric vector. The upper bounds for \code{alpha}, \code{rho} and \code{lambda} used in the optimization.}
      }}
-
-\item{...}{Further arguments passed to \code{stats::optim()}}
 }
 \value{
 An object of class \code{ESN}.

@@ -4,7 +4,15 @@
 \alias{forecast.ESN}
 \title{Forecast a trained ESN}
 \usage{
-\method{forecast}{ESN}(object, new_data, specials = NULL, n_sim = 100, n_seed = 42, ...)
+\method{forecast}{ESN}(
+  object,
+  new_data,
+  specials = NULL,
+  n_sim = 100,
+  n_seed = 42,
+  xreg = NULL,
+  ...
+)
 }
 \arguments{
 \item{object}{An object of class \code{ESN}.}
