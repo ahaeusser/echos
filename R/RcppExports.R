@@ -11,6 +11,7 @@
 #' @param alpha Numeric value. The leakage rate (smoothing parameter).
 #' 
 #' @return states train Numeric matrix with the internal states.
+#' @export
 NULL
 
 run_reservoir <- function(inputs, win, wres, alpha) {
@@ -27,6 +28,7 @@ run_reservoir <- function(inputs, win, wres, alpha) {
 #' @param weights Numeric vector. Observation weights.
 #' 
 #' @return A list containing the estimated coefficients, fitted values, etc.
+#' @export
 NULL
 
 train_ridge <- function(X, y, lambda, weights) {

@@ -11,6 +11,7 @@
 //' @param weights Numeric vector. Observation weights.
 //' 
 //' @return A list containing the estimated coefficients, fitted values, etc.
+//' @export
 
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
@@ -41,33 +42,31 @@ Rcpp::List train_ridge(const arma::mat& X,
   // Solve for regression coefficients wout
   arma::mat wout = solve(XX + Ipp_lambda, Xy, arma::solve_opts::fast);
   
-  // Calulcate fitted values and residuals
-  arma::mat yhat = X * wout;
-  arma::mat res = y - yhat;
+  // Calculate fitted values and residuals
+  arma::mat yf = X * wout;
+  arma::mat yr = y - yf;
   
   // Effective degrees of freedom
-  double df = trace((Xt * inv(XX + Ipp_lambda)) * trans(Xt));
+  double dof = trace((Xt * inv(XX + Ipp_lambda)) * trans(Xt));
   // Determinant of the residual variance-covariance matrix
-  double det_sigma = det((trans(res) * res)) / n;
+  double det_sigma = det((trans(yr) * yr)) / n;
   
   // Convert n from int to double (due to integer-double division issue)
   double n_obs = n;
   
   // Akaike information criterion (AIC)
-  double aic = log(det_sigma) + (2 / n_obs) * df;
+  double aic = log(det_sigma) + (2 / n_obs) * dof;
   
   // Hannan-Quinn information criterion (HQ)
-  double hq = log(det_sigma) + (2 * log(log(n_obs)) / n_obs) * df;
+  double hq = log(det_sigma) + (2 * log(log(n_obs)) / n_obs) * dof;
   
   // Bayesian information criterion (BIC)
-  double bic = log(det_sigma) + (log(n_obs) / n_obs) * df;
-  
-
+  double bic = log(det_sigma) + (log(n_obs) / n_obs) * dof;
   
   return Rcpp::List::create(Rcpp::Named("wout") = wout,
-                            Rcpp::Named("yhat") = yhat,
-                            Rcpp::Named("res") = res,
-                            Rcpp::Named("df") = df,
+                            Rcpp::Named("yf") = yf,
+                            Rcpp::Named("yr") = yr,
+                            Rcpp::Named("dof") = dof,
                             Rcpp::Named("det_sigma") = det_sigma,
                             Rcpp::Named("aic") = aic,
                             Rcpp::Named("hq") = hq,

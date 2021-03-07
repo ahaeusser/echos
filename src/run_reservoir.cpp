@@ -11,6 +11,7 @@
 //' @param alpha Numeric value. The leakage rate (smoothing parameter).
 //' 
 //' @return states train Numeric matrix with the internal states.
+//' @export
 
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
