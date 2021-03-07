@@ -5,38 +5,45 @@
 #'   tuning. The function returns a numeric value (= information criterion), which
 #'   is then minimized within a call to \code{optim()} for varying hyperparameters. 
 #'
-#' @param data A \code{tsibble} containing the time series data.
+#' @param data A \code{tsibble} containing the response variable.
 #' @param pars Numeric vector containing the hyperparameters.
-#' @param const Logical value. If \code{TRUE}, a constant term (intercept) is used.
-#' @param lags A \code{list} containing integer vectors with the lags associated with each input variable.
-#' @param n_fourier Integer vector. The number of fourier terms (seasonal cycles per period).
-#' @param period Integer vector. The periodicity of the time series (e.g. \code{period = c(12)} for monthly data or \code{period = c(24, 168)} for hourly data).
-#' @param n_diff Integer value. The number of differences.
-#' @param n_initial Integer value. The number of observations of internal states for initial drop out (throw-off).
-#' @param n_res Integer value. The number of internal states within the reservoir (hidden layer).
-#' @param n_seed Integer value. The seed for the random number generator (for reproducibility).
-#' @param density Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).
 #' @param inf_crit Character value. The information criterion \code{inf_crit = c("aic", "bic", "hq")}.
-#' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data.
+#' @param lags A \code{list} containing integer vectors with the lags associated with each input variable.
+#' @param fourier A \code{list} containing the periods and the number of fourier terms as integer vector.
+#' @param const Logical value. If \code{TRUE}, an intercept term is used.
+#' @param xreg A \code{tsibble} containing exogenous variables.
+#' @param dy Integer vector. The nth-differences of the response variable.
+#' @param dx Integer vector. The nth-differences of the exogenous variables.
+#' @param n_res Integer value. The number of internal states within the reservoir (hidden layer).
+#' @param n_initial Integer value. The number of observations of internal states for initial drop out (throw-off).
+#' @param n_seed Integer value. The seed for the random number generator (for reproducibility).
+#' @param rho Numeric value. The spectral radius for scaling the reservoir weight matrix.
+#' @param alpha Numeric value. The leakage rate (smoothing parameter) applied to the reservoir.
+#' @param lambda Numeric value. The regularization (shrinkage) parameter for ridge regression.
+#' @param density Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).
+#' @param weights Numeric vector. Observation weights for weighted least squares estimation.
 #' @param scale_runif Numeric vector. The lower and upper bound of the uniform distribution.
+#' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data.
 #'
 #' @return model_value Numeric value. The information criterion to be minimized.
 #' @export
 
 tune_pars <- function(data,
                       pars,
-                      const,
+                      inf_crit,
                       lags,
-                      n_fourier,
-                      period,
-                      n_diff,
+                      fourier,
+                      const,
+                      xreg,
+                      dy,
+                      dx,
                       n_res,
                       n_initial,
                       n_seed,
                       density,
-                      inf_crit,
-                      scale_inputs,
-                      scale_runif) {
+                      weights,
+                      scale_runif,
+                      scale_inputs) {
   
   # Pre-processing ============================================================
   
@@ -48,30 +55,46 @@ tune_pars <- function(data,
   n_res <- as.integer(n_res)
   n_initial <- as.integer(n_initial)
   n_seed <- as.integer(n_seed)
-  n_outputs <- as.integer(ncol(data))
   
-  # Extract (time) index variable
-  dttm_index <- data %>% select(index_var(data))
+  # Prepare exogenous variables
+  if (is.null(xreg)) {
+    xx <- NULL
+  } else {
+    # Convert tsibble to numeric matrix
+    xreg <- invoke(cbind, unclass(xreg)[measured_vars(xreg)])
+    # Copy of original data for later usage
+    xx <- xreg
+    
+    # Calculate nth-differences
+    if (is.null(dx)) {dx <- 0}
+    xreg <- diff_data(
+      data = xreg,
+      n_diff = dx)
+    
+    # Scale data to specified interval
+    xreg <- scale_data(
+      data = xreg,
+      new_range = scale_inputs)$data
+  }
   
-  # Get response variables (convert tsibble to numeric matrix)
-  y <- invoke(cbind, unclass(data)[measured_vars(data)])
-  # Create copy of numeric matrix y for later usage
-  actual <- y
-  
-  # Names of response variables
-  names_outputs <- colnames(y)
-  # Number of response variables
+  # Prepare output variable
+  # Name of output variable
+  name_output <- measured_vars(data)
+  # Convert tsibble to numeric matrix
+  y <- invoke(cbind, unclass(data)[name_output])
+  # Number of outputs
   n_outputs <- ncol(y)
-  # Names of internal states
-  names_states <- paste0(
-    "state","(", formatC(1:n_res, width = nchar(max(n_res)), flag = "0"), ")")
+  # Number of total observations
+  n_total <- nrow(y)
+  # Create copy of original data for later usage
+  yy <- y
   
-  # Calculate seasonal and non-seasonal differences
+  # Calculate nth-difference of output variable
   y <- diff_data(
     data = y,
-    n_diff = n_diff)
+    n_diff = dy)
   
-  # Scale data to the specified interval
+  # Scale data to specified interval
   scaled <- scale_data(
     data = y,
     new_range = scale_inputs)
@@ -79,16 +102,7 @@ tune_pars <- function(data,
   y <- scaled$data
   old_range <- scaled$old_range
   
-  
   # Create input layer ========================================================
-  
-  # Create constant term (intercept term) as matrix
-  if (const == FALSE) {
-    y_const <- NULL
-  } else {
-    y_const <- create_const(
-      n_obs = nrow(y))
-  }
   
   # Create lagged variables as matrix
   if (is.null(lags)) {
@@ -100,44 +114,44 @@ tune_pars <- function(data,
   }
   
   # Create fourier terms (trigonometric terms) as matrix
-  if (is.null(n_fourier)) {
-    y_seas <- NULL
+  if (is.null(fourier)) {
+    y_fourier <- NULL
   } else {
-    y_seas <- create_fourier(
-      times = 1:nrow(y),
-      n_fourier = n_fourier,
-      period = period)
+    # Create numeric matrix of fourier terms
+    y_fourier <- create_fourier(
+      x = 1:n_total,
+      period = fourier[[1]],
+      k = fourier[[2]])
+  }
+  
+  # Create constant term (intercept term) as matrix
+  if (const == FALSE) {
+    y_const <- NULL
+  } else {
+    y_const <- create_const(
+      n_obs = n_total)
   }
   
   # Concatenate input matrices
   inputs <- cbind(
     y_const,
     y_lag,
-    y_seas)
+    y_fourier,
+    xreg)
   
   # Drop NAs for training
   inputs <- inputs[complete.cases(inputs), , drop = FALSE]
   
-  # Number of observations (total)
-  n_total <- nrow(y)
   # Number of observations (training)
   n_train <- nrow(inputs)
   # Number of observations (accounted for initial throw-off)
   n_obs <- n_train - n_initial
   # Number of input features (constant, lagged variables, etc.)
   n_inputs <- ncol(inputs)
-  
-  # Maximum lag (overall)
-  max_lag <- max(unlist(lags))
   # Train index (with initial throw-off)
   index_train <- c((1 + (n_total - n_train + n_initial)):n_total)
   # Train index (without initial throw-off)
   index_states <- c((1 + (n_total - n_train)):n_total)
-  
-  # Create time index for training
-  dttm_train <- dttm_index[index_train, ]
-  # Create time index for internal states
-  dttm_states <- dttm_index[index_states, ]
   
   
   # Create hidden layer (reservoir) ===========================================
@@ -166,28 +180,35 @@ tune_pars <- function(data,
     wres = wres,
     alpha = alpha)
   
-  colnames(states_train) <- names_states
+  # Names of internal states
+  colnames(states_train) <- paste0(
+    "state","(",
+    formatC(
+      x = 1:n_res,
+      width = nchar(max(n_res)),
+      flag = "0"),
+    ")")
+  
   
   # Create output layer (train model) =========================================
   
   # Concatenate inputs and reservoir
   Xt <- cbind(inputs, states_train)
-  
   # Adjust response and design matrix for initial throw-off and lag-length
   Xt <- Xt[((n_initial + 1):nrow(Xt)), , drop = FALSE]
-  yt <- y[((n_initial + 1 + (n_total - n_train)):nrow(y)), , drop = FALSE]
+  yt <- y[((n_initial + 1 + (n_total - n_train)):n_total), , drop = FALSE]
   
-  # Linear observation weights within the interval [1, 2]
-  # obs_weights <- (0:(nrow(Xt) - 1)) * (1 / (nrow(Xt) - 1)) + 1
-  # Equal observation weights
-  obs_weights <- rep(1, nrow(Xt))
+  # Observation weights for ridge regression
+  if (is.null(weights)) {
+    weights <- rep(1, nrow(Xt))
+  }
   
   # Train linear model via ridge regression
   model <- train_ridge(
     X = Xt,
     y = yt,
     lambda = lambda,
-    weights = obs_weights)
+    weights = weights)
  
   # Extract information criterion
   model_value <- model[[inf_crit]]

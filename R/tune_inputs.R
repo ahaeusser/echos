@@ -8,9 +8,10 @@
 #'
 #' @param data A \code{tsibble} containing the time series data.
 #' @param lags A \code{list} containing integer vectors with the lags associated with each input variable.
-#' @param n_fourier Integer vector. The number of fourier terms (seasonal cycles per period).
-#' @param period Integer vector. The periodicity of the time series (e.g. \code{period = c(12)} for monthly data or \code{period = c(24, 168)} for hourly data).
-#' @param n_diff Integer vector. The number of non-seasonal differences.
+#' @param fourier A \code{list} containing the periods and the number of fourier terms as integer vector.
+#' @param xreg A \code{tsibble} containing exogenous variables.
+#' @param dy Integer vector. The nth-differences of the response variable.
+#' @param dx Integer vector. The nth-differences of the exogenous variables.
 #' @param n_initial Integer value. The number of observations of internal states for initial drop out (throw-off).
 #' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data.
 #' @param inf_crit Character value. The information criterion \code{inf_crit = c("aic", "bic", "hq")}.
@@ -27,10 +28,12 @@
 
 tune_inputs <- function(data,
                         lags,
-                        n_fourier,
-                        period,
-                        n_diff,
+                        fourier,
+                        xreg,
+                        dy,
+                        dx,
                         n_initial,
+                        weights,
                         scale_inputs,
                         inf_crit,
                         n_sample,
@@ -38,13 +41,37 @@ tune_inputs <- function(data,
   
   # Pre-processing ============================================================
   
+  # Prepare exogenous variables
+  if (is.null(xreg)) {
+    xx <- NULL
+  } else {
+    # Convert tsibble to numeric matrix
+    xreg <- invoke(cbind, unclass(xreg)[measured_vars(xreg)])
+    # Copy of original data for later usage
+    xx <- xreg
+    
+    # Calculate nth-differences
+    if (is.null(dx)) {dx <- 0}
+    xreg <- diff_data(
+      data = xreg,
+      n_diff = dx)
+    
+    # Scale data to specified interval
+    xreg <- scale_data(
+      data = xreg,
+      new_range = scale_inputs)$data
+  }
+  
   # Get response variables (convert tsibble to numeric matrix)
   y <- invoke(cbind, unclass(data)[measured_vars(data)])
+  
+  # Number of total observations
+  n_total <- nrow(y)
   
   # Calculate seasonal and non-seasonal differences
   y <- diff_data(
     data = y,
-    n_diff = n_diff)
+    n_diff = dy)
   
   # Scale data to the specified interval
   scaled <- scale_data(
@@ -71,26 +98,26 @@ tune_inputs <- function(data,
   }
   
   # Create fourier terms (trigonometric terms) as matrix
-  if (is.null(n_fourier)) {
-    y_seas <- NULL
+  if (is.null(fourier)) {
+    y_fourier <- NULL
   } else {
-    y_seas <- create_fourier(
-      times = 1:nrow(y),
-      n_fourier = n_fourier,
-      period = period)
+    # Create numeric matrix of fourier terms
+    y_fourier <- create_fourier(
+      x = 1:n_total,
+      period = fourier[[1]],
+      k = fourier[[2]])
   }
   
   # Concatenate input matrices
   inputs <- cbind(
     y_const,
     y_lag,
-    y_seas)
+    y_fourier,
+    xreg)
   
   # Drop NAs for training
   inputs <- inputs[complete.cases(inputs), , drop = FALSE]
   
-  # Number of observations (total)
-  n_total <- nrow(y)
   # Number of observations (training)
   n_train <- nrow(inputs)
   
@@ -102,10 +129,10 @@ tune_inputs <- function(data,
   Xt <- X[((n_initial + 1):nrow(X)), , drop = FALSE]
   yt <- y[((n_initial + 1 + (n_total - n_train)):nrow(y)), , drop = FALSE]
   
-  # Linear observation weights within the interval [1, 2]
-  # obs_weights <- (0:(nrow(Xt) - 1)) * (1 / (nrow(Xt) - 1)) + 1
-  # Equal observation weights
-  obs_weights <- rep(1, nrow(Xt))
+  # Observation weights for ridge regression
+  if (is.null(weights)) {
+    weights <- rep(1, nrow(Xt))
+  }
   
   
   # Create random grid ========================================================
@@ -125,19 +152,32 @@ tune_inputs <- function(data,
       n_sample = n_sample)
   }
   
-  if (is.null(y_seas)) {
+  if (is.null(y_fourier)) {
     grid_fourier <- NULL
   } else {
     grid_fourier <- random_fourier(
-      n_fourier = n_fourier,
-      period = period,
+      fourier = fourier,
       n_sample = n_sample)
+  }
+  
+  
+  if (!is.null(xreg)) {
+    grid_xreg <- matrix(
+      data = 1,
+      nrow = n_sample,
+      ncol = ncol(xreg),
+      dimnames = list(c(), colnames(xreg)))
+    
+    grid_xreg <- as_tibble(grid_xreg)
+  } else {
+    grid_xreg <- NULL
   }
   
   random_grid <- bind_cols(
     grid_const,
     grid_lags,
-    grid_fourier) %>%
+    grid_fourier,
+    grid_xreg) %>%
     distinct()
   
   # Ensure feasibility of fourier terms
@@ -152,20 +192,21 @@ tune_inputs <- function(data,
         X = Xt[, which(random_grid[n, ] == 1), drop = FALSE],
         y = yt,
         lambda = 0,
-        weights = obs_weights)
+        weights = weights)
       
       # Store model metrics
-      model_metrics <- tibble(
-        df = model$df,
+      tibble(
+        dof = model$dof,
         aic = model$aic,
         bic = model$bic,
-        hq = model$hq)
+        hq = model$hq
+      )
     }
   )
   
   # Filter row with minimum information criterion
   model_metrics <- model_metrics %>%
-    mutate(id = row_number(), .before = df) %>%
+    mutate(id = row_number(), .before = dof) %>%
     slice(which.min(!!sym(inf_crit)))
   
   model_grid <- random_grid
@@ -190,24 +231,35 @@ tune_inputs <- function(data,
     input_lag <- NULL
   }
   
-  if (!is.null(n_fourier)) {
-    input_seas <- tibble(
-      input = colnames(y_seas),
+  if (!is.null(fourier)) {
+    input_fourier <- tibble(
+      input = colnames(y_fourier),
       type = "fourier")
   } else {
-    input_seas <- NULL
+    input_fourier <- NULL
+  }
+  
+  if (!is.null(xreg)) {
+    input_xreg <- tibble(
+      input = colnames(xreg),
+      type = "xreg")
+  } else {
+    input_xreg <- NULL
   }
   
   input_types <- bind_rows(
     input_const,
     input_lag,
-    input_seas)
+    input_fourier,
+    input_xreg)
   
   model_inputs <- left_join(
     x = model_inputs,
     y = input_types,
     by = "input")
   
+  
+  # Extract final model inputs ==================================================
   
   # Check for constant term
   const <- model_inputs %>%
@@ -230,25 +282,26 @@ tune_inputs <- function(data,
   
   # Check for fourier terms
   if (any(filter(model_inputs, type == "fourier")$usage != 0)) {
-    n_fourier <- model_inputs %>%
+    fourier <- model_inputs %>%
       filter(type == "fourier") %>%
-      mutate(value = str_nth_number(input, n = 1)) %>%
+      mutate(k = str_nth_number(input, n = 1)) %>%
       mutate(period = str_nth_number(input, n = 2)) %>%
-      mutate(flag = usage * value) %>%
+      mutate(flag = usage * k) %>%
       group_by(period) %>%
-      summarise(
-        value = max(flag, na.rm = TRUE),
-        .groups = "drop") %>%
-      pull(value)
+      summarise(k = max(flag, na.rm = TRUE), .groups = "drop")
+    
+    fourier <- list(
+      fourier$period,
+      fourier$k)
   } else {
-    n_fourier <- NULL
+    fourier <- NULL
   }
   
   # Store and return
   model_inputs <- list(
     const = const,
     lags = lags,
-    n_fourier = n_fourier)
+    fourier = fourier)
   
   return(model_inputs)
 }

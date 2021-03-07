@@ -147,69 +147,64 @@ create_revolved <- function(data,
 #' 
 #' @description This function creates the fourier terms for the design matrix as numeric matrix.
 #'
-#' @param times Integer vector. Regular sequence with integers.
-#' @param n_fourier Integer vector. The number of fourier terms per period (i.e. the number of sines and cosines for each period).
+#' @param x Integer vector. Regular sequence with integers.
 #' @param period Integer vector. The periodicity of the time series.
-#' 
-#' @return X Numeric matrix containing the specified fourier terms.
+#' @param k Integer vector. The number of fourier terms per period (i.e. the number of sines and cosines for each period).
+#'  
+#' @return out Numeric matrix containing the specified fourier terms.
 #' @noRd
 
-create_fourier <- function(times,
-                           n_fourier,
-                           period) {
+create_fourier <- function(x,
+                           period,
+                           k) {
   
-  # Patch for older versions of R that do not have sinpi and cospi functions.
-  if (!exists("sinpi")) {
-    sinpi <- function(x) {
-      sin(pi * x)
-    }
-    cospi <- function(x) {
-      cos(pi * x)
-    }
-  }
-  
-  if (length(period) != length(n_fourier)) {
+  if (length(period) != length(k)) {
     stop("Number of periods does not match number of orders")
   }
-  if (any(2 * n_fourier > period)) {
-    stop("n_fourier must be not be greater than period/2")
+  
+  if (any(2 * k > period)) {
+    stop("k must be not be greater than period/2")
   }
   
-  # Compute periods of all Fourier terms
+  # Compute periods of all fourier terms
   p <- numeric(0)
   labels <- character(0)
-  for (j in seq_along(period))
-  {
-    if (n_fourier[j] > 0) {
-      p <- c(p, (1:n_fourier[j]) / period[j])
+  for (j in seq_along(period)) {
+    if (k[j] > 0) {
+      p <- c(p, (1:k[j]) / period[j])
       labels <- c(labels, paste0(
-        paste0(c("sin(", "cos("), rep(1:n_fourier[j], rep(2, n_fourier[j]))),
+        paste0(c("sin(", "cos("), rep(1:k[j], rep(2, k[j]))),
         "-", round(period[j]), ")"))
     }
   }
+  
   # Remove equivalent seasonal periods due to multiple seasonality
-  n_fourier <- duplicated(p)
-  p <- p[!n_fourier]
-  labels <- labels[!rep(n_fourier, rep(2, length(n_fourier)))]
+  k <- duplicated(p)
+  p <- p[!k]
+  labels <- labels[!rep(k, rep(2, length(k)))]
   
   # Remove columns where sinpi = 0
-  n_fourier <- abs(2 * p - round(2 * p)) > .Machine$double.eps
+  k <- abs(2 * p - round(2 * p)) > .Machine$double.eps
   
-  # Compute matrix of Fourier terms
-  X <- matrix(NA_real_, nrow = length(times), ncol = 2L * length(p))
-  for (j in seq_along(p))
-  {
-    if (n_fourier[j]) {
-      X[, 2L * j - 1L] <- sinpi(2 * p[j] * times)
+  # Compute matrix of fourier terms
+  out <- matrix(
+    data = NA_real_,
+    nrow = length(x),
+    ncol = 2L * length(p))
+  
+  for (j in seq_along(p)) {
+    if (k[j]) {
+      out[, 2L * j - 1L] <- sinpi(2 * p[j] * x)
     }
-    X[, 2L * j] <- cospi(2 * p[j] * times)
+    out[, 2L * j] <- cospi(2 * p[j] * x)
   }
-  colnames(X) <- labels
+  
+  colnames(out) <- labels
   
   # Remove missing columns
-  X <- X[, !is.na(colSums(X)), drop = FALSE]
+  out <- out[, !is.na(colSums(out)), drop = FALSE]
   
-  return(X)
+  return(out)
 }
 
 
@@ -297,9 +292,10 @@ create_win <- function(n_inputs,
                        n_res,
                        scale_runif) {
   win <- matrix(
-    data = runif(n = n_res * n_inputs,
-                 min = scale_runif[1],
-                 max = scale_runif[2]),
+    data = runif(
+      n = n_res * n_inputs,
+      min = scale_runif[1],
+      max = scale_runif[2]),
     nrow = n_res,
     ncol = n_inputs)
   return(win)
@@ -330,9 +326,10 @@ create_wres <- function(n_res,
   
   # Create initial random weight matrix for the reservoir
   wres <- matrix(
-    data = runif(n = n_res * n_res,
-                 min = scale_runif[1],
-                 max = scale_runif[2]),
+    data = runif(
+      n = n_res * n_res,
+      min = scale_runif[1],
+      max = scale_runif[2]),
     nrow = n_res,
     ncol = n_res)
   
@@ -388,63 +385,64 @@ check_unitroots <- function(.data,
 
 
 
-#' @title Calculate differences of a numeric matrix
+#' @title Calculate nth-differences of a numeric matrix
 #'
 #' @description This function takes a numeric matrix and calculates 
-#'    (non-seasonal) differences for each column.
+#'    nth-differences for each column.
 #'
 #' @param data Numeric matrix.
-#' @param n_diff Integer vector. The number of non-seasonal differences.
+#' @param n_diff Integer vector. The number of differences.
 #'
-#' @return y_diff Numeric matrix with the differenced data.
+#' @return yd Numeric matrix with the differenced data.
 #' @noRd
 
 diff_data <- function(data, n_diff) {
   
-  names_outputs <- colnames(data)
-  n_outputs <- ncol(data)
+  name_output <- colnames(data)
+  n_output <- ncol(data)
   
-  y_diff <- lapply(seq_len(n_outputs), function(n) {
-    diff_vec(
-      y = data[, n],
-      n_diff = n_diff[n])
-  })
+  yd <- lapply(
+    seq_len(n_output),
+    function(i) {
+      diff_vec(
+        y = data[, i],
+        n = n_diff[i])
+      })
   
-  y_diff <- do.call(cbind, y_diff)
-  colnames(y_diff) <- names_outputs
-  return(y_diff)
+  yd <- do.call(cbind, yd)
+  colnames(yd) <- name_output
+  return(yd)
 }
 
 
 
 
-#' @title Calculate differences of a numeric vector
+#' @title Calculate the nth-difference of a numeric vector
 #'
 #' @description This function takes a numeric vector and calculates
-#'    (non-seasonal) differences.
+#'    the nth-difference.
 #'
 #' @param y Numeric vector.
-#' @param n_diff Integer value. The number of non-seasonal differences.
+#' @param n Integer value. The number of differences.
 #'
-#' @return y_diff Numeric vector with the differenced data.
+#' @return yd Numeric vector with the differenced data.
 #' @noRd
 
-diff_vec <- function(y, n_diff) {
+diff_vec <- function(y, n) {
   
-  # Calculate (non-seasonal) difference
-  if (n_diff > 0) {
-    y_diff <- diff(
+  # Calculate n-th difference
+  if (n > 0) {
+    yd <- diff(
       x = y,
-      differences = n_diff,
+      differences = n,
       lag = 1L)
   } else {
-    y_diff <- y
+    yd <- y
   }
   
   # Pad vector with leading NAs
-  fill_na <- rep(NA_real_, n_diff)
-  y_diff <- c(fill_na, y_diff)
-  return(y_diff)
+  yd <- c(rep(NA_real_, n), yd)
+  return(yd)
 }
 
 
@@ -453,7 +451,7 @@ diff_vec <- function(y, n_diff) {
 #' @title Integrate differences of a numeric matrix ("inverse difference")
 #'
 #' @description This function takes a numeric matrix and integrates
-#'    (non-seasonal) differences for each column ("inverse difference").
+#'   the differences for each column ("inverse difference").
 #'
 #' @param data Numeric matrix containing the original data.
 #' @param data_diff Numeric matrix containing the differenced data.
@@ -469,12 +467,14 @@ inv_diff_data <- function(data,
   names_outputs <- colnames(data)
   n_outputs <- ncol(data)
   
-  y_int <- lapply(seq_len(n_outputs), function(n) {
-    inv_diff_vec(
-      y = data[, n],
-      y_diff = data_diff[, n],
-      n_diff = n_diff[n])
-  })
+  y_int <- lapply(
+    seq_len(n_outputs),
+    function(n) {
+      inv_diff_vec(
+        y = data[, n],
+        y_diff = data_diff[, n],
+        n_diff = n_diff[n])
+      })
   
   y_int <- do.call(cbind, y_int)
   colnames(y_int) <- names_outputs
@@ -508,7 +508,6 @@ inv_diff_vec <- function(y,
   
   # Starting value for integration
   yi <- tail(y, n_diff)
-  
   
   if (n_diff > 0) {
     # Integrate differenced data
@@ -666,20 +665,28 @@ create_grid_fourier <- function(n_fourier,
 #' @description The function creates a \code{tibble} with random combinations
 #'    of fourier terms (sampling with replacement). The number of combinations
 #'    (rows) is given by \code{n_sample} and the number of columns is
-#'    determined by \code{n_fourier} and \code{period}. One fourier term is 
+#'    determined by \code{fourier} (period and k). One fourier term is 
 #'    always a pair of sine and cosine terms. If higher order fourier terms
 #'    are used, it is assumed that the previous terms are added too.
 #'
-#' @param n_fourier Integer vector. The number of fourier terms per seasonal period.
-#' @param period Integer vector. The seasonal periods.
+#' @param fourier A \code{list} containing the periods and the number of fourier terms as integer vector.
 #' @param n_sample Integer value. The number of random samples.
 #'
 #' @return out Random grid of fourier terms as \code{tibble}.
 #' @noRd
 
-random_fourier <- function(n_fourier,
-                           period,
+random_fourier <- function(fourier,
                            n_sample = 1000) {
+  
+  # Prepare vectors with number of fourier terms k and periods
+  fourier <- tibble(
+    period = fourier[[1]],
+    k = fourier[[2]]) %>%
+    filter(k != 0)
+  
+  period <- fourier$period
+  k <- fourier$k
+  
   # Initialize empty list
   out <- vector(
     mode = "list",
@@ -692,8 +699,8 @@ random_fourier <- function(n_fourier,
     # Initialize matrix with zeros
     mat <- matrix(
       data = 0,
-      nrow = n_fourier[j],
-      ncol = n_fourier[j])
+      nrow = k[j],
+      ncol = k[j])
     
     # Fill lower triangular with ones
     mat[lower.tri(mat, diag = TRUE)] <- 1
@@ -709,7 +716,7 @@ random_fourier <- function(n_fourier,
     mat <- rotate(rotate(mat))
     
     colnames(mat) <- paste0(
-      paste0(c("sin(", "cos("), rep(1:n_fourier[j], rep(2, n_fourier[j]))),
+      paste0(c("sin(", "cos("), rep(1:k[j], rep(2, k[j]))),
       "-", round(period[j]), ")")
     
     # Store matrices in list
@@ -723,11 +730,11 @@ random_fourier <- function(n_fourier,
     out <- out[[1]]
   }
   
-  out <- out %>%
-    as_tibble() %>%
+  out <- as_tibble(out) %>%
     sample_n(
       size = n_sample,
       replace = TRUE)
+  
   return(out)
 }
 
@@ -788,10 +795,13 @@ predict_esn <- function(win,
   
   # Number of lags by output variable
   n_lags <- lapply(lags, length)
+  
   # Names of lagged variables as list
-  names_lags_list <- lapply(seq_len(n_outputs), function(n) {
-    paste(colnames(wout)[n], "(", lags[[n]], ")", sep = "")
-  })
+  names_lags_list <- lapply(
+    seq_len(n_outputs),
+    function(n) {
+      paste(colnames(wout)[n], "(", lags[[n]], ")", sep = "")
+      })
   
   # Dynamic forecasting (iterative mode)
   for (t in 2:(n_ahead + 1)) {
@@ -984,25 +994,32 @@ simulate_esn <- function(win,
   # Number of response variables
   n_outputs <- ncol(wout)
   
-  # Create list of matrices sampeled from residuals
-  innov <- lapply(seq_len(n_sim), function(n_sim) {
-    sapply(seq_len(n_outputs), function(n_outputs) {
-      sample(error[, n_outputs], size = n_ahead, replace = TRUE)
-    })
-  })
+  # Create list of matrices sampled from residuals
+  innov <- lapply(
+    seq_len(n_sim),
+    function(n_sim) {
+      sapply(
+        seq_len(n_outputs),
+        function(n_outputs) {
+          sample(error[, n_outputs], size = n_ahead, replace = TRUE)
+          })
+      })
   
   # Simulate future sample path with normal distributed innovations
-  sim <- lapply(innov, function(innov) {
-    predict_esn(
-      win = win,
-      wres = wres,
-      wout = wout,
-      n_ahead = n_ahead,
-      alpha = alpha,
-      lags = lags,
-      inputs = inputs,
-      states_train = states_train,
-      innov = innov)$fcst
-  })
+  sim <- lapply(
+    innov,
+    function(innov) {
+      predict_esn(
+        win = win,
+        wres = wres,
+        wout = wout,
+        n_ahead = n_ahead,
+        alpha = alpha,
+        lags = lags,
+        inputs = inputs,
+        states_train = states_train,
+        innov = innov)$fcst
+      })
+  
   return(sim)
 }

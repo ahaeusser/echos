@@ -7,10 +7,12 @@
 tune_inputs(
   data,
   lags,
-  n_fourier,
-  period,
-  n_diff,
+  fourier,
+  xreg,
+  dy,
+  dx,
   n_initial,
+  weights,
   scale_inputs,
   inf_crit,
   n_sample,
@@ -22,11 +24,13 @@ tune_inputs(
 
 \item{lags}{A \code{list} containing integer vectors with the lags associated with each input variable.}
 
-\item{n_fourier}{Integer vector. The number of fourier terms (seasonal cycles per period).}
+\item{fourier}{A \code{list} containing the periods and the number of fourier terms as integer vector.}
 
-\item{period}{Integer vector. The periodicity of the time series (e.g. \code{period = c(12)} for monthly data or \code{period = c(24, 168)} for hourly data).}
+\item{xreg}{A \code{tsibble} containing exogenous variables.}
 
-\item{n_diff}{Integer vector. The number of non-seasonal differences.}
+\item{dy}{Integer vector. The nth-differences of the response variable.}
+
+\item{dx}{Integer vector. The nth-differences of the exogenous variables.}
 
 \item{n_initial}{Integer value. The number of observations of internal states for initial drop out (throw-off).}
 

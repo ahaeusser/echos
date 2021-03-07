@@ -7,15 +7,16 @@
 train_esn(
   data,
   lags,
-  n_fourier,
-  period,
+  fourier = NULL,
   const = TRUE,
-  n_diff = 0,
+  xreg = NULL,
+  dy = 0,
+  dx = 0,
   n_res = 200,
   n_initial = 10,
   n_seed = 42,
-  rho = 0.7,
   alpha = 0.85,
+  rho = 0.7,
   lambda = 12,
   density = 0.1,
   weights = NULL,
@@ -24,17 +25,19 @@ train_esn(
 )
 }
 \arguments{
-\item{data}{A \code{tsibble} containing the time series data.}
+\item{data}{A \code{tsibble} containing the response variable.}
 
 \item{lags}{A \code{list} containing integer vectors with the lags associated with each input variable.}
 
-\item{n_fourier}{Integer vector. The number of fourier terms (seasonal cycles per period).}
+\item{fourier}{A \code{list} containing the periods and the number of fourier terms as integer vector.}
 
-\item{period}{Integer vector. The periodicity of the time series (e.g. for monthly data \code{period = c(12)}, for hourly data \code{period = c(24, 168)}).}
+\item{const}{Logical value. If \code{TRUE}, an intercept term is used.}
 
-\item{const}{Logical value. If \code{TRUE}, a constant term (intercept) is used.}
+\item{xreg}{A \code{tsibble} containing exogenous variables.}
 
-\item{n_diff}{Integer vector. The number of non-seasonal differences.}
+\item{dy}{Integer vector. The nth-differences of the response variable.}
+
+\item{dx}{Integer vector. The nth-differences of the exogenous variables.}
 
 \item{n_res}{Integer value. The number of internal states within the reservoir (hidden layer).}
 
@@ -42,9 +45,9 @@ train_esn(
 
 \item{n_seed}{Integer value. The seed for the random number generator (for reproducibility).}
 
-\item{rho}{Numeric value. The spectral radius for scaling the reservoir weight matrix.}
-
 \item{alpha}{Numeric value. The leakage rate (smoothing parameter) applied to the reservoir.}
+
+\item{rho}{Numeric value. The spectral radius for scaling the reservoir weight matrix.}
 
 \item{lambda}{Numeric value. The regularization (shrinkage) parameter for ridge regression.}
 
@@ -59,12 +62,11 @@ train_esn(
 \value{
 A \code{list} containing:
    \itemize{
-      \item{\code{data}: The original input data as \code{tsibble}.}
-      \item{\code{actual}: A \code{tsibble} containing the actual values.}
-      \item{\code{fitted}: A \code{tsibble} containing the fitted values.}
-      \item{\code{error}: A \code{tsibble} containing the residuals (i.e. actual - fitted).}
-      \item{\code{states_train}: A \code{tsibble} containing the internal states.}
-      \item{\code{method}: A \code{list} containing several objects and information of the trained ESN (weight matrices, hyperparameters, model metrics, etc.).}
+      \item{\code{actual}: Numeric vector containing the actual values.}
+      \item{\code{fitted}: Numeric vector containing the fitted values.}
+      \item{\code{error}: Numeric vector containing the residuals.}
+      \item{\code{states_train}: Numeric matrix containing the internal states.}
+      \item{\code{method}: A \code{list} containing several objects and meta information of the trained ESN (weight matrices, hyperparameters, model metrics, etc.).}
       }
 }
 \description{

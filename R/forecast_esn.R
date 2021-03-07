@@ -7,13 +7,14 @@
 #' @param n_ahead Integer value. The number of periods for forecasting (forecast horizon).
 #' @param n_sim Integer value. The number of simulations (number of future sample paths).
 #' @param n_seed Integer value. The seed for the random number generator (for reproducibility).
+#' @param xreg A \code{tsibble} containing exogenous variables.
 #' 
 #' @return A \code{list} containing:
 #'    \itemize{
-#'       \item{\code{forecast}: A \code{tsibble} containing the forecasts.}
-#'       \item{\code{simulation}: A \code{tsibble} containing the simulated future sample path.}
-#'       \item{\code{states_train}: A \code{tsibble} containing the internal states.}
-#'       \item{\code{method}: A list containing several objects and information of the trained ESN (weight matrices, hyperparameters, model metrics, etc.).}
+#'       \item{\code{fcst}: Numeric vector containing the point forecasts.}
+#'       \item{\code{sim}: Numeric matrix containing the simulated future sample path.}
+#'       \item{\code{states_train}: Numeric matrix containing the internal states.}
+#'       \item{\code{method}: A \code{list} containing several objects and meta information of the trained ESN (weight matrices, hyperparameters, model metrics, etc.).}
 #'       \item{\code{n_ahead}: Integer value. The number of periods for forecasting (forecast horizon).}
 #'       \item{\code{n_sim}: Integer value. The number of simulations (number of future sample paths).}
 #'       }
@@ -22,19 +23,19 @@
 forecast_esn <- function(object,
                          n_ahead = 12,
                          n_sim = 100,
-                         n_seed = 42) {
+                         n_seed = 42,
+                         xreg = NULL) {
   
   # Pre-processing ============================================================
   
-  # Original time series data (wide format tibble)
-  data <- object$data
-  
-  # Extract actual and fitted values and internal states
-  fitted <- object$fitted
-  states_train <- object$states_train
-  
-  # Method (hyperparameters, etc.)
   method <- object$method
+  
+  # Prepared model data
+  yt <- method$model_data$yt
+  yr <- method$model_data$yr
+  xx <- method$model_data$xx
+  yy <- method$model_data$yy
+  n_total <- nrow(yy)
   
   # Number of inputs, internal states within the reservoir and outputs
   n_inputs <- method$model_layers$n_inputs
@@ -48,84 +49,79 @@ forecast_esn <- function(object,
   
   # Arguments for differencing and scaling the time series data
   scale_inputs <- method$scale_inputs
-  n_diff <- method$diff_inputs$n_diff
+  old_range <- method$model_inputs$old_range
+  dy <- method$model_inputs$dy
+  dx <- method$model_inputs$dx
   
-  # Extract residuals
-  res <- method$res
-  
-  # Leakage rate alpha
+  # Internal states and leakage rate
+  states_train <- object$states_train
   alpha <- method$model_pars$alpha
   
   # Model inputs
   const <- method$model_inputs$const
   lags <- method$model_inputs$lags
-  n_fourier <- method$model_inputs$n_fourier
-  period <- method$model_inputs$period
+  fourier <- method$model_inputs$fourier
   
-  # Extract (time) index variable
-  dttm_index <- data %>% select(index_var(data))
-  
-  # Create future date or date-time object
-  dttm_fcst <- dttm_index %>% 
-    append_row(n = n_ahead) %>%
-    slice((n() - n_ahead + 1):n())
-  
-  # Get response variables (convert tsibble to numeric matrix)
-  y <- invoke(cbind, unclass(data)[measured_vars(data)])
-  # Create copy of numeric matrix y for later usage
-  actual <- y
-  
-  # Names of response variables
-  names_outputs <- colnames(y)
-  
-  # Get reservoir (convert states_train from tsibble to numeric matrix)
-  states_train <- states_train %>%
-    spread(
-      key = ".state",
-      value = ".value")
-  
-  states_train <- invoke(cbind, unclass(states_train)[measured_vars(states_train)])
-  
-  # Calculate seasonal and non-seasonal differences
-  y <- diff_data(
-    data = y,
-    n_diff = n_diff)
-  
-  # Scale data to the specified interval
-  scaled <- scale_data(
-    data = y,
-    new_range = scale_inputs)
-  
-  y <- scaled$data
-  old_range <- scaled$old_range
   
   # Create input layer ========================================================
+  
+  if (!is.null(xreg)) {
+    # Convert tsibble to numeric matrix
+    xreg <- invoke(cbind, unclass(xreg)[measured_vars(xreg)])
+    xreg <- rbind(xx, xreg)
+    
+    if (is.null(dx)) {dx <- 0}
+    
+    # Calculate nth-differences of exogenous variables
+    xreg <- diff_data(
+      data = xreg,
+      n_diff = dx)
+    
+    # Scale data to specified interval
+    scaled <- scale_data(
+      data = xreg,
+      new_range = scale_inputs)
+    
+    xreg <- tail(
+      x = scaled$data,
+      n = n_ahead)
+    
+    pad_na <- matrix(
+      data = NA_real_,
+      nrow = max(unlist(lags)),
+      ncol = ncol(xreg))
+    
+    xreg <- rbind(0, xreg, pad_na)
+    rownames(xreg) <- NULL
+  }
   
   # Create lagged variables as matrix ("revolved style")
   if (is.null(lags)) {
     y_lag <- NULL
   } else {
     y_lag <- create_revolved(
-      data = y,
+      data = yt,
       lags = lags,
       n_ahead = n_ahead)
   }
   
   # Create season (fourier terms) as matrix
-  if (all(n_fourier == 0)) {
-    y_seas <- NULL
+  if (is.null(fourier)) {
+    y_fourier <- NULL
   } else {
-    y_seas <- create_fourier(
-      times = (nrow(y) + 1):(nrow(y) + n_ahead),
-      n_fourier = n_fourier,
-      period = period)
     
-    fill_NA <- matrix(
+    # Create numeric matrix of fourier terms
+    y_fourier <- create_fourier(
+      x = (n_total + 1):(n_total + n_ahead),
+      period = fourier[[1]],
+      k = fourier[[2]])
+    
+    pad_na <- matrix(
       data = NA_real_,
       nrow = max(unlist(lags)),
-      ncol = ncol(y_seas))
+      ncol = ncol(y_fourier))
     
-    y_seas <- rbind(0, y_seas, fill_NA)
+    y_fourier <- rbind(0, y_fourier, pad_na)
   }
   
   # Create constant (intercept or bias term) as matrix
@@ -135,19 +131,21 @@ forecast_esn <- function(object,
     y_const <- create_const(
       n_obs = n_ahead)
     
-    fill_NA <- matrix(
+    pad_na <- matrix(
       data = NA_real_,
       nrow = max(unlist(lags)),
       ncol = 1)
     
-    y_const <- rbind(0, y_const, fill_NA)
+    y_const <- rbind(0, y_const, pad_na)
   }
   
   # Concatenate input matrices
   inputs <- cbind(
     y_const,
     y_lag,
-    y_seas)
+    y_fourier,
+    xreg)
+  
   
   # Point forecasts ===========================================================
   
@@ -165,6 +163,7 @@ forecast_esn <- function(object,
   
   # Extract point forecasts
   fcst <- model_pred$fcst
+  
   # Extract internal states
   # (first row is last row of training an can be dropped)
   states_fcst <- model_pred$states_fcst[-c(1), ]
@@ -175,11 +174,13 @@ forecast_esn <- function(object,
     old_range = old_range,
     new_range = scale_inputs)
   
-  # Integrate non-seasonal differences
+  # Integrate differences
   fcst <- inv_diff_data(
-    data = actual,
+    data = yy,
     data_diff = fcst,
-    n_diff = n_diff)
+    n_diff = dy)
+  
+  point <- as.numeric(fcst)
   
   # Simulation ================================================================
   
@@ -199,72 +200,52 @@ forecast_esn <- function(object,
       lags = lags,
       inputs = inputs,
       states_train = states_train,
-      error = res,
+      error = yr,
       n_sim = n_sim)
     
     # Rescaling of simulated sample path
-    sim <- lapply(model_sim, function(model_sim) {
-      rescale_data(
-        data = model_sim,
-        old_range = old_range,
-        new_range = scale_inputs)
-    })
+    sim <- lapply(
+      model_sim,
+      function(model_sim) {
+        rescale_data(
+          data = model_sim,
+          old_range = old_range,
+          new_range = scale_inputs)
+      })
     
-    # Integrate non-seasonal differences
-    sim <- lapply(sim, function(sim) {
-      inv_diff_data(
-        data = actual,
-        data_diff = sim,
-        n_diff = n_diff)
-    })
+    # Integrate differences
+    sim <- lapply(
+      sim,
+      function(sim) {
+        inv_diff_data(
+          data = yy,
+          data_diff = sim,
+          n_diff = dy)
+      })
+    
+    # Flatten list column wise to matrix
+    sim <- do.call(cbind, sim)
     
     # Names of simulations
-    names_sim <- paste0(
-      "sim","(", formatC(1:n_sim, width = nchar(max(n_sim)), flag = "0"), ")")
-    
-    simulation <- lapply(seq_len(n_sim), function(n) {
-      bind_cols(
-        dttm_fcst,
-        as_tibble(sim[[n]])) %>%
-        gather(
-          key = ".response",
-          value = ".mean") %>%
-        mutate(.path = names_sim[n]) %>%
-        update_tsibble(
-          key = c(
-            ".response",
-            ".path"))
-    })
-    simulation <- bind_rows(simulation)
+    colnames(sim) <- paste0(
+      "sim","(",
+      formatC(
+        x = 1:n_sim,
+        width = nchar(max(n_sim)),
+        flag = "0"),
+      ")")
   }
   
   # Post-processing ===========================================================
   
-  # Convert data from numeric matrix to tsibble
-  forecast <- bind_cols(
-    dttm_fcst,
-    as_tibble(fcst)) %>%
-    gather(
-      key = ".response",
-      value = ".mean") %>%
-    update_tsibble(
-      key = ".response")
-  
-  states_fcst <- bind_cols(
-    dttm_fcst,
-    as_tibble(states_fcst)) %>%
-    gather(
-      key = ".state",
-      value = ".value")
-  
   # Output model
   structure(
     list(
-      forecast = forecast,
-      simulation = simulation,
+      point = point,
+      sim = sim,
       states_fcst = states_fcst,
       method = method,
       n_ahead = n_ahead,
       n_sim = n_sim),
-    class = "forecast")
+    class = "forecast_esn")
 }

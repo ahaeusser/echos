@@ -4,17 +4,18 @@
 #' @description This function trains an Echo State Network (ESN) to a
 #'   univariate time series.
 #' 
-#' @param data A \code{tsibble} containing the time series data.
+#' @param data A \code{tsibble} containing the response variable.
 #' @param lags A \code{list} containing integer vectors with the lags associated with each input variable.
-#' @param n_fourier Integer vector. The number of fourier terms (seasonal cycles per period).
-#' @param period Integer vector. The periodicity of the time series (e.g. for monthly data \code{period = c(12)}, for hourly data \code{period = c(24, 168)}).
-#' @param const Logical value. If \code{TRUE}, a constant term (intercept) is used.
-#' @param n_diff Integer vector. The number of non-seasonal differences.
+#' @param fourier A \code{list} containing the periods and the number of fourier terms as integer vector.
+#' @param const Logical value. If \code{TRUE}, an intercept term is used.
+#' @param xreg A \code{tsibble} containing exogenous variables.
+#' @param dy Integer vector. The nth-differences of the response variable.
+#' @param dx Integer vector. The nth-differences of the exogenous variables.
 #' @param n_res Integer value. The number of internal states within the reservoir (hidden layer).
 #' @param n_initial Integer value. The number of observations of internal states for initial drop out (throw-off).
 #' @param n_seed Integer value. The seed for the random number generator (for reproducibility).
-#' @param rho Numeric value. The spectral radius for scaling the reservoir weight matrix.
 #' @param alpha Numeric value. The leakage rate (smoothing parameter) applied to the reservoir.
+#' @param rho Numeric value. The spectral radius for scaling the reservoir weight matrix.
 #' @param lambda Numeric value. The regularization (shrinkage) parameter for ridge regression.
 #' @param density Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).
 #' @param weights Numeric vector. Observation weights for weighted least squares estimation.
@@ -23,26 +24,26 @@
 #' 
 #' @return A \code{list} containing:
 #'    \itemize{
-#'       \item{\code{data}: The original input data as \code{tsibble}.}
-#'       \item{\code{actual}: A \code{tsibble} containing the actual values.}
-#'       \item{\code{fitted}: A \code{tsibble} containing the fitted values.}
-#'       \item{\code{error}: A \code{tsibble} containing the residuals (i.e. actual - fitted).}
-#'       \item{\code{states_train}: A \code{tsibble} containing the internal states.}
-#'       \item{\code{method}: A \code{list} containing several objects and information of the trained ESN (weight matrices, hyperparameters, model metrics, etc.).}
+#'       \item{\code{actual}: Numeric vector containing the actual values.}
+#'       \item{\code{fitted}: Numeric vector containing the fitted values.}
+#'       \item{\code{error}: Numeric vector containing the residuals.}
+#'       \item{\code{states_train}: Numeric matrix containing the internal states.}
+#'       \item{\code{method}: A \code{list} containing several objects and meta information of the trained ESN (weight matrices, hyperparameters, model metrics, etc.).}
 #'       }
 #' @export
 
 train_esn <- function(data,
                       lags,
-                      n_fourier,
-                      period,
+                      fourier = NULL,
                       const = TRUE,
-                      n_diff = 0,
+                      xreg = NULL,
+                      dy = 0,
+                      dx = 0,
                       n_res = 200,
                       n_initial = 10,
                       n_seed = 42,
-                      rho = 0.7,
                       alpha = 0.85,
+                      rho = 0.7,
                       lambda = 12,
                       density = 0.1,
                       weights = NULL,
@@ -55,37 +56,52 @@ train_esn <- function(data,
   n_res <- as.integer(n_res)
   n_initial <- as.integer(n_initial)
   n_seed <- as.integer(n_seed)
-  n_outputs <- as.integer(ncol(data))
   
-  # Extract (time) index variable
-  dttm_index <- data %>% select(index_var(data))
+  # Prepare exogenous variables
+  if (is.null(xreg)) {
+    xx <- NULL
+  } else {
+    # Convert tsibble to numeric matrix
+    xreg <- invoke(cbind, unclass(xreg)[measured_vars(xreg)])
+    # Copy of original data for later usage
+    xx <- xreg
+    
+    # Calculate nth-differences
+    if (is.null(dx)) {dx <- 0}
+    xreg <- diff_data(
+      data = xreg,
+      n_diff = dx)
+    
+    # Scale data to specified interval
+    xreg <- scale_data(
+      data = xreg,
+      new_range = scale_inputs)$data
+  }
   
-  # Get response variables (convert tsibble to numeric matrix)
-  y <- invoke(cbind, unclass(data)[measured_vars(data)])
-  # Create copy of numeric matrix y for later usage
-  actual <- y
-  
-  # Names of response variables
-  names_outputs <- colnames(y)
-  # Number of response variables
+  # Prepare output variable
+  # Name of output variable
+  name_output <- measured_vars(data)
+  # Convert tsibble to numeric matrix
+  y <- invoke(cbind, unclass(data)[name_output])
+  # Number of outputs
   n_outputs <- ncol(y)
-  # Names of internal states
-  names_states <- paste0(
-    "state","(", formatC(1:n_res, width = nchar(max(n_res)), flag = "0"), ")")
+  # Number of total observations
+  n_total <- nrow(y)
+  # Create copy of original data for later usage
+  yy <- y
   
-  # Calculate seasonal and non-seasonal differences
+  # Calculate nth-difference of output variable
   y <- diff_data(
     data = y,
-    n_diff = n_diff)
+    n_diff = dy)
   
-  # Scale data to the specified interval
+  # Scale data to specified interval
   scaled <- scale_data(
     data = y,
     new_range = scale_inputs)
   
   y <- scaled$data
   old_range <- scaled$old_range
-  
   
   # Create input layer ========================================================
   
@@ -99,13 +115,14 @@ train_esn <- function(data,
   }
   
   # Create fourier terms (trigonometric terms) as matrix
-  if (is.null(n_fourier)) {
-    y_seas <- NULL
+  if (is.null(fourier)) {
+    y_fourier <- NULL
   } else {
-    y_seas <- create_fourier(
-      times = 1:nrow(y),
-      n_fourier = n_fourier,
-      period = period)
+    # Create numeric matrix of fourier terms
+    y_fourier <- create_fourier(
+      x = 1:n_total,
+      period = fourier[[1]],
+      k = fourier[[2]])
   }
   
   # Create constant term (intercept term) as matrix
@@ -113,38 +130,29 @@ train_esn <- function(data,
     y_const <- NULL
   } else {
     y_const <- create_const(
-      n_obs = nrow(y))
+      n_obs = n_total)
   }
   
   # Concatenate input matrices
   inputs <- cbind(
     y_const,
     y_lag,
-    y_seas)
+    y_fourier,
+    xreg)
   
   # Drop NAs for training
   inputs <- inputs[complete.cases(inputs), , drop = FALSE]
   
-  # Number of observations (total)
-  n_total <- nrow(y)
   # Number of observations (training)
   n_train <- nrow(inputs)
   # Number of observations (accounted for initial throw-off)
   n_obs <- n_train - n_initial
   # Number of input features (constant, lagged variables, etc.)
   n_inputs <- ncol(inputs)
-  
-  # Maximum lag (overall)
-  max_lag <- max(unlist(lags))
   # Train index (with initial throw-off)
   index_train <- c((1 + (n_total - n_train + n_initial)):n_total)
   # Train index (without initial throw-off)
   index_states <- c((1 + (n_total - n_train)):n_total)
-  
-  # Create time index for training
-  dttm_train <- dttm_index[index_train, ]
-  # Create time index for internal states
-  dttm_states <- dttm_index[index_states, ]
   
   
   # Create hidden layer (reservoir) ===========================================
@@ -173,22 +181,25 @@ train_esn <- function(data,
     wres = wres,
     alpha = alpha)
   
-  colnames(states_train) <- names_states
+  # Names of internal states
+  colnames(states_train) <- paste0(
+    "state","(",
+    formatC(
+      x = 1:n_res,
+      width = nchar(max(n_res)),
+      flag = "0"),
+    ")")
   
   
   # Create output layer (train model) =========================================
   
   # Concatenate inputs and reservoir
   Xt <- cbind(inputs, states_train)
-  
   # Adjust response and design matrix for initial throw-off and lag-length
   Xt <- Xt[((n_initial + 1):nrow(Xt)), , drop = FALSE]
-  yt <- y[((n_initial + 1 + (n_total - n_train)):nrow(y)), , drop = FALSE]
+  yt <- y[((n_initial + 1 + (n_total - n_train)):n_total), , drop = FALSE]
   
-  # Linear observation weights within the interval [1, 2]
-  # obs_weights <- (0:(nrow(Xt) - 1)) * (1 / (nrow(Xt) - 1)) + 1
-  # Equal observation weights
-  
+  # Observation weights for ridge regression
   if (is.null(weights)) {
     weights <- rep(1, nrow(Xt))
   }
@@ -200,89 +211,68 @@ train_esn <- function(data,
     lambda = lambda,
     weights = weights)
   
-  # Extract coefficients (output weight matrix)
-  wout <- model$wout
-  # Extract fitted values (i.e. in-sample 1-step ahead forecasts) and residuals
-  yhat <- model$yhat
-  res <- model$res
+  # Extract model components
+  wout <- model$wout  # coefficients (output weights)
+  yf <- model$yf      # fitted values (scaled)
+  yr <- model$yr      # residuals (scaled)
   
   # Adjust column- and row names of wout
-  colnames(wout) <- names_outputs
+  colnames(wout) <- name_output
   rownames(wout) <- colnames(Xt)
   
   # Adjust column names of actual values, fitted and residuals
-  colnames(yt) <- names_outputs
-  colnames(yhat) <- names_outputs
-  colnames(res) <- names_outputs
+  colnames(yt) <- name_output
+  colnames(yf) <- name_output
+  colnames(yr) <- name_output
+  
+  # Adjust actual values for correct dimension
+  actual <- yy[index_train, , drop = FALSE]
+  
+  # Rescale fitted values
+  fitted <- rescale_data(
+    data = yf,
+    old_range = old_range,
+    new_range = scale_inputs)
+  
+  actual <- as.numeric(actual)
+  fitted <- as.numeric(fitted)
+  
+  # Inverse difference fitted values
+  if (dy > 0) {fitted <- actual + fitted}
+  
+  # Calculate residuals
+  resid <- actual - fitted
+  
+  # Fill NAs in front of vectors (adjust to length of original data)
+  actual <- c(rep(NA_real_, n_total - n_obs), actual)
+  fitted <- c(rep(NA_real_, n_total - n_obs), fitted)
+  resid <- c(rep(NA_real_, n_total - n_obs), resid)
   
   
   # Post-processing ===========================================================
   
-  # Adjust actual values for correct dimension
-  actual <- actual[index_train, , drop = FALSE]
-  
-  # Rescale fitted values
-  fitted <- rescale_data(
-    data = yhat,
-    old_range = old_range,
-    new_range = scale_inputs)
-  
-  # Inverse difference fitted values
-  if (n_diff > 0) {
-    fitted <- actual + fitted
-  }
-  
-  # Calculate residuals (1-step ahead forecast errors)
-  resid <- actual - fitted
-  
-  # Convert data from numeric matrix to tsibble
-  actual <- bind_cols(
-    dttm_train,
-    as_tibble(actual)) %>%
-    gather(
-      key = ".response",
-      value = ".actual") %>%
-    update_tsibble(
-      key = ".response")
-  
-  fitted <- bind_cols(
-    dttm_train,
-    as_tibble(fitted)) %>%
-    gather(
-      key = ".response",
-      value = ".fitted") %>%
-    update_tsibble(
-      key = ".response")
-  
-  resid <- bind_cols(
-    dttm_train,
-    as_tibble(resid)) %>%
-    gather(
-      key = ".response",
-      value = ".resid") %>%
-    update_tsibble(
-      key = ".response")
-  
-  states_train <- bind_cols(
-    dttm_states,
-    as_tibble(states_train)) %>%
-    gather(
-      key = ".state",
-      value = ".value")
+  # Store model data for forecasting
+  model_data <- list(
+    yt = yt,
+    yr = yr,
+    yy = yy,
+    xx = xx)
   
   # Store model metrics
   model_metrics <- tibble(
-    df = model$df,
+    dof = model$dof,
     aic = model$aic,
     bic = model$bic,
     hq = model$hq)
   
-  # List with model inputs
+  # List with model inputs and settings
   model_inputs <- list(
     const = const,
     lags = lags,
-    n_fourier = n_fourier,
-    period = period)
+    fourier = fourier,
+    dy = dy,
+    dx = dx,
+    old_range = old_range)
   
   # List with hyperparameters
   model_pars <- list(
@@ -309,29 +299,25 @@ train_esn <- function(data,
     model_pars = model_pars,
     model_inputs = model_inputs)
   
-  diff_inputs <- list(n_diff = n_diff)
-  
   # Store results
   method <- list(
     model_inputs = model_inputs,
+    model_data = model_data,
     model_metrics = model_metrics,
     model_spec = model_spec,
     model_pars = model_pars,
     model_layers = model_layers,
     model_weights = model_weights,
-    diff_inputs = diff_inputs,
     scale_inputs = scale_inputs,
-    scale_runif = scale_runif,
-    res = res)
+    scale_runif = scale_runif)
   
   # Output model
   structure(
     list(
-      data = data,
       actual = actual,
       fitted = fitted,
       resid = resid,
       states_train = states_train,
       method = method),
-    class = "ESN")
+    class = "esn")
 }

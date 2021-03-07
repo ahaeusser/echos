@@ -7,34 +7,40 @@
 tune_pars(
   data,
   pars,
-  const,
+  inf_crit,
   lags,
-  n_fourier,
-  period,
-  n_diff,
+  fourier,
+  const,
+  xreg,
+  dy,
+  dx,
   n_res,
   n_initial,
   n_seed,
   density,
-  inf_crit,
-  scale_inputs,
-  scale_runif
+  weights,
+  scale_runif,
+  scale_inputs
 )
 }
 \arguments{
-\item{data}{A \code{tsibble} containing the time series data.}
+\item{data}{A \code{tsibble} containing the response variable.}
 
 \item{pars}{Numeric vector containing the hyperparameters.}
 
-\item{const}{Logical value. If \code{TRUE}, a constant term (intercept) is used.}
+\item{inf_crit}{Character value. The information criterion \code{inf_crit = c("aic", "bic", "hq")}.}
 
 \item{lags}{A \code{list} containing integer vectors with the lags associated with each input variable.}
 
-\item{n_fourier}{Integer vector. The number of fourier terms (seasonal cycles per period).}
+\item{fourier}{A \code{list} containing the periods and the number of fourier terms as integer vector.}
 
-\item{period}{Integer vector. The periodicity of the time series (e.g. \code{period = c(12)} for monthly data or \code{period = c(24, 168)} for hourly data).}
+\item{const}{Logical value. If \code{TRUE}, an intercept term is used.}
 
-\item{n_diff}{Integer value. The number of differences.}
+\item{xreg}{A \code{tsibble} containing exogenous variables.}
+
+\item{dy}{Integer vector. The nth-differences of the response variable.}
+
+\item{dx}{Integer vector. The nth-differences of the exogenous variables.}
 
 \item{n_res}{Integer value. The number of internal states within the reservoir (hidden layer).}
 
@@ -44,11 +50,17 @@ tune_pars(
 
 \item{density}{Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).}
 
-\item{inf_crit}{Character value. The information criterion \code{inf_crit = c("aic", "bic", "hq")}.}
+\item{weights}{Numeric vector. Observation weights for weighted least squares estimation.}
+
+\item{scale_runif}{Numeric vector. The lower and upper bound of the uniform distribution.}
 
 \item{scale_inputs}{Numeric vector. The lower and upper bound for scaling the time series data.}
 
-\item{scale_runif}{Numeric vector. The lower and upper bound of the uniform distribution.}
+\item{rho}{Numeric value. The spectral radius for scaling the reservoir weight matrix.}
+
+\item{alpha}{Numeric value. The leakage rate (smoothing parameter) applied to the reservoir.}
+
+\item{lambda}{Numeric value. The regularization (shrinkage) parameter for ridge regression.}
 }
 \value{
 model_value Numeric value. The information criterion to be minimized.
