@@ -34,6 +34,8 @@ tune_inputs(
 
 \item{n_initial}{Integer value. The number of observations of internal states for initial drop out (throw-off).}
 
+\item{weights}{Numeric vector. Observation weights for weighted least squares estimation.}
+
 \item{scale_inputs}{Numeric vector. The lower and upper bound for scaling the time series data.}
 
 \item{inf_crit}{Character value. The information criterion \code{inf_crit = c("aic", "bic", "hq")}.}

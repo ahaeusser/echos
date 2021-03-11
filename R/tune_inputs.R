@@ -13,6 +13,7 @@
 #' @param dy Integer vector. The nth-differences of the response variable.
 #' @param dx Integer vector. The nth-differences of the exogenous variables.
 #' @param n_initial Integer value. The number of observations of internal states for initial drop out (throw-off).
+#' @param weights Numeric vector. Observation weights for weighted least squares estimation.
 #' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data.
 #' @param inf_crit Character value. The information criterion \code{inf_crit = c("aic", "bic", "hq")}.
 #' @param n_sample Integer value. The number of random samples for random search.
