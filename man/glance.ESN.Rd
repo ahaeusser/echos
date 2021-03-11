@@ -10,7 +10,7 @@
 \item{object}{An object of class \code{ESN}.}
 }
 \value{
-A tibble containing the summary statistics.
+Summary statistics extracted from the object.
 }
 \description{
 Return summary statistics from a trained ESN as tibble.

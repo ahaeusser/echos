@@ -12,7 +12,7 @@
 \item{...}{Currently not in use.}
 }
 \value{
-
+Fitted values extracted from the object.
 }
 \description{
 Extract fitted values from a trained ESN.

@@ -12,7 +12,7 @@
 \item{...}{Currently not in use.}
 }
 \value{
-
+Residuals extracted from the object.
 }
 \description{
 Extract residuals from a trained ESN.

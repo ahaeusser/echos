@@ -25,6 +25,8 @@
 
 \item{n_seed}{Integer value. The seed for the random number generator (for reproducibility).}
 
+\item{xreg}{A \code{tsibble} containing exogenous variables.}
+
 \item{...}{Currently not in use.}
 }
 \value{

@@ -10,7 +10,7 @@
 \item{object}{An object of class \code{ESN}.}
 }
 \value{
-
+Print detailed model summary.
 }
 \description{
 Provide a detailed summary of a trained ESN.

@@ -10,7 +10,7 @@
 \item{object}{An object of class \code{ESN}.}
 }
 \value{
-A tibble containing the estimated coefficients.
+Coefficients extracted from the object.
 }
 \description{
 Return the estimated coefficients from a trained ESN as tibble.

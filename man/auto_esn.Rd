@@ -11,10 +11,10 @@ auto_esn(
   lags = NULL,
   fourier = NULL,
   xreg = NULL,
-  n_initial = 100,
-  n_res = 200,
   dy = 0,
   dx = 0,
+  n_initial = 100,
+  n_res = 200,
   n_seed = 42,
   alpha = 0.8,
   rho = 1,
@@ -37,6 +37,14 @@ auto_esn(
 
 \item{lags}{A \code{list} containing integer vectors with the lags associated with each input variable.}
 
+\item{fourier}{A \code{list} containing the periods and the number of fourier terms as integer vector.}
+
+\item{xreg}{A \code{tsibble} containing exogenous variables.}
+
+\item{dy}{Integer vector. The nth-differences of the response variable.}
+
+\item{dx}{Integer vector. The nth-differences of the exogenous variables.}
+
 \item{n_initial}{Integer value. The number of observations of internal states for initial drop out (throw-off).}
 
 \item{n_res}{Integer value. The number of internal states within the reservoir (hidden layer).}
@@ -51,30 +59,25 @@ auto_esn(
 
 \item{density}{Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).}
 
+\item{weights}{Numeric vector. Observation weights for weighted least squares estimation.}
+
 \item{scale_inputs}{Numeric vector. The lower and upper bound for scaling the time series data.}
 
 \item{scale_runif}{Numeric vector. The lower and upper bound of the uniform distribution.}
 
-\item{...}{Further arguments passed to \code{stats::optim()}}
-
-\item{n_fourier}{Integer vector. The number of fourier terms (seasonal cycles per period).}
-
-\item{n_diff}{Integer value. The number of non-seasonal differences. If \code{NULL}, automatic differencing is applied.}
-
-\item{inf_crit}{Character value. The information criterion \code{inf_crit = c("aic", "bic", "hq")}.}
-
-\item{control_inputs}{A \code{list} containing control values for the automatic selection of model inputs:
+\item{control_tuning}{A \code{list} containing control values for the automatic tuning of model inputs and hyperparameters:
 \itemize{
-  \item{\code{tune}: Logical value. If \code{TRUE}, the model inputs are tuned, otherwise model inputs are used as defined.}
+  \item{\code{inf_crit}: Character value. The information criterion used for tuning \code{inf_crit = c("aic", "bic", "hq")}.}
+  \item{\code{inputs_tune}: Logical value. If \code{TRUE}, the model inputs are tuned, otherwise model inputs are used as defined.}
   \item{\code{n_sample}: Integer value. The number of samples for the random grid.}
-     }}
-
-\item{control_pars}{A \code{list} containing control values for the hyperparameter tuning:
-\itemize{
-  \item{\code{tune}: Logical value. If \code{TRUE}, the hyperparameters are tuned, otherwise hyperparameters are used as defined.}
+  \item{\code{pars_tune}: Logical value. If \code{TRUE}, the hyperparameters are tuned, otherwise hyperparameters are used as defined.}
   \item{\code{lower}: Numeric vector. The lower bounds for \code{alpha}, \code{rho} and \code{lambda} used in the optimization.}
   \item{\code{upper}: Numeric vector. The upper bounds for \code{alpha}, \code{rho} and \code{lambda} used in the optimization.}
-     }}
+}}
+
+\item{...}{Further arguments passed to \code{stats::optim()}}
+
+\item{inf_crit}{Character value. The information criterion \code{inf_crit = c("aic", "bic", "hq")}.}
 }
 \value{
 An object of class \code{ESN}.

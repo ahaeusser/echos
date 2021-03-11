@@ -4,7 +4,7 @@
 \alias{extract_esn}
 \title{Extract and return values from a trained ESN as tibble}
 \usage{
-extract_esn(object, ...)
+extract_esn(object)
 }
 \arguments{
 \item{object}{An object of class \code{mdl_df}.}

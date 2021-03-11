@@ -8,29 +8,30 @@
 #' @param specials Currently not is use.
 #' @param const Logical value. If \code{TRUE}, a constant term (intercept) is used.
 #' @param lags A \code{list} containing integer vectors with the lags associated with each input variable.
-#' @param n_fourier Integer vector. The number of fourier terms (seasonal cycles per period).
+#' @param fourier A \code{list} containing the periods and the number of fourier terms as integer vector.
+#' @param xreg A \code{tsibble} containing exogenous variables.
+#' @param dy Integer vector. The nth-differences of the response variable.
+#' @param dx Integer vector. The nth-differences of the exogenous variables.
 #' @param n_initial Integer value. The number of observations of internal states for initial drop out (throw-off).
 #' @param n_res Integer value. The number of internal states within the reservoir (hidden layer).
-#' @param n_diff Integer value. The number of non-seasonal differences. If \code{NULL}, automatic differencing is applied.
 #' @param n_seed Integer value. The seed for the random number generator (for reproducibility).
 #' @param alpha Numeric value. The leakage rate (smoothing parameter) applied to the reservoir.
 #' @param rho Numeric value. The spectral radius for scaling the reservoir weight matrix.
 #' @param lambda Numeric value. The regularization (shrinkage) parameter for ridge regression.
 #' @param density Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).
+#' @param weights Numeric vector. Observation weights for weighted least squares estimation.
 #' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data.
 #' @param scale_runif Numeric vector. The lower and upper bound of the uniform distribution.
 #' @param inf_crit Character value. The information criterion \code{inf_crit = c("aic", "bic", "hq")}.
-#' @param control_inputs A \code{list} containing control values for the automatic selection of model inputs:
+#' @param control_tuning A \code{list} containing control values for the automatic tuning of model inputs and hyperparameters:
 #'  \itemize{
-#'    \item{\code{tune}: Logical value. If \code{TRUE}, the model inputs are tuned, otherwise model inputs are used as defined.}
+#'    \item{\code{inf_crit}: Character value. The information criterion used for tuning \code{inf_crit = c("aic", "bic", "hq")}.}
+#'    \item{\code{inputs_tune}: Logical value. If \code{TRUE}, the model inputs are tuned, otherwise model inputs are used as defined.}
 #'    \item{\code{n_sample}: Integer value. The number of samples for the random grid.}
-#'       }
-#' @param control_pars A \code{list} containing control values for the hyperparameter tuning:
-#'  \itemize{
-#'    \item{\code{tune}: Logical value. If \code{TRUE}, the hyperparameters are tuned, otherwise hyperparameters are used as defined.}
+#'    \item{\code{pars_tune}: Logical value. If \code{TRUE}, the hyperparameters are tuned, otherwise hyperparameters are used as defined.}
 #'    \item{\code{lower}: Numeric vector. The lower bounds for \code{alpha}, \code{rho} and \code{lambda} used in the optimization.}
 #'    \item{\code{upper}: Numeric vector. The upper bounds for \code{alpha}, \code{rho} and \code{lambda} used in the optimization.}
-#'       }
+#'  }
 #' @param ... Further arguments passed to \code{stats::optim()}
 #'
 #' @return An object of class \code{ESN}.
@@ -42,10 +43,10 @@ auto_esn <- function(.data,
                      lags = NULL,
                      fourier = NULL,
                      xreg = NULL,
-                     n_initial = 100,
-                     n_res = 200,
                      dy = 0,
                      dx = 0,
+                     n_initial = 100,
+                     n_res = 200,
                      n_seed = 42,
                      alpha = 0.8,
                      rho = 1,
@@ -179,19 +180,14 @@ auto_esn <- function(.data,
     scale_inputs = scale_inputs
   )
   
-  # Extract actual values, fitted values and model specification
-  fitted <- model_fit$fitted
-  resid <- model_fit$resid
-  model_spec <- model_fit$method$model_spec
-  
-  # Return model
+  # Return model and components
   structure(
     list(
       model = model_fit,
       est = list(
-        .fitted = fitted,
-        .resid = resid),
-      spec = model_spec),
+        .fitted = model_fit[["fitted"]],
+        .resid = model_fit[["resid"]]),
+      spec = model_fit$method[["model_spec"]]),
     class = "ESN")
 }
 
@@ -229,53 +225,6 @@ ESN <- function(formula, ...){
 
 
 
-#' @title Extract fitted values from a trained ESN
-#' 
-#' @description Extract fitted values from a trained ESN.
-#'
-#' @param object An object of class \code{ESN}.
-#' @param ... Currently not in use.
-#'
-#' @return
-#' @export
-
-fitted.ESN <- function(object, ...){
-  object$est[[".fitted"]]
-}
-
-
-#' @title Extract residuals from a trained ESN
-#' 
-#' @description Extract residuals from a trained ESN.
-#'
-#' @param object An object of class \code{ESN}.
-#' @param ... Currently not in use.
-#'
-#' @return
-#' @export
-
-residuals.ESN <- function(object, ...){
-  object$est[[".resid"]]
-}
-
-
-#' @title Provide a succinct summary of a trained ESN
-#' 
-#' @description Provide a succinct summary of a trained ESN.
-#'
-#' @param object An object of class \code{ESN}.
-#'
-#' @return
-#' @export
-
-model_sum.ESN <- function(object){
-  object$spec
-}
-
-
-
-
-
 #' @title Forecast a trained ESN
 #' 
 #' @description Forecast a trained ESN.
@@ -285,6 +234,7 @@ model_sum.ESN <- function(object){
 #' @param specials Currently not in use
 #' @param n_sim Integer value. The number of future sample path to generate.
 #' @param n_seed Integer value. The seed for the random number generator (for reproducibility).
+#' @param xreg A \code{tsibble} containing exogenous variables.
 #' @param ... Currently not in use.
 #' 
 #' @return An object of class \code{fable}.
@@ -319,6 +269,93 @@ forecast.ESN <- function(object,
 
 
 
+#' @title Extract fitted values from a trained ESN
+#' 
+#' @description Extract fitted values from a trained ESN.
+#'
+#' @param object An object of class \code{ESN}.
+#' @param ... Currently not in use.
+#'
+#' @return Fitted values extracted from the object.
+#' @export
+
+fitted.ESN <- function(object, ...){
+  object$est[[".fitted"]]
+}
+
+
+
+#' @title Extract residuals from a trained ESN
+#' 
+#' @description Extract residuals from a trained ESN.
+#'
+#' @param object An object of class \code{ESN}.
+#' @param ... Currently not in use.
+#'
+#' @return Residuals extracted from the object.
+#' @export
+
+residuals.ESN <- function(object, ...){
+  object$est[[".resid"]]
+}
+
+
+
+#' @title Provide a succinct summary of a trained ESN
+#' 
+#' @description Provide a succinct summary of a trained ESN.
+#'
+#' @param object An object of class \code{ESN}.
+#'
+#' @return Model summary extracted from the object.
+#' @export
+
+model_sum.ESN <- function(object){
+  object$spec
+}
+
+
+
+#' @title Estimated coefficients
+#' 
+#' @description Return the estimated coefficients from a trained ESN as tibble.
+#'
+#' @param object An object of class \code{ESN}.
+#'
+#' @return Coefficients extracted from the object.
+#' @export
+
+tidy.ESN <- function(object) {
+  
+  tibble(
+    term = rownames(object$model$method$model_weights$wout),
+    estimate = as.numeric(object$model$method$model_weights$wout)
+  )
+  
+}
+
+
+
+#' @title Summary of model fit
+#' 
+#' @description Return summary statistics from a trained ESN as tibble.
+#'  \itemize{
+#'    \item{\code{df}: Effective degrees of freedom.}
+#'    \item{\code{aic}: Akaike information criterion.}
+#'    \item{\code{bic}: Bayesian information criterion.}
+#'    \item{\code{hq}: Hannan-Quinn information criterion.}
+#'       }
+#'
+#' @param object An object of class \code{ESN}.
+#'
+#' @return Summary statistics extracted from the object.
+#' @export
+
+glance.ESN <- function(object) {
+  object$model$method$model_metrics
+}
+
+
 
 
 #' @title Provide a detailed summary of a trained ESN
@@ -327,7 +364,7 @@ forecast.ESN <- function(object,
 #'
 #' @param object An object of class \code{ESN}.
 #'
-#' @return
+#' @return Print detailed model summary.
 #' @export
 
 report.ESN <- function(object) {
@@ -411,57 +448,6 @@ report.ESN <- function(object) {
 
 
 
-
-
-#' @title Estimated coefficients
-#' 
-#' @description Return the estimated coefficients from a trained ESN as tibble.
-#'
-#' @param object An object of class \code{ESN}.
-#'
-#' @return A tibble containing the estimated coefficients.
-#' @export
-
-tidy.ESN <- function(object) {
-  
-  tibble(
-    term = rownames(object$model$method$model_weights$wout),
-    estimate = as.numeric(object$model$method$model_weights$wout)
-  )
-  
-}
-
-
-
-
-
-#' @title Summary of model fit
-#' 
-#' @description Return summary statistics from a trained ESN as tibble.
-#'  \itemize{
-#'    \item{\code{df}: Effective degrees of freedom.}
-#'    \item{\code{aic}: Akaike information criterion.}
-#'    \item{\code{bic}: Bayesian information criterion.}
-#'    \item{\code{hq}: Hannan-Quinn information criterion.}
-#'       }
-#'
-#' @param object An object of class \code{ESN}.
-#'
-#' @return A tibble containing the summary statistics.
-#' @export
-
-glance.ESN <- function(object) {
-  
-  object$model$method$model_metrics
-  
-}
-
-
-
-
-
-
-
 #' @title Return the reservoir from a trained ESN as tibble
 #' 
 #' @description Return the reservoir (internal states) from a
@@ -514,7 +500,6 @@ reservoir.mdl_df <- function(object) {
 
 
 
-
 #' @title Extract and return values from a trained ESN as tibble
 #' 
 #' @description Extract and return values from a trained ESN
@@ -547,13 +532,13 @@ reservoir.mdl_df <- function(object) {
 #' @return A tibble containing the hyper-parameters.
 #' @export
 
-extract_esn <- function(object, ...) {
+extract_esn <- function(object) {
   UseMethod("extract_esn")
 }
 
 
 #' @export
-extract_esn.mdl_df <- function(object, ...) {
+extract_esn.mdl_df <- function(object) {
   
   object <- object %>%
     pivot_longer(
