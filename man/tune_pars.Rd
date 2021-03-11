@@ -55,12 +55,6 @@ tune_pars(
 \item{scale_runif}{Numeric vector. The lower and upper bound of the uniform distribution.}
 
 \item{scale_inputs}{Numeric vector. The lower and upper bound for scaling the time series data.}
-
-\item{rho}{Numeric value. The spectral radius for scaling the reservoir weight matrix.}
-
-\item{alpha}{Numeric value. The leakage rate (smoothing parameter) applied to the reservoir.}
-
-\item{lambda}{Numeric value. The regularization (shrinkage) parameter for ridge regression.}
 }
 \value{
 model_value Numeric value. The information criterion to be minimized.

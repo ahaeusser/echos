@@ -17,9 +17,6 @@
 #' @param n_res Integer value. The number of internal states within the reservoir (hidden layer).
 #' @param n_initial Integer value. The number of observations of internal states for initial drop out (throw-off).
 #' @param n_seed Integer value. The seed for the random number generator (for reproducibility).
-#' @param rho Numeric value. The spectral radius for scaling the reservoir weight matrix.
-#' @param alpha Numeric value. The leakage rate (smoothing parameter) applied to the reservoir.
-#' @param lambda Numeric value. The regularization (shrinkage) parameter for ridge regression.
 #' @param density Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).
 #' @param weights Numeric vector. Observation weights for weighted least squares estimation.
 #' @param scale_runif Numeric vector. The lower and upper bound of the uniform distribution.
