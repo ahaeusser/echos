@@ -207,7 +207,7 @@ tune_inputs <- function(data,
   
   # Filter row with minimum information criterion
   model_metrics <- model_metrics %>%
-    mutate(id = row_number(), .before = dof) %>%
+    mutate(id = row_number(), .before = .data$dof) %>%
     slice(which.min(!!sym(inf_crit)))
   
   model_grid <- random_grid
@@ -264,17 +264,17 @@ tune_inputs <- function(data,
   
   # Check for constant term
   const <- model_inputs %>%
-    filter(type == "const") %>%
-    mutate(value = ifelse(usage == 1, TRUE, FALSE)) %>%
-    pull(value)
+    filter(.data$type == "const") %>%
+    mutate(value = ifelse(.data$usage == 1, TRUE, FALSE)) %>%
+    pull(.data$value)
   
   # Check for relevant lags
-  if (any(filter(model_inputs, type == "lag")$usage != 0)) {
+  if (any(filter(model_inputs, .data$type == "lag")$usage != 0)) {
     lags <- model_inputs %>%
-      filter(type == "lag") %>%
-      filter(usage == 1) %>%
-      mutate(value = str_nth_number(input, n = 1)) %>%
-      pull(value) %>%
+      filter(.data$type == "lag") %>%
+      filter(.data$usage == 1) %>%
+      mutate(value = str_nth_number(.data$input, n = 1)) %>%
+      pull(.data$value) %>%
       list()
   } else {
     # If usage is zero for all lags, at least lag one is used (fallback option)
@@ -282,14 +282,14 @@ tune_inputs <- function(data,
   }
   
   # Check for fourier terms
-  if (any(filter(model_inputs, type == "fourier")$usage != 0)) {
+  if (any(filter(model_inputs, .data$type == "fourier")$usage != 0)) {
     fourier <- model_inputs %>%
-      filter(type == "fourier") %>%
-      mutate(k = str_nth_number(input, n = 1)) %>%
-      mutate(period = str_nth_number(input, n = 2)) %>%
-      mutate(flag = usage * k) %>%
-      group_by(period) %>%
-      summarise(k = max(flag, na.rm = TRUE), .groups = "drop")
+      filter(.data$type == "fourier") %>%
+      mutate(k = str_nth_number(.data$input, n = 1)) %>%
+      mutate(period = str_nth_number(.data$input, n = 2)) %>%
+      mutate(flag = .data$usage * .data$k) %>%
+      group_by(.data$period) %>%
+      summarise(k = max(.data$flag, na.rm = TRUE), .groups = "drop")
     
     fourier <- list(
       fourier$period,
