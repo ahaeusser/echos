@@ -386,6 +386,14 @@ report.ESN <- function(object) {
     k <- unlist(method$model_inputs$fourier[[2]])
   }
   
+  if (is.null(method$model_inputs$xreg)) {
+    xreg <- "none"
+    dx <- "none"
+  } else {
+    xreg <- colnames(method$model_inputs$xreg)
+    dx <- as.numeric(method$model_inputs$dx)
+  }
+  
   dy <- as.numeric(method$model_inputs$dy)
   
   alpha <- round(method$model_pars$alpha, 2)
@@ -413,12 +421,14 @@ report.ESN <- function(object) {
     "const    = ", const, "\n",
     "lags     = ", lags, "\n",
     "period   = ", period, "\n",
-    "k        = ", k, "\n"
+    "k        = ", k, "\n",
+    "xreg     = ", xreg, "\n"
   )
   
   cat(
     "\nDifferences:", "\n",
-    "dy = ", dy, "\n"
+    "dy = ", dy, "\n",
+    "dx = ", dx, "\n"
   )
   
   cat(
@@ -475,12 +485,23 @@ reservoir.mdl_df <- function(object) {
   
   key_tbl <- object %>%
     as_tibble() %>%
-    select(-c(.spec))
+    select(-c(.data$.spec))
   
   # Extract states_train
   object <- map(
     .x = seq_len(nrow(key_tbl)),
-    .f = ~{as_tibble(object[[".spec"]][[.x]]$fit$model$states_train)})
+    .f = ~{
+      object[[".spec"]][[.x]]$fit$model$states_train %>%
+        as_tibble() %>%
+        mutate(idx = row_number()) %>%
+        relocate(.data$idx) %>%
+        pivot_longer(
+          cols = -.data$idx,
+          names_to = "state",
+          values_to = "value") %>%
+        arrange(.data$state)
+    }
+  )
   
   # Add columns with key variables
   object <- map(
@@ -548,7 +569,7 @@ extract_esn.mdl_df <- function(object) {
   
   key_tbl <- object %>%
     as_tibble() %>%
-    select(-c(.spec))
+    select(-c(.data$.spec))
   
   # Extract model details
   mdl_tbl <- map(
@@ -562,15 +583,16 @@ extract_esn.mdl_df <- function(object) {
         n_inputs  = lst_mdl[["model_layers"]][["n_inputs"]],
         n_res     = lst_mdl[["model_layers"]][["n_res"]],
         n_outputs = lst_mdl[["model_layers"]][["n_outputs"]],
-        n_diff    = lst_mdl[["diff_inputs"]][["n_diff"]],
         const     = lst_mdl[["model_inputs"]][["const"]],
-        lags      = lst_mdl[["model_inputs"]][["lags"]],
-        period    = list(lst_mdl[["model_inputs"]][["period"]]),
+        lags      = list(lst_mdl[["model_inputs"]][["lags"]]),
+        fourier   = list(lst_mdl[["model_inputs"]][["fourier"]]),
+        dy        = lst_mdl[["model_inputs"]][["dy"]],
+        dx        = lst_mdl[["model_inputs"]][["dx"]],
         alpha     = lst_mdl[["model_pars"]][["alpha"]],
         rho       = lst_mdl[["model_pars"]][["rho"]],
         lambda    = lst_mdl[["model_pars"]][["lambda"]],
         density   = lst_mdl[["model_pars"]][["density"]],
-        df        = lst_mdl[["model_metrics"]][["df"]],
+        dof       = lst_mdl[["model_metrics"]][["dof"]],
         aic       = lst_mdl[["model_metrics"]][["aic"]],
         bic       = lst_mdl[["model_metrics"]][["bic"]],
         hq        = lst_mdl[["model_metrics"]][["hq"]]
