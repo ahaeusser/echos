@@ -76,8 +76,6 @@ auto_esn(
 }}
 
 \item{...}{Further arguments passed to \code{stats::optim()}}
-
-\item{inf_crit}{Character value. The information criterion \code{inf_crit = c("aic", "bic", "hq")}.}
 }
 \value{
 An object of class \code{ESN}.

@@ -22,7 +22,6 @@
 #' @param weights Numeric vector. Observation weights for weighted least squares estimation.
 #' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data.
 #' @param scale_runif Numeric vector. The lower and upper bound of the uniform distribution.
-#' @param inf_crit Character value. The information criterion \code{inf_crit = c("aic", "bic", "hq")}.
 #' @param control_tuning A \code{list} containing control values for the automatic tuning of model inputs and hyperparameters:
 #'  \itemize{
 #'    \item{\code{inf_crit}: Character value. The information criterion used for tuning \code{inf_crit = c("aic", "bic", "hq")}.}
@@ -386,11 +385,11 @@ report.ESN <- function(object) {
     k <- unlist(method$model_inputs$fourier[[2]])
   }
   
-  if (is.null(method$model_inputs$xreg)) {
+  if (is.null(method$model_data$xx)) {
     xreg <- "none"
     dx <- "none"
   } else {
-    xreg <- colnames(method$model_inputs$xreg)
+    xreg <- colnames(method$model_data$xx)
     dx <- as.numeric(method$model_inputs$dx)
   }
   
