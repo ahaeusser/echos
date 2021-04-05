@@ -28,7 +28,8 @@ Imports:
     matrixStats,
     rlang,
     feasts,
-    distributional
+    distributional,
+    glmnet
 LinkingTo:
     Rcpp,
     RcppArmadillo
