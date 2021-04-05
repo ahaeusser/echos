@@ -9,6 +9,7 @@
 #' @importFrom stats complete.cases diffinv na.omit optim pacf qnorm runif
 #' @importFrom utils tail
 #' @importFrom distributional dist_normal
+#' @importFrom glmnet glmnet
 #' @import Rcpp
 #' @import RcppArmadillo
 #' @import tsibble
