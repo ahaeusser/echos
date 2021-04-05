@@ -19,7 +19,9 @@ train_esn(
   rho = 0.7,
   lambda = 12,
   density = 0.1,
+  type = 1,
   weights = NULL,
+  penalty = NULL,
   scale_runif = c(-0.5, 0.5),
   scale_inputs = c(-1, 1)
 )
@@ -52,6 +54,8 @@ train_esn(
 \item{lambda}{Numeric value. The regularization (shrinkage) parameter for ridge regression.}
 
 \item{density}{Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).}
+
+\item{type}{Numeric value. The elastic net mixing parameter.}
 
 \item{weights}{Numeric vector. Observation weights for weighted least squares estimation.}
 

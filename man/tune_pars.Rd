@@ -18,7 +18,9 @@ tune_pars(
   n_initial,
   n_seed,
   density,
+  type,
   weights,
+  penalty,
   scale_runif,
   scale_inputs
 )
@@ -49,6 +51,8 @@ tune_pars(
 \item{n_seed}{Integer value. The seed for the random number generator (for reproducibility).}
 
 \item{density}{Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).}
+
+\item{type}{Numeric value. The elastic net mixing parameter.}
 
 \item{weights}{Numeric vector. Observation weights for weighted least squares estimation.}
 

@@ -18,13 +18,15 @@ auto_esn(
   n_seed = 42,
   alpha = 0.8,
   rho = 1,
-  lambda = 1,
+  lambda = 1e-04,
   density = 0.1,
+  type = 1,
   weights = NULL,
+  penalty = NULL,
   scale_inputs = c(-1, 1),
   scale_runif = c(-0.5, 0.5),
-  control_tuning = list(inf_crit = "aic", inputs_tune = TRUE, n_sample = 1000,
-    pars_tune = TRUE, lower = c(1e-04, 0.01, 0.01), upper = c(0.9999, 2.5, 100)),
+  control_tuning = list(inf_crit = "aic", inputs_tune = FALSE, n_sample = 1000,
+    pars_tune = TRUE, lower = c(1e-04, 0.01, 1e-08), upper = c(0.9999, 2.5, 0.001)),
   ...
 )
 }
@@ -58,6 +60,8 @@ auto_esn(
 \item{lambda}{Numeric value. The regularization (shrinkage) parameter for ridge regression.}
 
 \item{density}{Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).}
+
+\item{type}{Numeric value. The elastic net mixing parameter.}
 
 \item{weights}{Numeric vector. Observation weights for weighted least squares estimation.}
 

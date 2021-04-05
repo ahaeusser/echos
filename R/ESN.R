@@ -19,6 +19,7 @@
 #' @param rho Numeric value. The spectral radius for scaling the reservoir weight matrix.
 #' @param lambda Numeric value. The regularization (shrinkage) parameter for ridge regression.
 #' @param density Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).
+#' @param type Numeric value. The elastic net mixing parameter.
 #' @param weights Numeric vector. Observation weights for weighted least squares estimation.
 #' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data.
 #' @param scale_runif Numeric vector. The lower and upper bound of the uniform distribution.
@@ -49,18 +50,20 @@ auto_esn <- function(.data,
                      n_seed = 42,
                      alpha = 0.8,
                      rho = 1,
-                     lambda = 1,
+                     lambda = 1e-4,
                      density = 0.1,
+                     type = 1,
                      weights = NULL,
+                     penalty = NULL,
                      scale_inputs = c(-1, 1),
                      scale_runif = c(-0.5, 0.5),
                      control_tuning = list(
                        inf_crit = "aic",
-                       inputs_tune = TRUE,
+                       inputs_tune = FALSE,
                        n_sample = 1000,
                        pars_tune = TRUE,
-                       lower = c(1e-4, 1e-2, 1e-2),
-                       upper = c(0.9999, 2.5, 100)),
+                       lower = c(1e-4, 1e-2, 1e-8),
+                       upper = c(0.9999, 2.5, 1e-3)),
                      ...) {
   
   # Number of response variables
@@ -143,7 +146,9 @@ auto_esn <- function(.data,
       n_initial = n_initial,
       n_seed = n_seed,
       density = density,
+      type = type,
       weights = weights,
+      penalty = penalty,
       scale_runif = scale_runif,
       scale_inputs = scale_inputs
     )
@@ -174,7 +179,9 @@ auto_esn <- function(.data,
     rho = pars[2],
     lambda = pars[3],
     density = density,
+    type = type,
     weights = weights,
+    penalty = penalty,
     scale_runif = scale_runif,
     scale_inputs = scale_inputs
   )

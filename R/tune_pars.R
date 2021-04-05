@@ -18,6 +18,7 @@
 #' @param n_initial Integer value. The number of observations of internal states for initial drop out (throw-off).
 #' @param n_seed Integer value. The seed for the random number generator (for reproducibility).
 #' @param density Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).
+#' @param type Numeric value. The elastic net mixing parameter.
 #' @param weights Numeric vector. Observation weights for weighted least squares estimation.
 #' @param scale_runif Numeric vector. The lower and upper bound of the uniform distribution.
 #' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data.
@@ -38,7 +39,9 @@ tune_pars <- function(data,
                       n_initial,
                       n_seed,
                       density,
+                      type,
                       weights,
+                      penalty,
                       scale_runif,
                       scale_inputs) {
   
@@ -200,12 +203,21 @@ tune_pars <- function(data,
     weights <- rep(1, nrow(Xt))
   }
   
-  # Train linear model via ridge regression
-  model <- train_ridge(
+  # # Train linear model via ridge regression
+  # model <- train_ridge(
+  #   X = Xt,
+  #   y = yt,
+  #   lambda = lambda,
+  #   weights = weights)
+  
+  # Train linear model via elastic net
+  model <- train_glmnet(
     X = Xt,
     y = yt,
     lambda = lambda,
-    weights = weights)
+    type = type,
+    weights = weights,
+    penalty = penalty)
  
   # Extract information criterion
   model_value <- model[[inf_crit]]

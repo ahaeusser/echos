@@ -18,6 +18,7 @@
 #' @param rho Numeric value. The spectral radius for scaling the reservoir weight matrix.
 #' @param lambda Numeric value. The regularization (shrinkage) parameter for ridge regression.
 #' @param density Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).
+#' @param type Numeric value. The elastic net mixing parameter.
 #' @param weights Numeric vector. Observation weights for weighted least squares estimation.
 #' @param scale_runif Numeric vector. The lower and upper bound of the uniform distribution.
 #' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data.
@@ -46,7 +47,9 @@ train_esn <- function(data,
                       rho = 0.7,
                       lambda = 12,
                       density = 0.1,
+                      type = 1,
                       weights = NULL,
+                      penalty = NULL,
                       scale_runif = c(-0.5, 0.5),
                       scale_inputs = c(-1, 1)) {
   
@@ -204,26 +207,34 @@ train_esn <- function(data,
     weights <- rep(1, nrow(Xt))
   }
   
-  # Train linear model via ridge regression
-  model <- train_ridge(
+  # Penalty factors
+  # Intercept term is set to zero (= no penalty)
+  # Other variables are set to one (= penalty)
+  
+  if (is.null(penalty)) {
+    penalty <- c(0, rep(1, ncol(Xt) - 1))
+  }
+  
+  # # Train linear model via ridge regression
+  # model <- train_ridge(
+  #   X = Xt,
+  #   y = yt,
+  #   lambda = lambda,
+  #   weights = weights)
+  
+  # Train linear model via elastic net
+  model <- train_glmnet(
     X = Xt,
     y = yt,
     lambda = lambda,
-    weights = weights)
+    type = type,
+    weights = weights,
+    penalty = penalty)
   
   # Extract model components
   wout <- model$wout  # coefficients (output weights)
   yf <- model$yf      # fitted values (scaled)
   yr <- model$yr      # residuals (scaled)
-  
-  # Adjust column- and row names of wout
-  colnames(wout) <- name_output
-  rownames(wout) <- colnames(Xt)
-  
-  # Adjust column names of actual values, fitted and residuals
-  colnames(yt) <- name_output
-  colnames(yf) <- name_output
-  colnames(yr) <- name_output
   
   # Adjust actual values for correct dimension
   actual <- yy[index_train, , drop = FALSE]
