@@ -17,7 +17,9 @@ train_glmnet(X, y, lambda, type, weights, penalty, ...)
 
 \item{weights}{Numeric vector. Observation weights.}
 
-\item{...}{Further arguments passed to glmnet::glmnet().}
+\item{penalty}{Numeric vector. The penalty factors used in \code{glmnet::glmnet()}.}
+
+\item{...}{Further arguments passed to \code{glmnet::glmnet()}.}
 }
 \value{
 A list containing the estimated coefficients, fitted values etc.

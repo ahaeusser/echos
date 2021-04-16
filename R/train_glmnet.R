@@ -9,7 +9,8 @@
 #' @param lambda Numeric value. The regularization parameter.
 #' @param type Numeric value. The elastic net mixing parameter.
 #' @param weights Numeric vector. Observation weights.
-#' @param ... Further arguments passed to glmnet::glmnet().
+#' @param penalty Numeric vector. The penalty factors used in \code{glmnet::glmnet()}.
+#' @param ... Further arguments passed to \code{glmnet::glmnet()}.
 #'
 #' @return A list containing the estimated coefficients, fitted values etc.
 #' @export
