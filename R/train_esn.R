@@ -20,6 +20,7 @@
 #' @param density Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).
 #' @param type Numeric value. The elastic net mixing parameter.
 #' @param weights Numeric vector. Observation weights for weighted least squares estimation.
+#' @param penalty Numeric vector. The penalty factors used in \code{glmnet::glmnet()}.
 #' @param scale_runif Numeric vector. The lower and upper bound of the uniform distribution.
 #' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data.
 #' 
