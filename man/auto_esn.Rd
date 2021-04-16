@@ -65,6 +65,8 @@ auto_esn(
 
 \item{weights}{Numeric vector. Observation weights for weighted least squares estimation.}
 
+\item{penalty}{Numeric vector. The penalty factors used in \code{glmnet::glmnet()}.}
+
 \item{scale_inputs}{Numeric vector. The lower and upper bound for scaling the time series data.}
 
 \item{scale_runif}{Numeric vector. The lower and upper bound of the uniform distribution.}
