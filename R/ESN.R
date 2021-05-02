@@ -21,6 +21,7 @@
 #' @param density Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).
 #' @param type Numeric value. The elastic net mixing parameter.
 #' @param weights Numeric vector. Observation weights for weighted least squares estimation.
+#' @param penalty Numeric vector. Penalty factors applied to the coefficients. 
 #' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data.
 #' @param scale_runif Numeric vector. The lower and upper bound of the uniform distribution.
 #' @param control_tuning A \code{list} containing control values for the automatic tuning of model inputs and hyperparameters:
@@ -39,7 +40,7 @@
 
 auto_esn <- function(.data,
                      specials,
-                     const = FALSE,
+                     const = TRUE,
                      lags = NULL,
                      fourier = NULL,
                      xreg = NULL,
@@ -54,6 +55,7 @@ auto_esn <- function(.data,
                      density = 0.1,
                      type = 1,
                      weights = NULL,
+                     penalty = NULL,
                      scale_inputs = c(-1, 1),
                      scale_runif = c(-0.5, 0.5),
                      control_tuning = list(
@@ -147,6 +149,7 @@ auto_esn <- function(.data,
       density = density,
       type = type,
       weights = weights,
+      penalty = penalty,
       scale_runif = scale_runif,
       scale_inputs = scale_inputs
     )
@@ -179,6 +182,7 @@ auto_esn <- function(.data,
     density = density,
     type = type,
     weights = weights,
+    penalty = penalty,
     scale_runif = scale_runif,
     scale_inputs = scale_inputs
   )

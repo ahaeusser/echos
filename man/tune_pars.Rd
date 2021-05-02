@@ -20,6 +20,7 @@ tune_pars(
   density,
   type,
   weights,
+  penalty,
   scale_runif,
   scale_inputs
 )
@@ -54,6 +55,8 @@ tune_pars(
 \item{type}{Numeric value. The elastic net mixing parameter.}
 
 \item{weights}{Numeric vector. Observation weights for weighted least squares estimation.}
+
+\item{penalty}{Numeric vector. Penalty factors applied to the coefficients.}
 
 \item{scale_runif}{Numeric vector. The lower and upper bound of the uniform distribution.}
 

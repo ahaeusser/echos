@@ -20,6 +20,7 @@
 #' @param density Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).
 #' @param type Numeric value. The elastic net mixing parameter.
 #' @param weights Numeric vector. Observation weights for weighted least squares estimation.
+#' @param penalty Numeric vector. Penalty factors applied to the coefficients. 
 #' @param scale_runif Numeric vector. The lower and upper bound of the uniform distribution.
 #' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data.
 #'
@@ -41,6 +42,7 @@ tune_pars <- function(data,
                       density,
                       type,
                       weights,
+                      penalty,
                       scale_runif,
                       scale_inputs) {
   
@@ -197,9 +199,14 @@ tune_pars <- function(data,
   Xt <- Xt[((n_initial + 1):nrow(Xt)), , drop = FALSE]
   yt <- y[((n_initial + 1 + (n_total - n_train)):n_total), , drop = FALSE]
   
-  # Observation weights for ridge regression
+  # Observation weights
   if (is.null(weights)) {
     weights <- rep(1, nrow(Xt))
+  }
+  
+  # Penalty factors
+  if (is.null(penalty)) {
+    penalty <- c(0, rep(1, ncol(Xt) - 1))
   }
   
   # Train linear model via elastic net
@@ -208,8 +215,9 @@ tune_pars <- function(data,
     y = yt,
     lambda = lambda,
     type = type,
-    weights = weights
-    )
+    weights = weights,
+    penalty = penalty
+  )
  
   # Extract information criterion
   model_value <- model[[inf_crit]]

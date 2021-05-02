@@ -812,7 +812,7 @@ predict_esn <- function(win,
     states_fcst[t, ] <- alpha * states_fcst_upd[t, , drop = FALSE] + (1 - alpha) * states_fcst[(t - 1), , drop = FALSE]
     
     # Prepare design matrix
-    X <- cbind(1, inputs[t, , drop = FALSE], states_fcst[t, , drop = FALSE])
+    X <- cbind(inputs[t, , drop = FALSE], states_fcst[t, , drop = FALSE])
     
     # Calculate point forecasts and save values
     if (is.null(innov)) {
