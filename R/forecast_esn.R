@@ -75,21 +75,25 @@ forecast_esn <- function(object,
     # Calculate nth-differences of exogenous variables
     xreg <- diff_data(
       data = xreg,
-      n_diff = dx)
+      n_diff = dx
+      )
     
     # Scale data to specified interval
     scaled <- scale_data(
       data = xreg,
-      new_range = scale_inputs)
+      new_range = scale_inputs
+      )
     
     xreg <- tail(
       x = scaled$data,
-      n = n_ahead)
+      n = n_ahead
+      )
     
     pad_na <- matrix(
       data = NA_real_,
       nrow = max(unlist(lags)),
-      ncol = ncol(xreg))
+      ncol = ncol(xreg)
+      )
     
     xreg <- rbind(0, xreg, pad_na)
     rownames(xreg) <- NULL
@@ -102,7 +106,8 @@ forecast_esn <- function(object,
     y_lag <- create_revolved(
       data = yt,
       lags = lags,
-      n_ahead = n_ahead)
+      n_ahead = n_ahead
+      )
   }
   
   # Create season (fourier terms) as matrix
@@ -114,12 +119,14 @@ forecast_esn <- function(object,
     y_fourier <- create_fourier(
       x = (n_total + 1):(n_total + n_ahead),
       period = fourier[[1]],
-      k = fourier[[2]])
+      k = fourier[[2]]
+      )
     
     pad_na <- matrix(
       data = NA_real_,
       nrow = max(unlist(lags)),
-      ncol = ncol(y_fourier))
+      ncol = ncol(y_fourier)
+      )
     
     y_fourier <- rbind(0, y_fourier, pad_na)
   }
@@ -129,12 +136,14 @@ forecast_esn <- function(object,
     y_const <- NULL
   } else {
     y_const <- create_const(
-      n_obs = n_ahead)
+      n_obs = n_ahead
+      )
     
     pad_na <- matrix(
       data = NA_real_,
       nrow = max(unlist(lags)),
-      ncol = 1)
+      ncol = 1
+      )
     
     y_const <- rbind(0, y_const, pad_na)
   }
@@ -144,7 +153,8 @@ forecast_esn <- function(object,
     y_const,
     y_lag,
     y_fourier,
-    xreg)
+    xreg
+    )
   
   
   # Point forecasts ===========================================================
@@ -172,13 +182,15 @@ forecast_esn <- function(object,
   fcst <- rescale_data(
     data = fcst,
     old_range = old_range,
-    new_range = scale_inputs)
+    new_range = scale_inputs
+    )
   
   # Integrate differences
   fcst <- inv_diff_data(
     data = yy,
     data_diff = fcst,
-    n_diff = dy)
+    n_diff = dy
+    )
   
   point <- as.numeric(fcst)
   
@@ -201,7 +213,8 @@ forecast_esn <- function(object,
       inputs = inputs,
       states_train = states_train,
       error = yr,
-      n_sim = n_sim)
+      n_sim = n_sim
+      )
     
     # Rescaling of simulated sample path
     sim <- lapply(
@@ -210,7 +223,8 @@ forecast_esn <- function(object,
         rescale_data(
           data = model_sim,
           old_range = old_range,
-          new_range = scale_inputs)
+          new_range = scale_inputs
+          )
       })
     
     # Integrate differences
@@ -220,7 +234,8 @@ forecast_esn <- function(object,
         inv_diff_data(
           data = yy,
           data_diff = sim,
-          n_diff = dy)
+          n_diff = dy
+          )
       })
     
     # Flatten list column wise to matrix
@@ -247,5 +262,6 @@ forecast_esn <- function(object,
       method = method,
       n_ahead = n_ahead,
       n_sim = n_sim),
-    class = "forecast_esn")
+    class = "forecast_esn"
+    )
 }
