@@ -9,7 +9,6 @@
 #' @param lambda Numeric value. The regularization parameter.
 #' @param type Numeric value. The elastic net mixing parameter.
 #' @param weights Numeric vector. Observation weights.
-#' @param penalty Numeric vector. The penalty factors used in \code{glmnet::glmnet()}.
 #' @param ... Further arguments passed to \code{glmnet::glmnet()}.
 #'
 #' @return A list containing the estimated coefficients, fitted values etc.
@@ -20,7 +19,6 @@ train_glmnet <- function(X,
                          lambda,
                          type,
                          weights,
-                         penalty,
                          ...) {
   
   model <- glmnet(
@@ -31,20 +29,18 @@ train_glmnet <- function(X,
     family = "gaussian",
     alpha = type,
     standardize = FALSE,
-    intercept = FALSE,
-    penalty.factor = penalty,
+    intercept = TRUE,
     ...
   )
   
   # Extract estimated coefficients
-  wout <- as.matrix(model$beta)
+  wout <- as.matrix(coef(model))
   # Calculate fitted values and residuals
-  yf <- X %*% wout
+  yf <- cbind(1, X) %*% wout
   yr <- y - yf
   
-  # Adjust column- and row names
+  # Adjust column names
   colnames(wout) <- colnames(y)
-  rownames(wout) <- colnames(X)
   colnames(yf) <- colnames(y)
   colnames(yr) <- colnames(y)
   

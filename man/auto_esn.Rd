@@ -7,7 +7,7 @@
 auto_esn(
   .data,
   specials,
-  const = TRUE,
+  const = FALSE,
   lags = NULL,
   fourier = NULL,
   xreg = NULL,
@@ -22,7 +22,6 @@ auto_esn(
   density = 0.1,
   type = 1,
   weights = NULL,
-  penalty = NULL,
   scale_inputs = c(-1, 1),
   scale_runif = c(-0.5, 0.5),
   control_tuning = list(inf_crit = "aic", inputs_tune = FALSE, n_sample = 1000,
@@ -64,8 +63,6 @@ auto_esn(
 \item{type}{Numeric value. The elastic net mixing parameter.}
 
 \item{weights}{Numeric vector. Observation weights for weighted least squares estimation.}
-
-\item{penalty}{Numeric vector. The penalty factors used in \code{glmnet::glmnet()}.}
 
 \item{scale_inputs}{Numeric vector. The lower and upper bound for scaling the time series data.}
 

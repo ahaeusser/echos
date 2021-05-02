@@ -8,7 +8,7 @@ train_esn(
   data,
   lags,
   fourier = NULL,
-  const = TRUE,
+  const = FALSE,
   xreg = NULL,
   dy = 0,
   dx = 0,
@@ -21,7 +21,6 @@ train_esn(
   density = 0.1,
   type = 1,
   weights = NULL,
-  penalty = NULL,
   scale_runif = c(-0.5, 0.5),
   scale_inputs = c(-1, 1)
 )
@@ -58,8 +57,6 @@ train_esn(
 \item{type}{Numeric value. The elastic net mixing parameter.}
 
 \item{weights}{Numeric vector. Observation weights for weighted least squares estimation.}
-
-\item{penalty}{Numeric vector. The penalty factors used in \code{glmnet::glmnet()}.}
 
 \item{scale_runif}{Numeric vector. The lower and upper bound of the uniform distribution.}
 

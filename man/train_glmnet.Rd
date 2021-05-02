@@ -4,7 +4,7 @@
 \alias{train_glmnet}
 \title{Estimate a GLM via elastic net regularization}
 \usage{
-train_glmnet(X, y, lambda, type, weights, penalty, ...)
+train_glmnet(X, y, lambda, type, weights, ...)
 }
 \arguments{
 \item{X}{Numeric matrix. The design matrix containing the predictor variables.}
@@ -16,8 +16,6 @@ train_glmnet(X, y, lambda, type, weights, penalty, ...)
 \item{type}{Numeric value. The elastic net mixing parameter.}
 
 \item{weights}{Numeric vector. Observation weights.}
-
-\item{penalty}{Numeric vector. The penalty factors used in \code{glmnet::glmnet()}.}
 
 \item{...}{Further arguments passed to \code{glmnet::glmnet()}.}
 }

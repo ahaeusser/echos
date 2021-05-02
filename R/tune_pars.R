@@ -20,7 +20,6 @@
 #' @param density Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).
 #' @param type Numeric value. The elastic net mixing parameter.
 #' @param weights Numeric vector. Observation weights for weighted least squares estimation.
-#' @param penalty Numeric vector. The penalty factors used in \code{glmnet::glmnet()}.
 #' @param scale_runif Numeric vector. The lower and upper bound of the uniform distribution.
 #' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data.
 #'
@@ -42,7 +41,6 @@ tune_pars <- function(data,
                       density,
                       type,
                       weights,
-                      penalty,
                       scale_runif,
                       scale_inputs) {
   
@@ -51,7 +49,6 @@ tune_pars <- function(data,
   alpha <- pars[1]
   rho <- pars[2]
   lambda <- pars[3]
-  
   
   # Prepare constants as integers
   n_res <- as.integer(n_res)
@@ -205,31 +202,14 @@ tune_pars <- function(data,
     weights <- rep(1, nrow(Xt))
   }
   
-  # Penalty factors
-  # Intercept term is set to zero (= no penalty)
-  # Other variables are set to one (= penalty)
-  
-  if (is.null(penalty)) {
-    penalty <- c(0, rep(1, ncol(Xt) - 1))
-  }
-  
-  # # Train linear model via ridge regression
-  # model <- train_ridge(
-  #   X = Xt,
-  #   y = yt,
-  #   lambda = lambda,
-  #   weights = weights)
-  
   # Train linear model via elastic net
   model <- train_glmnet(
     X = Xt,
     y = yt,
     lambda = lambda,
     type = type,
-    weights = weights,
-    penalty = penalty)
-  
-  
+    weights = weights
+    )
  
   # Extract information criterion
   model_value <- model[[inf_crit]]
