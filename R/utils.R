@@ -781,13 +781,15 @@ predict_esn <- function(win,
     data = NA_real_,
     nrow = n_ahead,
     ncol = n_outputs,
-    dimnames = list(c(), colnames(wout)))
+    dimnames = list(c(), colnames(wout))
+    )
   
   states_fcst_upd <- matrix(
     data = NA_real_,
     nrow = (n_ahead + 1),
     ncol = (n_res),
-    dimnames = list(c(), colnames(states_train)))
+    dimnames = list(c(), colnames(states_train))
+    )
   
   # Create copy and fill first row with last values from states_train
   states_fcst <- states_fcst_upd
@@ -810,7 +812,7 @@ predict_esn <- function(win,
     states_fcst[t, ] <- alpha * states_fcst_upd[t, , drop = FALSE] + (1 - alpha) * states_fcst[(t - 1), , drop = FALSE]
     
     # Prepare design matrix
-    X <- cbind(inputs[t, , drop = FALSE], states_fcst[t, , drop = FALSE])
+    X <- cbind(1, inputs[t, , drop = FALSE], states_fcst[t, , drop = FALSE])
     
     # Calculate point forecasts and save values
     if (is.null(innov)) {
@@ -835,7 +837,8 @@ predict_esn <- function(win,
   # Store and return results
   result <- list(
     fcst = fcst,
-    states_fcst = states_fcst)
+    states_fcst = states_fcst
+    )
   
   return(result)
 }
