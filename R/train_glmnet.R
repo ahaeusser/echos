@@ -67,11 +67,11 @@ train_glmnet <- function(X,
   # Determinant of the residual variance-covariance matrix
   det_sigma = det((t(yr) %*% yr)) / n_obs
   # Akaike information criterion (AIC)
-  aic = log(det_sigma) + (2 / n_obs) * dof
+  aic <- log(det_sigma) + (2 / n_obs) * dof
   # Bayesian information criterion (BIC)
-  bic = log(det_sigma) + (log(n_obs) / n_obs) * dof
+  bic <- log(det_sigma) + (log(n_obs) / n_obs) * dof
   # Hannan-Quinn information criterion (HQ)
-  hq = log(det_sigma) + (2 * log(log(n_obs)) / n_obs) * dof
+  hq <- log(det_sigma) + (2 * log(log(n_obs)) / n_obs) * dof
   
   list(
     wout = wout,
