@@ -124,7 +124,11 @@ auto_esn <- function(.data,
   # Hyperparameter optimization ===============================================
   
   # Starting values
-  pars <- c(alpha, rho, lambda)
+  pars <- c(
+    alpha,
+    rho,
+    lambda
+    )
   
   # Tune hyperparameters via L-BFGS-B
   if (control_tuning$pars_tune == TRUE) {
