@@ -93,12 +93,14 @@ tune_pars <- function(data,
   # Calculate nth-difference of output variable
   y <- diff_data(
     data = y,
-    n_diff = dy)
+    n_diff = dy
+    )
   
   # Scale data to specified interval
   scaled <- scale_data(
     data = y,
-    new_range = scale_inputs)
+    new_range = scale_inputs
+    )
   
   y <- scaled$data
   old_range <- scaled$old_range
@@ -111,7 +113,8 @@ tune_pars <- function(data,
   } else {
     y_lag <- create_lags(
       data = y,
-      lags = lags)
+      lags = lags
+      )
   }
   
   # Create fourier terms (trigonometric terms) as matrix
@@ -122,7 +125,8 @@ tune_pars <- function(data,
     y_fourier <- create_fourier(
       x = 1:n_total,
       period = fourier[[1]],
-      k = fourier[[2]])
+      k = fourier[[2]]
+      )
   }
   
   # Create constant term (intercept term) as matrix
@@ -130,7 +134,8 @@ tune_pars <- function(data,
     y_const <- NULL
   } else {
     y_const <- create_const(
-      n_obs = n_total)
+      n_obs = n_total
+      )
   }
   
   # Concatenate input matrices
@@ -138,7 +143,8 @@ tune_pars <- function(data,
     y_const,
     y_lag,
     y_fourier,
-    xreg)
+    xreg
+    )
   
   # Drop NAs for training
   inputs <- inputs[complete.cases(inputs), , drop = FALSE]
@@ -164,7 +170,8 @@ tune_pars <- function(data,
   win <- create_win(
     n_inputs = n_inputs,
     n_res = n_res,
-    scale_runif = scale_runif)
+    scale_runif = scale_runif
+    )
   
   # Create random weight matrix for the reservoir
   wres <- create_wres(
@@ -172,14 +179,16 @@ tune_pars <- function(data,
     rho = rho,
     density = density,
     scale_runif = scale_runif,
-    symmetric = FALSE)
+    symmetric = FALSE
+    )
   
   # Run reservoir (create internal states)
   states_train <- run_reservoir(
     inputs = inputs,
     win = win,
     wres = wres,
-    alpha = alpha)
+    alpha = alpha
+    )
   
   # Names of internal states
   colnames(states_train) <- paste0(
@@ -207,6 +216,7 @@ tune_pars <- function(data,
   # Penalty factors
   if (is.null(penalty)) {
     penalty <- c(0, rep(1, ncol(Xt) - 1))
+    # penalty <- rep(1, ncol(Xt))
   }
   
   # Train linear model via elastic net

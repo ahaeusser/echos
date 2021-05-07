@@ -216,6 +216,7 @@ train_esn <- function(data,
   # Penalty factors
   if (is.null(penalty)) {
     penalty <- c(0, rep(1, ncol(Xt) - 1))
+    # penalty <- rep(1, ncol(Xt))
   }
   
   # Train linear model via elastic net
