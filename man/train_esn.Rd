@@ -22,7 +22,8 @@ train_esn(
   type = 1,
   weights = NULL,
   penalty = NULL,
-  scale_runif = c(-0.5, 0.5),
+  scale_win = 0.5,
+  scale_wres = 0.5,
   scale_inputs = c(-1, 1)
 )
 }
@@ -61,9 +62,9 @@ train_esn(
 
 \item{penalty}{Numeric vector. Penalty factors applied to the coefficients.}
 
-\item{scale_runif}{Numeric vector. The lower and upper bound of the uniform distribution.}
-
 \item{scale_inputs}{Numeric vector. The lower and upper bound for scaling the time series data.}
+
+\item{scale_runif}{Numeric vector. The lower and upper bound of the uniform distribution.}
 }
 \value{
 A \code{list} containing:

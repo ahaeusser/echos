@@ -21,7 +21,7 @@ tune_pars(
   type,
   weights,
   penalty,
-  scale_runif,
+  scale_wres,
   scale_inputs
 )
 }
@@ -30,7 +30,7 @@ tune_pars(
 
 \item{pars}{Numeric vector containing the hyperparameters.}
 
-\item{inf_crit}{Character value. The information criterion \code{inf_crit = c("aic", "bic", "hq")}.}
+\item{inf_crit}{Character value. The information criterion used for tuning \code{inf_crit = c("aic", "bic", "hq")}.}
 
 \item{lags}{A \code{list} containing integer vectors with the lags associated with each input variable.}
 
@@ -57,8 +57,6 @@ tune_pars(
 \item{weights}{Numeric vector. Observation weights for weighted least squares estimation.}
 
 \item{penalty}{Numeric vector. Penalty factors applied to the coefficients.}
-
-\item{scale_runif}{Numeric vector. The lower and upper bound of the uniform distribution.}
 
 \item{scale_inputs}{Numeric vector. The lower and upper bound for scaling the time series data.}
 }

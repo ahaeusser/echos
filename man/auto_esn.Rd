@@ -24,9 +24,11 @@ auto_esn(
   weights = NULL,
   penalty = NULL,
   scale_inputs = c(-1, 1),
-  scale_runif = c(-0.5, 0.5),
+  scale_win = 0.1,
+  scale_wres = 0.5,
   control_tuning = list(inf_crit = "aic", inputs_tune = FALSE, n_sample = 1000,
-    pars_tune = TRUE, lower = c(1e-04, 0.01, 1e-08), upper = c(0.9999, 2.5, 0.001)),
+    pars_tune = TRUE, lower = c(1e-04, 0.01, 1e-08, 0.01), upper = c(0.9999, 2.5, 0.001,
+    0.5)),
   ...
 )
 }
@@ -69,8 +71,6 @@ auto_esn(
 
 \item{scale_inputs}{Numeric vector. The lower and upper bound for scaling the time series data.}
 
-\item{scale_runif}{Numeric vector. The lower and upper bound of the uniform distribution.}
-
 \item{control_tuning}{A \code{list} containing control values for the automatic tuning of model inputs and hyperparameters:
 \itemize{
   \item{\code{inf_crit}: Character value. The information criterion used for tuning \code{inf_crit = c("aic", "bic", "hq")}.}
@@ -82,6 +82,8 @@ auto_esn(
 }}
 
 \item{...}{Further arguments passed to \code{stats::optim()}}
+
+\item{scale_runif}{Numeric vector. The lower and upper bound of the uniform distribution.}
 }
 \value{
 An object of class \code{ESN}.

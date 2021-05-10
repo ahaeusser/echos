@@ -57,14 +57,16 @@ auto_esn <- function(.data,
                      weights = NULL,
                      penalty = NULL,
                      scale_inputs = c(-1, 1),
-                     scale_runif = c(-0.5, 0.5),
+                     scale_win = 0.1,
+                     scale_wres = 0.5,
+                     # scale_runif = c(-0.5, 0.5),
                      control_tuning = list(
                        inf_crit = "aic",
                        inputs_tune = FALSE,
                        n_sample = 1000,
                        pars_tune = TRUE,
-                       lower = c(1e-4, 1e-2, 1e-8),
-                       upper = c(0.9999, 2.5, 1e-3)),
+                       lower = c(1e-4, 1e-2, 1e-8, 0.01),
+                       upper = c(0.9999, 2.5, 1e-3, 0.5)),
                      ...) {
   
   # Number of response variables
@@ -100,25 +102,25 @@ auto_esn <- function(.data,
     lags <- list(c(1, period))
   }
   
-  if (control_tuning$inputs_tune == TRUE) {
-    model_inputs <- tune_inputs(
-      data = .data,
-      lags = lags,
-      fourier = fourier,
-      xreg = xreg,
-      dy = dy,
-      dx = dx,
-      n_initial = n_initial,
-      weights = weights,
-      scale_inputs = scale_inputs,
-      inf_crit = control_tuning$inf_crit,
-      n_sample = control_tuning$n_sample,
-      n_seed = n_seed)
-    
-    const <- model_inputs$const
-    lags <- model_inputs$lags
-    fourier <- model_inputs$fourier
-  }
+  # if (control_tuning$inputs_tune == TRUE) {
+  #   model_inputs <- tune_inputs(
+  #     data = .data,
+  #     lags = lags,
+  #     fourier = fourier,
+  #     xreg = xreg,
+  #     dy = dy,
+  #     dx = dx,
+  #     n_initial = n_initial,
+  #     weights = weights,
+  #     scale_inputs = scale_inputs,
+  #     inf_crit = control_tuning$inf_crit,
+  #     n_sample = control_tuning$n_sample,
+  #     n_seed = n_seed)
+  #   
+  #   const <- model_inputs$const
+  #   lags <- model_inputs$lags
+  #   fourier <- model_inputs$fourier
+  # }
   
   
   # Hyperparameter optimization ===============================================
@@ -127,7 +129,8 @@ auto_esn <- function(.data,
   pars <- c(
     alpha,
     rho,
-    lambda
+    lambda,
+    scale_win
     )
   
   # Tune hyperparameters via L-BFGS-B
@@ -154,7 +157,9 @@ auto_esn <- function(.data,
       type = type,
       weights = weights,
       penalty = penalty,
-      scale_runif = scale_runif,
+      # scale_win = scale_win,
+      scale_wres = scale_wres,
+      # scale_runif = scale_runif,
       scale_inputs = scale_inputs
     )
     
@@ -162,7 +167,8 @@ auto_esn <- function(.data,
     pars <- c(
       model_pars$par[1],
       model_pars$par[2],
-      model_pars$par[3]
+      model_pars$par[3],
+      model_pars$par[4]
     )
   }
   
@@ -187,7 +193,9 @@ auto_esn <- function(.data,
     type = type,
     weights = weights,
     penalty = penalty,
-    scale_runif = scale_runif,
+    scale_win = pars[4],
+    scale_wres = scale_wres,
+    # scale_runif = scale_runif,
     scale_inputs = scale_inputs
   )
   

@@ -51,7 +51,9 @@ train_esn <- function(data,
                       type = 1,
                       weights = NULL,
                       penalty = NULL,
-                      scale_runif = c(-0.5, 0.5),
+                      scale_win = 0.5,
+                      scale_wres = 0.5,
+                      # scale_runif = c(-0.5, 0.5),
                       scale_inputs = c(-1, 1)) {
   
   # Pre-processing ============================================================
@@ -97,7 +99,8 @@ train_esn <- function(data,
   # Calculate nth-difference of output variable
   y <- diff_data(
     data = y,
-    n_diff = dy)
+    n_diff = dy
+    )
   
   # Scale data to specified interval
   scaled <- scale_data(
@@ -173,22 +176,29 @@ train_esn <- function(data,
   win <- create_win(
     n_inputs = n_inputs,
     n_res = n_res,
-    scale_runif = scale_runif)
+    # scale_runif = scale_runif
+    scale_runif = c(-scale_win, scale_win)
+    )
   
   # Create random weight matrix for the reservoir
   wres <- create_wres(
     n_res = n_res,
     rho = rho,
     density = density,
-    scale_runif = scale_runif,
-    symmetric = FALSE)
+    # scale_runif = scale_runif,
+    scale_runif = c(-scale_wres, scale_wres),
+    symmetric = FALSE
+    )
+  
+  scale_runif <- c(-scale_win, scale_win)
   
   # Run reservoir (create internal states)
   states_train <- run_reservoir(
     inputs = inputs,
     win = win,
     wres = wres,
-    alpha = alpha)
+    alpha = alpha
+    )
   
   # Names of internal states
   colnames(states_train) <- paste0(
