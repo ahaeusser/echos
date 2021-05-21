@@ -25,7 +25,7 @@
 #'     \item{\code{lags}: A \code{list} containing integer vectors with the lags associated with each input variable.}
 #'     \item{\code{n_fourier}: Integer vector. The number of fourier terms (seasonal cycles per period).}
 #'     } 
-#' @export
+#' @noRd
 
 tune_inputs <- function(data,
                         lags,
