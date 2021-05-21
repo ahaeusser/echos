@@ -24,10 +24,13 @@ Extract and return values from a trained ESN
     \item{\code{n_inputs}: Integer value. The number of model inputs.}
     \item{\code{n_res}: Integer value. The number of internal states within the reservoir (hidden layer).}
     \item{\code{n_outputs}: Integer value. The number of model outputs.}
-    \item{\code{n_diff}: Integer value. The number of non-seasonal differences.}
     \item{\code{const}: Logical value. If \code{TRUE}, a constant term (intercept) is used.}
     \item{\code{lags}: A \code{list} containing integer vectors with the lags associated with each input variable.}
-    \item{\code{period}: A \code{list} containing the periodicity as integer vector.}
+    \item{\code{fourier}: A \code{list} containing the fourier terms.}
+    \item{\code{dy}: Integer vector. The nth-differences of the response variable.}
+    \item{\code{dx}: Integer vector. The nth-differences of the exogenous variable.}
+    \item{\code{scale_win}: Numeric value. The lower and upper bound of the uniform distribution for scaling the input weight matrix.}
+    \item{\code{scale_wres}: Numeric value. The lower and upper bound of the uniform distribution for scaling the reservoir weight matrix.}
     \item{\code{alpha}: Numeric value. The leakage rate (smoothing parameter) applied to the reservoir.}
     \item{\code{rho}: Numeric value. The spectral radius for scaling the reservoir weight matrix.}
     \item{\code{lambda}: Numeric value. The regularization (shrinkage) parameter for ridge regression.}

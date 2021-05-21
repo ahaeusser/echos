@@ -6,24 +6,6 @@
 #'
 #' @param .data A \code{tsibble} containing the time series data.
 #' @param specials Currently not is use.
-#' @param const Logical value. If \code{TRUE}, a constant term (intercept) is used.
-#' @param lags A \code{list} containing integer vectors with the lags associated with each input variable.
-#' @param fourier A \code{list} containing the periods and the number of fourier terms as integer vector.
-#' @param xreg A \code{tsibble} containing exogenous variables.
-#' @param dy Integer vector. The nth-differences of the response variable.
-#' @param dx Integer vector. The nth-differences of the exogenous variables.
-#' @param n_initial Integer value. The number of observations of internal states for initial drop out (throw-off).
-#' @param n_res Integer value. The number of internal states within the reservoir (hidden layer).
-#' @param n_seed Integer value. The seed for the random number generator (for reproducibility).
-#' @param alpha Numeric value. The leakage rate (smoothing parameter) applied to the reservoir.
-#' @param rho Numeric value. The spectral radius for scaling the reservoir weight matrix.
-#' @param lambda Numeric value. The regularization (shrinkage) parameter for ridge regression.
-#' @param density Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).
-#' @param type Numeric value. The elastic net mixing parameter.
-#' @param weights Numeric vector. Observation weights for weighted least squares estimation.
-#' @param penalty Numeric vector. Penalty factors applied to the coefficients. 
-#' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data.
-#' @param scale_runif Numeric vector. The lower and upper bound of the uniform distribution.
 #' @param control_tuning A \code{list} containing control values for the automatic tuning of model inputs and hyperparameters:
 #'  \itemize{
 #'    \item{\code{inf_crit}: Character value. The information criterion used for tuning \code{inf_crit = c("aic", "bic", "hq")}.}
@@ -34,6 +16,7 @@
 #'    \item{\code{upper}: Numeric vector. The upper bounds for \code{alpha}, \code{rho} and \code{lambda} used in the optimization.}
 #'  }
 #' @param ... Further arguments passed to \code{stats::optim()}
+#' @inheritParams train_esn
 #'
 #' @return An object of class \code{ESN}.
 #' @export
@@ -59,7 +42,6 @@ auto_esn <- function(.data,
                      scale_inputs = c(-1, 1),
                      scale_win = 0.1,
                      scale_wres = 0.5,
-                     # scale_runif = c(-0.5, 0.5),
                      control_tuning = list(
                        inf_crit = "aic",
                        inputs_tune = FALSE,
@@ -86,14 +68,14 @@ auto_esn <- function(.data,
   period <- common_periods(.data)
   period <- sort(as.numeric(period[period < n_obs]))
   
-  # Check stationarity of time series
-  if (is.null(dy)) {
-    dy <- unitroot_ndiffs(
-      x = .data[[measured_vars(.data)]],
-      alpha = 0.05,
-      unitroot_fn = ~unitroot_kpss(.)["kpss_pvalue"],
-      differences = 0:1)
-  }
+  # # Check stationarity of time series
+  # if (is.null(dy)) {
+  #   dy <- unitroot_ndiffs(
+  #     x = .data[[measured_vars(.data)]],
+  #     alpha = 0.05,
+  #     unitroot_fn = ~unitroot_kpss(.)["kpss_pvalue"],
+  #     differences = 0:1)
+  # }
   
   
   # Select model inputs (lags, fourier terms) =================================
@@ -157,9 +139,7 @@ auto_esn <- function(.data,
       type = type,
       weights = weights,
       penalty = penalty,
-      # scale_win = scale_win,
       scale_wres = scale_wres,
-      # scale_runif = scale_runif,
       scale_inputs = scale_inputs
     )
     
@@ -195,7 +175,6 @@ auto_esn <- function(.data,
     penalty = penalty,
     scale_win = pars[4],
     scale_wres = scale_wres,
-    # scale_runif = scale_runif,
     scale_inputs = scale_inputs
   )
   
@@ -276,15 +255,23 @@ forecast.ESN <- function(object,
     n_ahead = nrow(new_data),
     n_sim = n_sim,
     n_seed = n_seed,
-    xreg = xreg)
+    xreg = xreg
+    )
   
   # Extract point forecasts
   fcst_point <- model_fcst$point
-  # Extract simulations
-  fcst_std <- rowSds(model_fcst$sim, na.rm = TRUE)
-  # Return forecast
-  dist_normal(fcst_point, fcst_std)
   
+  # Extract simulations
+  fcst_std <- rowSds(
+    x = model_fcst$sim,
+    na.rm = TRUE
+    )
+  
+  # Return forecast
+  dist_normal(
+    mu = fcst_point,
+    sigma = fcst_std
+    )
 }
 
 
@@ -347,9 +334,11 @@ model_sum.ESN <- function(object){
 
 tidy.ESN <- function(object) {
   
+  wout <- object$model$method$model_weights$wout
+  
   tibble(
-    term = rownames(object$model$method$model_weights$wout),
-    estimate = as.numeric(object$model$method$model_weights$wout)
+    term = rownames(wout),
+    estimate = as.numeric(wout)
   )
   
 }
@@ -397,24 +386,29 @@ report.ESN <- function(object) {
   
   const <- method$model_inputs$const
   lags <- unlist(method$model_inputs$lags)
+  fourier <- method$model_inputs$fourier
   
-  if (is.null(method$model_inputs$fourier)) {
-    period <- "none"
-    k <- "none"
+  if (is.null(fourier)) {
+    fourier <- NA
   } else {
-    period <- unlist(method$model_inputs$fourier[[1]])
-    k <- unlist(method$model_inputs$fourier[[2]])
+    fourier <- paste(
+      "{",
+      paste("(", fourier[[1]], "-", fourier[[2]], ")",
+            collapse = ",",
+            sep = ""),
+      "}",
+      sep = "")
   }
   
+  dy <- as.numeric(method$model_inputs$dy)
+  
   if (is.null(method$model_data$xx)) {
-    xreg <- "none"
-    dx <- "none"
+    xreg <- NA
+    dx <- NA
   } else {
     xreg <- colnames(method$model_data$xx)
     dx <- as.numeric(method$model_inputs$dx)
   }
-  
-  dy <- as.numeric(method$model_inputs$dy)
   
   alpha <- round(method$model_pars$alpha, 2)
   rho <- round(method$model_pars$rho, 2)
@@ -426,23 +420,23 @@ report.ESN <- function(object) {
   bic <- round(method$model_metrics$bic, 2)
   hq <- round(method$model_metrics$hq, 2)
   
+  scale_win <- round(method$scale_win, 2)
+  scale_wres <- round(method$scale_wres, 2)
   scale_inputs <- round(method$scale_inputs, 2)
-  scale_runif <- round(method$scale_runif, 2)
   
   cat(
     "\nNetwork size:", "\n",
-    "Inputs        = ", n_inputs, "\n",
-    "Reservoir     = ", n_res, "\n",
-    "Outputs       = ", n_outputs, "\n"
+    "Inputs    = ", n_inputs, "\n",
+    "Reservoir = ", n_res, "\n",
+    "Outputs   = ", n_outputs, "\n"
   )
   
   cat(
     "\nModel inputs:", "\n",
-    "const    = ", const, "\n",
-    "lags     = ", lags, "\n",
-    "period   = ", period, "\n",
-    "k        = ", k, "\n",
-    "xreg     = ", xreg, "\n"
+    "const   = ", const, "\n",
+    "lags    = ", lags, "\n",
+    "fourier = ", fourier, "\n",
+    "xreg    = ", xreg, "\n"
   )
   
   cat(
@@ -452,27 +446,34 @@ report.ESN <- function(object) {
   )
   
   cat(
-    "\nScaling: \n",
-    " Inputs         = ", "(", scale_inputs[1], ", ", scale_inputs[2], ")", "\n",
-    " Random uniform = ", "(", scale_runif[1], ", ", scale_runif[2], ")", "\n",
+    "\nScaling (input data): \n",
+    "scale_inputs = ", "(", scale_inputs[1], ", ", scale_inputs[2], ")", "\n",
+    sep = ""
+  )
+  
+  cat(
+    "\nScaling (weights): \n",
+    "scale_win  = ", "(", -scale_win, ", ", scale_win, ")", "\n",
+    "scale_wres = ", "(", -scale_wres, ", ", scale_wres, ")", "\n",
     sep = ""
   )
   
   cat(
     "\nHyperparameters:", "\n",
-    "alpha   =", alpha, "\n",
-    "rho     =", rho, "\n",
-    "lambda  =", lambda, "\n",
-    "density =", density, "\n"
+    "alpha   = ", alpha, "\n",
+    "rho     = ", rho, "\n",
+    "lambda  = ", lambda, "\n",
+    "density = ", density, "\n"
   )
   
   cat(
     "\nMetrics:", "\n",
-    "dof  =", dof, "\n",
-    "aic  =", aic, "\n",
-    "bic  =", bic, "\n",
-    "hq   =", hq, "\n"
+    "dof = ", dof, "\n",
+    "aic = ", aic, "\n",
+    "bic = ", bic, "\n",
+    "hq  = ", hq, "\n"
   )
+  
 }
 
 
@@ -501,7 +502,8 @@ reservoir.mdl_df <- function(object) {
     pivot_longer(
       cols = mable_vars(object),
       names_to = ".model",
-      values_to = ".spec")
+      values_to = ".spec"
+      )
   
   key_tbl <- object %>%
     as_tibble() %>%
@@ -554,10 +556,13 @@ reservoir.mdl_df <- function(object) {
 #'     \item{\code{n_inputs}: Integer value. The number of model inputs.}
 #'     \item{\code{n_res}: Integer value. The number of internal states within the reservoir (hidden layer).}
 #'     \item{\code{n_outputs}: Integer value. The number of model outputs.}
-#'     \item{\code{n_diff}: Integer value. The number of non-seasonal differences.}
 #'     \item{\code{const}: Logical value. If \code{TRUE}, a constant term (intercept) is used.}
 #'     \item{\code{lags}: A \code{list} containing integer vectors with the lags associated with each input variable.}
-#'     \item{\code{period}: A \code{list} containing the periodicity as integer vector.}
+#'     \item{\code{fourier}: A \code{list} containing the fourier terms.}
+#'     \item{\code{dy}: Integer vector. The nth-differences of the response variable.}
+#'     \item{\code{dx}: Integer vector. The nth-differences of the exogenous variable.}
+#'     \item{\code{scale_win}: Numeric value. The lower and upper bound of the uniform distribution for scaling the input weight matrix.}
+#'     \item{\code{scale_wres}: Numeric value. The lower and upper bound of the uniform distribution for scaling the reservoir weight matrix.}
 #'     \item{\code{alpha}: Numeric value. The leakage rate (smoothing parameter) applied to the reservoir.}
 #'     \item{\code{rho}: Numeric value. The spectral radius for scaling the reservoir weight matrix.}
 #'     \item{\code{lambda}: Numeric value. The regularization (shrinkage) parameter for ridge regression.}
@@ -585,7 +590,8 @@ extract_esn.mdl_df <- function(object) {
     pivot_longer(
       cols = mable_vars(object),
       names_to = ".model",
-      values_to = ".spec")
+      values_to = ".spec"
+      )
   
   key_tbl <- object %>%
     as_tibble() %>%
@@ -599,23 +605,25 @@ extract_esn.mdl_df <- function(object) {
       lst_mdl <- object[[".spec"]][[.x]]$fit$model$method
       
       tibble(
-        spec      = lst_mdl[["model_spec"]],
-        n_inputs  = lst_mdl[["model_layers"]][["n_inputs"]],
-        n_res     = lst_mdl[["model_layers"]][["n_res"]],
-        n_outputs = lst_mdl[["model_layers"]][["n_outputs"]],
-        const     = lst_mdl[["model_inputs"]][["const"]],
-        lags      = list(lst_mdl[["model_inputs"]][["lags"]]),
-        fourier   = list(lst_mdl[["model_inputs"]][["fourier"]]),
-        dy        = lst_mdl[["model_inputs"]][["dy"]],
-        dx        = lst_mdl[["model_inputs"]][["dx"]],
-        alpha     = lst_mdl[["model_pars"]][["alpha"]],
-        rho       = lst_mdl[["model_pars"]][["rho"]],
-        lambda    = lst_mdl[["model_pars"]][["lambda"]],
-        density   = lst_mdl[["model_pars"]][["density"]],
-        dof       = lst_mdl[["model_metrics"]][["dof"]],
-        aic       = lst_mdl[["model_metrics"]][["aic"]],
-        bic       = lst_mdl[["model_metrics"]][["bic"]],
-        hq        = lst_mdl[["model_metrics"]][["hq"]]
+        spec       = lst_mdl[["model_spec"]],
+        n_inputs   = lst_mdl[["model_layers"]][["n_inputs"]],
+        n_res      = lst_mdl[["model_layers"]][["n_res"]],
+        n_outputs  = lst_mdl[["model_layers"]][["n_outputs"]],
+        const      = lst_mdl[["model_inputs"]][["const"]],
+        lags       = list(lst_mdl[["model_inputs"]][["lags"]]),
+        fourier    = list(lst_mdl[["model_inputs"]][["fourier"]]),
+        dy         = lst_mdl[["model_inputs"]][["dy"]],
+        dx         = lst_mdl[["model_inputs"]][["dx"]],
+        scale_win  = lst_mdl[["scale_win"]],
+        scale_wres = lst_mdl[["scale_wres"]],
+        alpha      = lst_mdl[["model_pars"]][["alpha"]],
+        rho        = lst_mdl[["model_pars"]][["rho"]],
+        lambda     = lst_mdl[["model_pars"]][["lambda"]],
+        density    = lst_mdl[["model_pars"]][["density"]],
+        dof        = lst_mdl[["model_metrics"]][["dof"]],
+        aic        = lst_mdl[["model_metrics"]][["aic"]],
+        bic        = lst_mdl[["model_metrics"]][["bic"]],
+        hq         = lst_mdl[["model_metrics"]][["hq"]]
       )
     })
   

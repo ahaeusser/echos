@@ -37,7 +37,7 @@ auto_esn(
 
 \item{specials}{Currently not is use.}
 
-\item{const}{Logical value. If \code{TRUE}, a constant term (intercept) is used.}
+\item{const}{Logical value. If \code{TRUE}, an intercept term is used.}
 
 \item{lags}{A \code{list} containing integer vectors with the lags associated with each input variable.}
 
@@ -71,6 +71,10 @@ auto_esn(
 
 \item{scale_inputs}{Numeric vector. The lower and upper bound for scaling the time series data.}
 
+\item{scale_win}{Numeric value. The lower and upper bound of the uniform distribution for scaling the input weight matrix.}
+
+\item{scale_wres}{Numeric value. The lower and upper bound of the uniform distribution for scaling the reservoir weight matrix.}
+
 \item{control_tuning}{A \code{list} containing control values for the automatic tuning of model inputs and hyperparameters:
 \itemize{
   \item{\code{inf_crit}: Character value. The information criterion used for tuning \code{inf_crit = c("aic", "bic", "hq")}.}
@@ -82,8 +86,6 @@ auto_esn(
 }}
 
 \item{...}{Further arguments passed to \code{stats::optim()}}
-
-\item{scale_runif}{Numeric vector. The lower and upper bound of the uniform distribution.}
 }
 \value{
 An object of class \code{ESN}.
