@@ -58,6 +58,8 @@ tune_pars(
 
 \item{penalty}{Numeric vector. Penalty factors applied to the coefficients.}
 
+\item{scale_wres}{Numeric value. The lower and upper bound of the uniform distribution for scaling the reservoir weight matrix.}
+
 \item{scale_inputs}{Numeric vector. The lower and upper bound for scaling the time series data.}
 }
 \value{

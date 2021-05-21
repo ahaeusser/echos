@@ -28,9 +28,7 @@ tune_pars <- function(data,
                       type,
                       weights,
                       penalty,
-                      # scale_win,
                       scale_wres,
-                      # scale_runif,
                       scale_inputs) {
   
   # Train model
@@ -54,7 +52,6 @@ tune_pars <- function(data,
     penalty = penalty,
     scale_win = pars[4],
     scale_wres = scale_wres,
-    # scale_runif = scale_runif,
     scale_inputs = scale_inputs
   )
   
