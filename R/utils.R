@@ -33,6 +33,7 @@ create_const <- function(n_obs) {
 #' @noRd
 
 create_lags <- function(data, lags) {
+  
   # Number of input variables
   n_inputs <- ncol(data)
   # Number of observations
@@ -48,14 +49,16 @@ create_lags <- function(data, lags) {
   y_lag <- matrix(
     data = 0,
     nrow = n_obs,
-    ncol = n_lags)
+    ncol = n_lags
+    )
   
   # Create matrix with combinations of input variables and lags
   index <- matrix(
     data = c(rep(seq(1, n_inputs),
                  times = n_lags_inputs),
              unlist(lags)),
-    ncol = 2)
+    ncol = 2
+    )
   
   # Lag variables
   for (i in seq_len(nrow(index))) {
@@ -111,14 +114,16 @@ create_revolved <- function(data,
   y_lag <- matrix(
     data = NA_real_,
     nrow = n_rows,
-    ncol = n_lags)
+    ncol = n_lags
+    )
   
   # Create matrix with combinations of input variables and lags
   index <- matrix(
     data = c(rep(seq(1, n_inputs),
                  times = n_lags_inputs),
              unlist(lags)),
-    ncol = 2)
+    ncol = 2
+    )
   
   for (i in seq_len(nrow(index))) {
     x <- data[, index[i, 1]]
@@ -257,20 +262,21 @@ create_spec <- function(model_layers,
     "}")
   
   # Seasonality and periodicity
-  if (is.null(model_inputs$n_fourier)) {
-    str_season <- NULL
+  if (is.null(model_inputs$fourier)) {
+    str_fourier <- NULL
   } else {
-    str_season <- paste(
+    str_fourier <- paste(
       ", {",
-      paste("(", model_inputs$period, "-", model_inputs$n_fourier, ")",
+      paste("(", model_inputs$fourier[[1]], "-", model_inputs$fourier[[2]], ")",
             collapse = ",",
-            sep = ""), "}",
+            sep = ""),
+      "}",
       sep = "")
   }
   
   # Model specification
   model_spec <- paste0(
-    "ESN", "(", str_layer, ", ", str_pars, str_season, ")")
+    "ESN", "(", str_layer, ", ", str_pars, str_fourier, ")")
   
   return(model_spec)
 }
@@ -291,13 +297,16 @@ create_spec <- function(model_layers,
 create_win <- function(n_inputs,
                        n_res,
                        scale_runif) {
+  
   win <- matrix(
     data = runif(
       n = n_res * n_inputs,
       min = scale_runif[1],
       max = scale_runif[2]),
     nrow = n_res,
-    ncol = n_inputs)
+    ncol = n_inputs
+    )
+  
   return(win)
 }
 
@@ -331,7 +340,8 @@ create_wres <- function(n_res,
       min = scale_runif[1],
       max = scale_runif[2]),
     nrow = n_res,
-    ncol = n_res)
+    ncol = n_res
+    )
   
   # Create a random sparse pattern matrix with defined density
   wsparse <- rsparsematrix(
@@ -339,7 +349,8 @@ create_wres <- function(n_res,
     ncol = n_res,
     density = density,
     rand.x = NULL,
-    symmetric = symmetric)
+    symmetric = symmetric
+    )
   
   wres <- as.matrix(wres * wsparse)
   
@@ -377,7 +388,8 @@ check_unitroots <- function(.data,
       x = y,
       alpha = alpha,
       unitroot_fn = ~unitroot_kpss(.)["kpss_pvalue"],
-      differences = 0:1)
+      differences = 0:1
+      )
   })
   
   structure(list(n_diff = n_diff))
@@ -407,7 +419,8 @@ diff_data <- function(data, n_diff) {
       diff_vec(
         y = data[, i],
         n = n_diff[i])
-      })
+      }
+    )
   
   yd <- do.call(cbind, yd)
   colnames(yd) <- name_output
@@ -435,7 +448,8 @@ diff_vec <- function(y, n) {
     yd <- diff(
       x = y,
       differences = n,
-      lag = 1L)
+      lag = 1L
+      )
   } else {
     yd <- y
   }
@@ -474,7 +488,8 @@ inv_diff_data <- function(data,
         y = data[, n],
         y_diff = data_diff[, n],
         n_diff = n_diff[n])
-      })
+      }
+    )
   
   y_int <- do.call(cbind, y_int)
   colnames(y_int) <- names_outputs
@@ -515,7 +530,8 @@ inv_diff_vec <- function(y,
       x = y_diff,
       lag = 1L,
       differences = n_diff,
-      xi = yi)
+      xi = yi
+      )
   } else {
     # No differences
     y_int <- y_diff
@@ -548,7 +564,8 @@ random_const <- function(y_const,
     data = 1,
     nrow = n_sample,
     ncol = 1,
-    dimnames = list(c(), colnames(y_const)))
+    dimnames = list(c(), colnames(y_const))
+    )
   
   out <- as_tibble(out)
   
@@ -577,7 +594,8 @@ random_lags <- function(y_lag,
     data = 0,
     nrow = n_sample,
     ncol = ncol(y_lag),
-    dimnames = list(c(), colnames(y_lag)))
+    dimnames = list(c(), colnames(y_lag))
+    )
   
   for (i in seq_len(n_sample)) {
     index <- sort(sample(
@@ -700,7 +718,8 @@ random_fourier <- function(fourier,
     mat <- matrix(
       data = 0,
       nrow = k[j],
-      ncol = k[j])
+      ncol = k[j]
+      )
     
     # Fill lower triangular with ones
     mat[lower.tri(mat, diag = TRUE)] <- 1
@@ -709,7 +728,8 @@ random_fourier <- function(fourier,
     mat <- matrix(
       data = rep(mat, each = 2),
       ncol = 2 * ncol(mat), 
-      byrow = TRUE)
+      byrow = TRUE
+      )
     
     # Add row with zeros and flip matrix
     mat <- rbind(mat, 0)
@@ -803,7 +823,8 @@ predict_esn <- function(win,
     seq_len(n_outputs),
     function(n) {
       paste(colnames(wout)[n], "(", lags[[n]], ")", sep = "")
-      })
+      }
+    )
   
   # Dynamic forecasting (iterative mode)
   for (t in 2:(n_ahead + 1)) {
@@ -878,22 +899,26 @@ rescale_data <- function(data,
   min <- matrix(
     data = rep(min, each = n_rows) ,
     nrow = n_rows,
-    ncol = n_cols)
+    ncol = n_cols
+    )
   
   max <- matrix(
     data = rep(max, each = n_rows),
     nrow = n_rows,
-    ncol = n_cols)
+    ncol = n_cols
+    )
   
   lower <- matrix(
     data = rep(lower, each = n_rows),
     nrow = n_rows,
-    ncol = n_cols)
+    ncol = n_cols
+    )
   
   upper <- matrix(
     data = rep(upper, each = n_rows),
     nrow = n_rows,
-    ncol = n_cols)
+    ncol = n_cols
+    )
   
   # Inverse normalization to original interval
   data <- ((data - lower) * (max - min)) / (upper - lower) + min
@@ -935,29 +960,34 @@ scale_data <- function(data,
   min <- matrix(
     data = rep(min, each = n_rows),
     nrow = n_rows,
-    ncol = n_cols)
+    ncol = n_cols
+    )
   
   max <- matrix(
     data = rep(max, each = n_rows),
     nrow = n_rows,
-    ncol = n_cols)
+    ncol = n_cols
+    )
   
   lower <- matrix(
     data = rep(lower,each = n_rows),
     nrow = n_rows,
-    ncol = n_cols)
+    ncol = n_cols
+    )
   
   upper <- matrix(
     data = rep(upper, each = n_rows),
     nrow = n_rows,
-    ncol = n_cols)
+    ncol = n_cols
+    )
   
   # Scale matrix y column wise to new interval
   data <- lower + ((data - min) * (upper - lower) / (max - min))
   
   result <- list(
     data = data,
-    old_range = old_range)
+    old_range = old_range
+    )
   
   return(result)
 }
@@ -1005,8 +1035,10 @@ simulate_esn <- function(win,
         seq_len(n_outputs),
         function(n_outputs) {
           sample(error[, n_outputs], size = n_ahead, replace = TRUE)
-          })
-      })
+          }
+        )
+      }
+    )
   
   # Simulate future sample path with normal distributed innovations
   sim <- lapply(
@@ -1022,7 +1054,8 @@ simulate_esn <- function(win,
         inputs = inputs,
         states_train = states_train,
         innov = innov)$fcst
-      })
+      }
+    )
   
   return(sim)
 }
