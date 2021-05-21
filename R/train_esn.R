@@ -21,14 +21,15 @@
 #' @param type Numeric value. The elastic net mixing parameter.
 #' @param weights Numeric vector. Observation weights for weighted least squares estimation.
 #' @param penalty Numeric vector. Penalty factors applied to the coefficients. 
-#' @param scale_runif Numeric vector. The lower and upper bound of the uniform distribution.
+#' @param scale_win Numeric value. The lower and upper bound of the uniform distribution for scaling the input weight matrix.
+#' @param scale_wres Numeric value. The lower and upper bound of the uniform distribution for scaling the reservoir weight matrix.
 #' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data.
 #' 
 #' @return A \code{list} containing:
 #'    \itemize{
 #'       \item{\code{actual}: Numeric vector containing the actual values.}
 #'       \item{\code{fitted}: Numeric vector containing the fitted values.}
-#'       \item{\code{error}: Numeric vector containing the residuals.}
+#'       \item{\code{resid}: Numeric vector containing the residuals.}
 #'       \item{\code{states_train}: Numeric matrix containing the internal states.}
 #'       \item{\code{method}: A \code{list} containing several objects and meta information of the trained ESN (weight matrices, hyperparameters, model metrics, etc.).}
 #'       }
@@ -53,7 +54,6 @@ train_esn <- function(data,
                       penalty = NULL,
                       scale_win = 0.5,
                       scale_wres = 0.5,
-                      # scale_runif = c(-0.5, 0.5),
                       scale_inputs = c(-1, 1)) {
   
   # Pre-processing ============================================================
@@ -74,9 +74,11 @@ train_esn <- function(data,
     
     # Calculate nth-differences
     if (is.null(dx)) {dx <- 0}
+    
     xreg <- diff_data(
       data = xreg,
-      n_diff = dx)
+      n_diff = dx
+      )
     
     # Scale data to specified interval
     xreg <- scale_data(
@@ -176,7 +178,6 @@ train_esn <- function(data,
   win <- create_win(
     n_inputs = n_inputs,
     n_res = n_res,
-    # scale_runif = scale_runif
     scale_runif = c(-scale_win, scale_win)
     )
   
@@ -185,12 +186,9 @@ train_esn <- function(data,
     n_res = n_res,
     rho = rho,
     density = density,
-    # scale_runif = scale_runif,
     scale_runif = c(-scale_wres, scale_wres),
     symmetric = FALSE
     )
-  
-  scale_runif <- c(-scale_win, scale_win)
   
   # Run reservoir (create internal states)
   states_train <- run_reservoir(
@@ -335,8 +333,9 @@ train_esn <- function(data,
     model_pars = model_pars,
     model_layers = model_layers,
     model_weights = model_weights,
-    scale_inputs = scale_inputs,
-    scale_runif = scale_runif
+    scale_win = scale_win,
+    scale_wres = scale_wres,
+    scale_inputs = scale_inputs
     )
   
   # Output model

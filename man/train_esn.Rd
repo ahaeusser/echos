@@ -62,16 +62,18 @@ train_esn(
 
 \item{penalty}{Numeric vector. Penalty factors applied to the coefficients.}
 
-\item{scale_inputs}{Numeric vector. The lower and upper bound for scaling the time series data.}
+\item{scale_win}{Numeric value. The lower and upper bound of the uniform distribution for scaling the input weight matrix.}
 
-\item{scale_runif}{Numeric vector. The lower and upper bound of the uniform distribution.}
+\item{scale_wres}{Numeric value. The lower and upper bound of the uniform distribution for scaling the reservoir weight matrix.}
+
+\item{scale_inputs}{Numeric vector. The lower and upper bound for scaling the time series data.}
 }
 \value{
 A \code{list} containing:
    \itemize{
       \item{\code{actual}: Numeric vector containing the actual values.}
       \item{\code{fitted}: Numeric vector containing the fitted values.}
-      \item{\code{error}: Numeric vector containing the residuals.}
+      \item{\code{resid}: Numeric vector containing the residuals.}
       \item{\code{states_train}: Numeric matrix containing the internal states.}
       \item{\code{method}: A \code{list} containing several objects and meta information of the trained ESN (weight matrices, hyperparameters, model metrics, etc.).}
       }
