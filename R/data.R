@@ -1,25 +1,28 @@
 
-#' @title Monthly time series "M10960" from the M4 Competition
+#' @title Hourly day-ahead electricity spot prices
 #'
-#' @description The dataset contains the monthly time series "M10960"
-#'   from the M4 Competition.
+#' @description Hourly tsibble with day-ahead electricity spot prices from
+#'   the ENTSO-E Transparency Platform. The data set contains time series data
+#'   from 2019-01-01 00:00:00 to 2019-12-31 23:00:00 for the bidding zone
+#'   Germany-Luxembourg.
 #'
 #' @docType data
 #'
-#' @usage data(m4_monthly)
+#' @usage data(spot_price)
 #'
-#' @format A time series object of class \code{tsibble} with 324 rows and 4 columns:
+#' @format A time series object of class \code{tsibble} with 70.080 rows and 5 columns:
 #'    \itemize{
-#'       \item{\code{date_time}: Date and time (index variable)}
-#'       \item{\code{series_id}: Time series ID from M4 forecasting competition (key variable)}
-#'       \item{\code{category}: Category from M4 forecasting competition (key variable)}
-#'       \item{\code{value}: Time series value (measurement variable)}
+#'       \item{\code{Time}: Date and time (index variable)}
+#'       \item{\code{Series}: Time series name (key variable)}
+#'       \item{\code{Unit}: Measured unit (key variable)}
+#'       \item{\code{BZN}: Bidding zone (key variable)}
+#'       \item{\code{Value}: Measurement variable}
 #'       }
 #'
 #' @keywords datasets
 #'
-#' @source \href{https://github.com/Mcompetitions/M4-methods/tree/master/Dataset}{M4 Competition}
+#' @source \href{https://transparency.entsoe.eu/transmission-domain/r2/dayAheadPrices/show}{ENTSO-E Transparency Platform}
 #'
 #' @examples
-#' data(m4_monthly)
-"m4_monthly"
+#' data(spot_price)
+"spot_price"
