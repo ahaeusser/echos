@@ -20,9 +20,9 @@ forecast_esn(object, n_ahead = 12, n_sim = 100, n_seed = 42, xreg = NULL)
 \value{
 A \code{list} containing:
    \itemize{
-      \item{\code{fcst}: Numeric vector containing the point forecasts.}
+      \item{\code{point}: Numeric vector containing the point forecasts.}
       \item{\code{sim}: Numeric matrix containing the simulated future sample path.}
-      \item{\code{states_train}: Numeric matrix containing the internal states.}
+      \item{\code{states_fcst}: Numeric matrix containing the internal states.}
       \item{\code{method}: A \code{list} containing several objects and meta information of the trained ESN (weight matrices, hyperparameters, model metrics, etc.).}
       \item{\code{n_ahead}: Integer value. The number of periods for forecasting (forecast horizon).}
       \item{\code{n_sim}: Integer value. The number of simulations (number of future sample paths).}
