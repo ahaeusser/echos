@@ -13,7 +13,7 @@
 #' @param ... Further arguments passed to \code{glmnet::glmnet()}.
 #'
 #' @return A list containing the estimated coefficients, fitted values etc.
-#' @export
+#' @noRd
 
 train_glmnet <- function(X,
                          y,
@@ -94,7 +94,7 @@ train_glmnet <- function(X,
 #' @param lambda Numeric value. The regularization parameter.
 #'
 #' @return Numeric value.
-#' @export
+#' @noRd
 
 estimate_dof <- function(X, lambda) {
   
@@ -102,7 +102,8 @@ estimate_dof <- function(X, lambda) {
   Ipp_lambda <- diag(
     x = lambda,
     nrow = ncol(X),
-    ncol = ncol(X))
+    ncol = ncol(X)
+    )
   
   # Calculate effective degrees of freedom
   sum(diag((X %*% solve(crossprod(X) + Ipp_lambda)) %*% t(X)))
