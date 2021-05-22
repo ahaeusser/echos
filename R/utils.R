@@ -21,6 +21,52 @@ create_const <- function(n_obs) {
 
 
 
+
+#' @title Estimate centered moving average
+#' 
+#' @description The function estimates the fitted values and point forecasts
+#'   of a centered moving average as trend component for the model. The
+#'   forecast is produced by a naive forecast.
+#'
+#' @param y Numeric vector.
+#' @param period Integer value. The order of the moving average (e.g. the maximum seasonal period).
+#' @param n_ahead Integer value. The forecast horizon (n-step ahead).
+#'
+#' @return A list containing the fitted values, the point forecasts and the seasonal period.
+#' @noRd
+
+create_trend <- function(y,
+                         period,
+                         n_ahead = NULL) {
+  
+  yy <- as.numeric(y)
+  
+  # Estimate centered moving average
+  fitted <- cmav(
+    y = yy,
+    ma = period
+  )
+  
+  # Point forecasts via naive approach
+  if (is.null(n_ahead)) {
+    point <- NULL
+  } else {
+    point <- rep(
+      x = tail(
+        x = fitted,
+        n = 1),
+      times = n_ahead)
+  }
+  
+  # Return result
+  list(
+    fitted = fitted,
+    point = point,
+    period = period
+  )
+}
+
+
 #' @title Create lagged variables of a matrix
 #' 
 #' @description Create lagged variables of a matrix, shifting each column
