@@ -8,6 +8,7 @@
 #' @param lags A \code{list} containing integer vectors with the lags associated with each input variable.
 #' @param fourier A \code{list} containing the periods and the number of fourier terms as integer vector.
 #' @param const Logical value. If \code{TRUE}, an intercept term is used.
+#' @param trend Logical value. If \code{TRUE}, a trend term (centered moving average) is used.
 #' @param xreg A \code{tsibble} containing exogenous variables.
 #' @param dy Integer vector. The nth-differences of the response variable.
 #' @param dx Integer vector. The nth-differences of the exogenous variables.
@@ -39,6 +40,7 @@ train_esn <- function(data,
                       lags,
                       fourier = NULL,
                       const = TRUE,
+                      trend = TRUE,
                       xreg = NULL,
                       dy = 0,
                       dx = 0,
@@ -125,7 +127,7 @@ train_esn <- function(data,
       )
   }
   
-  # Create fourier terms (trigonometric terms) as matrix
+  # Create fourier terms as matrix
   if (is.null(fourier)) {
     y_fourier <- NULL
   } else {
@@ -146,9 +148,29 @@ train_esn <- function(data,
       )
   }
   
+  # Create trend term (centered moving average) as matrix
+  if (trend == FALSE) {
+    y_trend <- NULL
+  } else {
+    y_trend <- create_trend(
+      y = y,
+      period = max(fourier[[1]]),
+      n_ahead = NULL
+    )
+    
+    y_trend <- matrix(
+      data = y_trend$fitted,
+      ncol = 1
+    )
+    
+    colnames(y_trend) <- "trend"
+  }
+  
+  
   # Concatenate input matrices
   inputs <- cbind(
     y_const,
+    y_trend,
     y_lag,
     y_fourier,
     xreg
@@ -288,6 +310,7 @@ train_esn <- function(data,
   # List with model inputs and settings
   model_inputs <- list(
     const = const,
+    trend = trend,
     lags = lags,
     fourier = fourier,
     dy = dy,

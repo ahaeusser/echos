@@ -59,6 +59,7 @@ forecast_esn <- function(object,
   
   # Model inputs
   const <- method$model_inputs$const
+  trend <- method$model_inputs$trend
   lags <- method$model_inputs$lags
   fourier <- method$model_inputs$fourier
   
@@ -110,7 +111,7 @@ forecast_esn <- function(object,
       )
   }
   
-  # Create season (fourier terms) as matrix
+  # Create fourier terms as matrix
   if (is.null(fourier)) {
     y_fourier <- NULL
   } else {
@@ -148,9 +149,38 @@ forecast_esn <- function(object,
     y_const <- rbind(0, y_const, pad_na)
   }
   
+  
+  # Create trend term (centered moving average) as matrix
+  if (trend == FALSE) {
+    y_trend <- NULL
+  } else {
+    
+    y_trend <- create_trend(
+      y = yt,
+      period = max(fourier[[1]]),
+      n_ahead = n_ahead
+    )
+    
+    y_trend <- matrix(
+      data = y_trend$point,
+      ncol = 1
+    )
+    
+    colnames(y_trend) <- "trend"
+    
+    pad_na <- matrix(
+      data = NA_real_,
+      nrow = max(unlist(lags)),
+      ncol = 1
+    )
+    
+    y_trend <- rbind(0, y_trend, pad_na)
+  }
+  
   # Concatenate input matrices
   inputs <- cbind(
     y_const,
+    y_trend,
     y_lag,
     y_fourier,
     xreg

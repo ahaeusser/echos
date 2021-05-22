@@ -8,6 +8,7 @@ auto_esn(
   .data,
   specials,
   const = TRUE,
+  trend = TRUE,
   lags = NULL,
   fourier = NULL,
   xreg = NULL,
@@ -38,6 +39,8 @@ auto_esn(
 \item{specials}{Currently not is use.}
 
 \item{const}{Logical value. If \code{TRUE}, an intercept term is used.}
+
+\item{trend}{Logical value. If \code{TRUE}, a trend term (centered moving average) is used.}
 
 \item{lags}{A \code{list} containing integer vectors with the lags associated with each input variable.}
 
