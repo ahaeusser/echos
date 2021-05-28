@@ -6,11 +6,9 @@
 #'
 #' @param .data A \code{tsibble} containing the time series data.
 #' @param specials Currently not is use.
-#' @param control_tuning A \code{list} containing control values for the automatic tuning of model inputs and hyperparameters:
+#' @param control_tuning A \code{list} containing control values for the automatic tuning of hyperparameters:
 #'  \itemize{
 #'    \item{\code{inf_crit}: Character value. The information criterion used for tuning \code{inf_crit = c("aic", "bic", "hq")}.}
-#'    \item{\code{inputs_tune}: Logical value. If \code{TRUE}, the model inputs are tuned, otherwise model inputs are used as defined.}
-#'    \item{\code{n_sample}: Integer value. The number of samples for the random grid.}
 #'    \item{\code{pars_tune}: Logical value. If \code{TRUE}, the hyperparameters are tuned, otherwise hyperparameters are used as defined.}
 #'    \item{\code{lower}: Numeric vector. The lower bounds for \code{alpha}, \code{rho} and \code{lambda} used in the optimization.}
 #'    \item{\code{upper}: Numeric vector. The upper bounds for \code{alpha}, \code{rho} and \code{lambda} used in the optimization.}
@@ -24,7 +22,6 @@
 auto_esn <- function(.data,
                      specials,
                      const = TRUE,
-                     trend = TRUE,
                      lags = NULL,
                      fourier = NULL,
                      xreg = NULL,
@@ -45,8 +42,6 @@ auto_esn <- function(.data,
                      scale_wres = 0.5,
                      control_tuning = list(
                        inf_crit = "aic",
-                       inputs_tune = FALSE,
-                       n_sample = 1000,
                        pars_tune = TRUE,
                        lower = c(1e-4, 1e-2, 1e-8, 0.01),
                        upper = c(0.9999, 2.5, 1e-3, 0.5)),
@@ -68,42 +63,6 @@ auto_esn <- function(.data,
   # Maximum seasonal period which is feasible
   period <- common_periods(.data)
   period <- sort(as.numeric(period[period < n_obs]))
-  
-  # # Check stationarity of time series
-  # if (is.null(dy)) {
-  #   dy <- unitroot_ndiffs(
-  #     x = .data[[measured_vars(.data)]],
-  #     alpha = 0.05,
-  #     unitroot_fn = ~unitroot_kpss(.)["kpss_pvalue"],
-  #     differences = 0:1)
-  # }
-  
-  
-  # Select model inputs (lags, fourier terms) =================================
-  
-  if (is.null(lags)) {
-    lags <- list(c(1, period))
-  }
-  
-  # if (control_tuning$inputs_tune == TRUE) {
-  #   model_inputs <- tune_inputs(
-  #     data = .data,
-  #     lags = lags,
-  #     fourier = fourier,
-  #     xreg = xreg,
-  #     dy = dy,
-  #     dx = dx,
-  #     n_initial = n_initial,
-  #     weights = weights,
-  #     scale_inputs = scale_inputs,
-  #     inf_crit = control_tuning$inf_crit,
-  #     n_sample = control_tuning$n_sample,
-  #     n_seed = n_seed)
-  #   
-  #   const <- model_inputs$const
-  #   lags <- model_inputs$lags
-  #   fourier <- model_inputs$fourier
-  # }
   
   
   # Hyperparameter optimization ===============================================
@@ -131,7 +90,6 @@ auto_esn <- function(.data,
       fourier = fourier,
       xreg = xreg,
       const = const,
-      trend = trend,
       dy = dy,
       dx = dx,
       n_res = n_res,
@@ -163,7 +121,6 @@ auto_esn <- function(.data,
     fourier = fourier,
     xreg = xreg,
     const = const,
-    trend = trend,
     dy = dy,
     dx = dx,
     n_res = n_res,

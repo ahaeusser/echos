@@ -9,21 +9,20 @@ train_esn(
   lags,
   fourier = NULL,
   const = TRUE,
-  trend = TRUE,
   xreg = NULL,
   dy = 0,
   dx = 0,
   n_res = 200,
   n_initial = 10,
   n_seed = 42,
-  alpha = 0.85,
-  rho = 0.7,
-  lambda = 12,
+  alpha = 0.8,
+  rho = 1,
+  lambda = 1e-04,
   density = 0.1,
   type = 1,
   weights = NULL,
   penalty = NULL,
-  scale_win = 0.5,
+  scale_win = 0.1,
   scale_wres = 0.5,
   scale_inputs = c(-1, 1)
 )
@@ -36,8 +35,6 @@ train_esn(
 \item{fourier}{A \code{list} containing the periods and the number of fourier terms as integer vector.}
 
 \item{const}{Logical value. If \code{TRUE}, an intercept term is used.}
-
-\item{trend}{Logical value. If \code{TRUE}, a trend term (centered moving average) is used.}
 
 \item{xreg}{A \code{tsibble} containing exogenous variables.}
 

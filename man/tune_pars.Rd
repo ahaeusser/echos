@@ -11,7 +11,6 @@ tune_pars(
   lags,
   fourier,
   const,
-  trend,
   xreg,
   dy,
   dx,
@@ -38,8 +37,6 @@ tune_pars(
 \item{fourier}{A \code{list} containing the periods and the number of fourier terms as integer vector.}
 
 \item{const}{Logical value. If \code{TRUE}, an intercept term is used.}
-
-\item{trend}{Logical value. If \code{TRUE}, a trend term (centered moving average) is used.}
 
 \item{xreg}{A \code{tsibble} containing exogenous variables.}
 

@@ -8,7 +8,6 @@
 #' @param lags A \code{list} containing integer vectors with the lags associated with each input variable.
 #' @param fourier A \code{list} containing the periods and the number of fourier terms as integer vector.
 #' @param const Logical value. If \code{TRUE}, an intercept term is used.
-#' @param trend Logical value. If \code{TRUE}, a trend term (centered moving average) is used.
 #' @param xreg A \code{tsibble} containing exogenous variables.
 #' @param dy Integer vector. The nth-differences of the response variable.
 #' @param dx Integer vector. The nth-differences of the exogenous variables.
@@ -40,21 +39,20 @@ train_esn <- function(data,
                       lags,
                       fourier = NULL,
                       const = TRUE,
-                      trend = TRUE,
                       xreg = NULL,
                       dy = 0,
                       dx = 0,
                       n_res = 200,
                       n_initial = 10,
                       n_seed = 42,
-                      alpha = 0.85,
-                      rho = 0.7,
-                      lambda = 12,
+                      alpha = 0.8,
+                      rho = 1,
+                      lambda = 1e-4,
                       density = 0.1,
                       type = 1,
                       weights = NULL,
                       penalty = NULL,
-                      scale_win = 0.5,
+                      scale_win = 0.1,
                       scale_wres = 0.5,
                       scale_inputs = c(-1, 1)) {
   
@@ -115,6 +113,7 @@ train_esn <- function(data,
   y <- scaled$data
   old_range <- scaled$old_range
   
+  
   # Create input layer ========================================================
   
   # Create lagged variables as matrix
@@ -148,29 +147,10 @@ train_esn <- function(data,
       )
   }
   
-  # Create trend term (centered moving average) as matrix
-  if (trend == FALSE) {
-    y_trend <- NULL
-  } else {
-    y_trend <- create_trend(
-      y = y,
-      period = max(fourier[[1]]),
-      n_ahead = NULL
-    )
-    
-    y_trend <- matrix(
-      data = y_trend$fitted,
-      ncol = 1
-    )
-    
-    colnames(y_trend) <- "trend"
-  }
-  
   
   # Concatenate input matrices
   inputs <- cbind(
     y_const,
-    y_trend,
     y_lag,
     y_fourier,
     xreg
@@ -249,7 +229,7 @@ train_esn <- function(data,
     # penalty <- rep(1, ncol(Xt))
   }
   
-  # Train linear model via elastic net
+  # Train linear model via glmnet
   model <- train_glmnet(
     X = Xt,
     y = yt,
@@ -310,7 +290,6 @@ train_esn <- function(data,
   # List with model inputs and settings
   model_inputs <- list(
     const = const,
-    trend = trend,
     lags = lags,
     fourier = fourier,
     dy = dy,

@@ -8,7 +8,6 @@ auto_esn(
   .data,
   specials,
   const = TRUE,
-  trend = TRUE,
   lags = NULL,
   fourier = NULL,
   xreg = NULL,
@@ -27,9 +26,8 @@ auto_esn(
   scale_inputs = c(-1, 1),
   scale_win = 0.1,
   scale_wres = 0.5,
-  control_tuning = list(inf_crit = "aic", inputs_tune = FALSE, n_sample = 1000,
-    pars_tune = TRUE, lower = c(1e-04, 0.01, 1e-08, 0.01), upper = c(0.9999, 2.5, 0.001,
-    0.5)),
+  control_tuning = list(inf_crit = "aic", pars_tune = TRUE, lower = c(1e-04, 0.01,
+    1e-08, 0.01), upper = c(0.9999, 2.5, 0.001, 0.5)),
   ...
 )
 }
@@ -39,8 +37,6 @@ auto_esn(
 \item{specials}{Currently not is use.}
 
 \item{const}{Logical value. If \code{TRUE}, an intercept term is used.}
-
-\item{trend}{Logical value. If \code{TRUE}, a trend term (centered moving average) is used.}
 
 \item{lags}{A \code{list} containing integer vectors with the lags associated with each input variable.}
 
@@ -78,11 +74,9 @@ auto_esn(
 
 \item{scale_wres}{Numeric value. The lower and upper bound of the uniform distribution for scaling the reservoir weight matrix.}
 
-\item{control_tuning}{A \code{list} containing control values for the automatic tuning of model inputs and hyperparameters:
+\item{control_tuning}{A \code{list} containing control values for the automatic tuning of hyperparameters:
 \itemize{
   \item{\code{inf_crit}: Character value. The information criterion used for tuning \code{inf_crit = c("aic", "bic", "hq")}.}
-  \item{\code{inputs_tune}: Logical value. If \code{TRUE}, the model inputs are tuned, otherwise model inputs are used as defined.}
-  \item{\code{n_sample}: Integer value. The number of samples for the random grid.}
   \item{\code{pars_tune}: Logical value. If \code{TRUE}, the hyperparameters are tuned, otherwise hyperparameters are used as defined.}
   \item{\code{lower}: Numeric vector. The lower bounds for \code{alpha}, \code{rho} and \code{lambda} used in the optimization.}
   \item{\code{upper}: Numeric vector. The upper bounds for \code{alpha}, \code{rho} and \code{lambda} used in the optimization.}

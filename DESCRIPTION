@@ -29,8 +29,7 @@ Imports:
     rlang,
     feasts,
     distributional,
-    glmnet,
-    tsutils
+    glmnet
 LinkingTo:
     Rcpp,
     RcppArmadillo

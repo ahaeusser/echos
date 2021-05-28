@@ -7,10 +7,9 @@
 #' @importFrom feasts unitroot_ndiffs unitroot_kpss
 #' @importFrom rlang is_empty .data abort
 #' @importFrom stats complete.cases diffinv na.omit optim pacf qnorm runif
-#' @importFrom tsutils cmav
 #' @importFrom utils tail
 #' @importFrom distributional dist_normal
-#' @importFrom glmnet glmnet
+#' @importFrom glmnet glmnet cv.glmnet
 #' @import Rcpp
 #' @import RcppArmadillo
 #' @import tsibble
