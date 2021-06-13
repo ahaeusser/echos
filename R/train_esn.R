@@ -223,11 +223,14 @@ train_esn <- function(data,
     weights <- rep(1, nrow(Xt))
   }
   
-  # Penalty factors
-  if (is.null(penalty)) {
-    penalty <- c(0, rep(1, ncol(Xt) - 1))
-    # penalty <- rep(1, ncol(Xt))
-  }
+  # # Penalty factors
+  # if (is.null(penalty)) {
+  #   if (const) {
+  #     penalty <- c(0, rep(1, ncol(Xt) - 1)) 
+  #   } else {
+  #     penalty <- rep(1, ncol(Xt)) 
+  #   }
+  # }
   
   # Train linear model via glmnet
   model <- train_glmnet(
@@ -287,6 +290,8 @@ train_esn <- function(data,
     hq = model$hq
     )
   
+  model_object <- model$model_object
+  
   # List with model inputs and settings
   model_inputs <- list(
     const = const,
@@ -331,6 +336,7 @@ train_esn <- function(data,
     model_inputs = model_inputs,
     model_data = model_data,
     model_metrics = model_metrics,
+    model_object = model_object,
     model_spec = model_spec,
     model_pars = model_pars,
     model_layers = model_layers,

@@ -23,28 +23,39 @@ train_glmnet <- function(X,
                          penalty,
                          ...) {
   
-  model <- glmnet(
+  model_object <- glmnet(
     x = X,
     y = y,
     lambda = lambda,
-    weights = weights,
-    penalty.factor = penalty,
     family = "gaussian",
     alpha = type,
     standardize = FALSE,
-    intercept = FALSE,
+    intercept = TRUE,
     ...
   )
   
   # Extract estimated coefficients
-  wout <- as.matrix(model$beta)
-  # Calculate fitted values and residuals
-  yf <- X %*% wout
+  wout <- as.matrix(coef(model_object))
+
+  # Calculate fitted values
+  yf <- predict(
+    object = model_object,
+    newx = X,
+    s = lambda
+    )
+  
+  # # Extract estimated coefficients
+  # wout <- as.matrix(model$beta)
+  # # Calculate fitted values
+  # yf <- X %*% wout
+  
+  
+  # Calculate residuals
   yr <- y - yf
   
   # Adjust column names
   colnames(wout) <- colnames(y)
-  rownames(wout) <- colnames(X)
+  # rownames(wout) <- colnames(X)
   colnames(yf) <- colnames(y)
   colnames(yr) <- colnames(y)
   
@@ -58,7 +69,7 @@ train_glmnet <- function(X,
   } else {
     # For LASSO, the degrees of freedom equals the number of non-zero
     # coefficients and can directly be extracted from the trained model
-    dof <- model$df
+    dof <- model_object$df
   }
 
   # Number of observations
@@ -74,6 +85,7 @@ train_glmnet <- function(X,
   hq <- log(det_sigma) + (2 * log(log(n_obs)) / n_obs) * dof
   
   list(
+    model_object = model_object,
     wout = wout,
     yf = yf,
     yr = yr,

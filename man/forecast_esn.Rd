@@ -4,7 +4,7 @@
 \alias{forecast_esn}
 \title{Forecast a trained Echo State Network}
 \usage{
-forecast_esn(object, n_ahead = 12, n_sim = 100, n_seed = 42, xreg = NULL)
+forecast_esn(object, n_ahead = 12, n_sim = NULL, n_seed = 42, xreg = NULL)
 }
 \arguments{
 \item{object}{An object of class \code{ESN}. The result of a call to \code{train_esn()} or \code{auto_esn()}.}

@@ -22,7 +22,7 @@
 
 forecast_esn <- function(object,
                          n_ahead = 12,
-                         n_sim = 100,
+                         n_sim = NULL,
                          n_seed = 42,
                          xreg = NULL) {
   
@@ -62,6 +62,8 @@ forecast_esn <- function(object,
   lags <- method$model_inputs$lags
   fourier <- method$model_inputs$fourier
   
+  
+  model_object <- method$model_object
   
   # Create input layer ========================================================
   
@@ -165,6 +167,7 @@ forecast_esn <- function(object,
     win = win,
     wres = wres,
     wout = wout,
+    model_object = model_object,
     n_ahead = n_ahead,
     alpha = alpha,
     lags = lags,
@@ -199,7 +202,7 @@ forecast_esn <- function(object,
   # Simulation ================================================================
   
   if (is.null(n_sim)) {
-    simulation <- NULL
+    sim <- NULL
   } else {
     # Simulate future sample path
     # Set seed for reproducibility

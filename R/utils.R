@@ -665,6 +665,7 @@ scale_data <- function(data,
 predict_esn <- function(win,
                         wres,
                         wout,
+                        model_object,
                         n_ahead,
                         alpha,
                         lags,
@@ -717,7 +718,18 @@ predict_esn <- function(win,
     
     # Calculate point forecasts and save values
     if (is.null(innov)) {
-      fcst[(t - 1), ] <- X %*% wout
+      
+      
+      # fcst[(t - 1), ] <- X %*% wout
+      
+      fcst[(t - 1), ] <- as.numeric(
+        predict(
+          object = model_object,
+          newx = X
+          )
+        )
+      
+      
     } else {
       fcst[(t - 1), ] <- X %*% wout + innov[(t - 1), , drop = FALSE]
     }

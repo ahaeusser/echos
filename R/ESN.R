@@ -222,10 +222,15 @@ forecast.ESN <- function(object,
   fcst_point <- model_fcst$point
   
   # Extract simulations
-  fcst_std <- rowSds(
-    x = model_fcst$sim,
-    na.rm = TRUE
+  if (is.null(model_fcst$sim)) {
+    fcst_std <- rep(NA_real_, length(fcst_point))
+  } else {
+    fcst_std <- rowSds(
+      x = model_fcst$sim,
+      na.rm = TRUE
     )
+  }
+
   
   # Return forecast
   dist_normal(
