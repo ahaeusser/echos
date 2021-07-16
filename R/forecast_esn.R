@@ -58,10 +58,8 @@ forecast_esn <- function(object,
   alpha <- method$model_pars$alpha
   
   # Model inputs
-  const <- method$model_inputs$const
   lags <- method$model_inputs$lags
   fourier <- method$model_inputs$fourier
-  
   
   model_object <- method$model_object
   
@@ -133,32 +131,12 @@ forecast_esn <- function(object,
     y_fourier <- rbind(0, y_fourier, pad_na)
   }
   
-  # Create constant (intercept or bias term) as matrix
-  if (const == FALSE | is.null(const)) {
-    y_const <- NULL
-  } else {
-    y_const <- create_const(
-      n_obs = n_ahead
-      )
-    
-    pad_na <- matrix(
-      data = NA_real_,
-      nrow = max(unlist(lags)),
-      ncol = 1
-      )
-    
-    y_const <- rbind(0, y_const, pad_na)
-  }
-  
-  
   # Concatenate input matrices
   inputs <- cbind(
-    y_const,
     y_lag,
     y_fourier,
     xreg
     )
-  
   
   # Point forecasts ===========================================================
   

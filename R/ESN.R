@@ -21,7 +21,6 @@
 
 auto_esn <- function(.data,
                      specials,
-                     const = TRUE,
                      lags = NULL,
                      fourier = NULL,
                      xreg = NULL,
@@ -89,7 +88,6 @@ auto_esn <- function(.data,
       lags = lags,
       fourier = fourier,
       xreg = xreg,
-      const = const,
       dy = dy,
       dx = dx,
       n_res = n_res,
@@ -120,7 +118,6 @@ auto_esn <- function(.data,
     lags = lags,
     fourier = fourier,
     xreg = xreg,
-    const = const,
     dy = dy,
     dx = dx,
     n_res = n_res,
@@ -348,7 +345,6 @@ report.ESN <- function(object) {
   n_res <- method$model_layer$n_res
   n_outputs <- method$model_layer$n_outputs
   
-  const <- method$model_inputs$const
   lags <- unlist(method$model_inputs$lags)
   fourier <- method$model_inputs$fourier
   
@@ -397,7 +393,6 @@ report.ESN <- function(object) {
   
   cat(
     "\nModel inputs:", "\n",
-    "const   = ", const, "\n",
     "lags    = ", lags, "\n",
     "fourier = ", fourier, "\n",
     "xreg    = ", xreg, "\n"
@@ -520,7 +515,6 @@ reservoir.mdl_df <- function(object) {
 #'     \item{\code{n_inputs}: Integer value. The number of model inputs.}
 #'     \item{\code{n_res}: Integer value. The number of internal states within the reservoir (hidden layer).}
 #'     \item{\code{n_outputs}: Integer value. The number of model outputs.}
-#'     \item{\code{const}: Logical value. If \code{TRUE}, a constant term (intercept) is used.}
 #'     \item{\code{lags}: A \code{list} containing integer vectors with the lags associated with each input variable.}
 #'     \item{\code{fourier}: A \code{list} containing the fourier terms.}
 #'     \item{\code{dy}: Integer vector. The nth-differences of the response variable.}
@@ -573,7 +567,6 @@ extract_esn.mdl_df <- function(object) {
         n_inputs   = lst_mdl[["model_layers"]][["n_inputs"]],
         n_res      = lst_mdl[["model_layers"]][["n_res"]],
         n_outputs  = lst_mdl[["model_layers"]][["n_outputs"]],
-        const      = lst_mdl[["model_inputs"]][["const"]],
         lags       = list(lst_mdl[["model_inputs"]][["lags"]]),
         fourier    = list(lst_mdl[["model_inputs"]][["fourier"]]),
         dy         = lst_mdl[["model_inputs"]][["dy"]],

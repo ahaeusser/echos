@@ -1,26 +1,4 @@
 
-#' @title Create constant (intercept term)
-#' 
-#' @description This functions creates the constant (intercept term)
-#'   for the design matrix as numeric matrix.
-#'
-#' @param n_obs Integer value. The number of observations.
-#'
-#' @return y_const Numeric matrix with dimension (n_obs x 1).
-#' @noRd
-
-create_const <- function(n_obs) {
-  y_const <- matrix(
-    data = 1,
-    nrow = n_obs,
-    ncol = 1,
-    dimnames = list(c(), "const"))
-  
-  return(y_const)
-}
-
-
-
 #' @title Create lagged variables of a matrix
 #' 
 #' @description Create lagged variables of a matrix, shifting each column
@@ -78,7 +56,6 @@ create_lags <- function(data, lags) {
   colnames(y_lag) <- names_lags
   return(y_lag)
 }
-
 
 
 #' @title Create lagged variables of a matrix for iterative forecasting
@@ -146,8 +123,6 @@ create_revolved <- function(data,
 }
 
 
-
-
 #' @title Create fourier terms
 #' 
 #' @description This function creates the fourier terms for the design matrix as numeric matrix.
@@ -213,7 +188,6 @@ create_fourier <- function(x,
 }
 
 
-
 #' @title Rotate a matrix
 #' 
 #' @description Little helper function to rotate a matrix. If you apply rotate
@@ -229,14 +203,13 @@ rotate <- function(x) {
 }
 
 
-
 #' @title Create model specification
 #' 
 #' @description This function creates the model specification (short summary) as a string.
 #'
 #' @param model_layers List containing the number of inputs (n_inputs), reservoir size (n_res) and the number of outputs (n_outputs).
 #' @param model_pars List containing the hyperparameters alpha, rho, lambda and density.
-#' @param model_inputs List containing the model inputs (constant, lags, n_fourier, period).
+#' @param model_inputs List containing the model inputs (lags, fourier).
 #'
 #' @return model_spec Character value. The model specification as string.
 #' @noRd
@@ -282,7 +255,6 @@ create_spec <- function(model_layers,
 }
 
 
-
 #' @title Create the input weight matrix
 #' 
 #' @description This function creates the random input weight matrices.
@@ -309,8 +281,6 @@ create_win <- function(n_inputs,
   
   return(win)
 }
-
-
 
 
 #' @title Create the reservoir weight matrix
@@ -364,7 +334,6 @@ create_wres <- function(n_res,
 }
 
 
-
 #' @title Calculate nth-differences of a numeric matrix
 #'
 #' @description This function takes a numeric matrix and calculates 
@@ -396,8 +365,6 @@ diff_data <- function(data, n_diff) {
 }
 
 
-
-
 #' @title Calculate the nth-difference of a numeric vector
 #'
 #' @description This function takes a numeric vector and calculates
@@ -426,8 +393,6 @@ diff_vec <- function(y, n) {
   yd <- c(rep(NA_real_, n), yd)
   return(yd)
 }
-
-
 
 
 #' @title Integrate differences of a numeric matrix ("inverse difference")
@@ -463,8 +428,6 @@ inv_diff_data <- function(data,
   colnames(y_int) <- names_outputs
   return(y_int)
 }
-
-
 
 
 #' @title Integrate differences of a numeric vector ("inverse difference")
@@ -510,7 +473,6 @@ inv_diff_vec <- function(y,
   
   return(y_int)
 }
-
 
 
 #' @title Rescale (inverse scaling) the columns of a numeric matrix
@@ -570,8 +532,6 @@ rescale_data <- function(data,
   data <- ((data - lower) * (max - min)) / (upper - lower) + min
   return(data)
 }
-
-
 
 
 #' @title Scale the columns of a numeric matrix
@@ -637,7 +597,6 @@ scale_data <- function(data,
   
   return(result)
 }
-
 
 
 #' @title Forecast a trained Echo State Network (internal function)
@@ -718,18 +677,12 @@ predict_esn <- function(win,
     
     # Calculate point forecasts and save values
     if (is.null(innov)) {
-      
-      
-      # fcst[(t - 1), ] <- X %*% wout
-      
       fcst[(t - 1), ] <- as.numeric(
         predict(
           object = model_object,
           newx = X
           )
         )
-      
-      
     } else {
       fcst[(t - 1), ] <- X %*% wout + innov[(t - 1), , drop = FALSE]
     }
@@ -755,7 +708,6 @@ predict_esn <- function(win,
   
   return(result)
 }
-
 
 
 #' @title Simulate a fitted ESN

@@ -7,7 +7,6 @@
 #' @param data A \code{tsibble} containing the response variable.
 #' @param lags A \code{list} containing integer vectors with the lags associated with each input variable.
 #' @param fourier A \code{list} containing the periods and the number of fourier terms as integer vector.
-#' @param const Logical value. If \code{TRUE}, an intercept term is used.
 #' @param xreg A \code{tsibble} containing exogenous variables.
 #' @param dy Integer vector. The nth-differences of the response variable.
 #' @param dx Integer vector. The nth-differences of the exogenous variables.
@@ -38,7 +37,6 @@
 train_esn <- function(data,
                       lags,
                       fourier = NULL,
-                      const = TRUE,
                       xreg = NULL,
                       dy = 0,
                       dx = 0,
@@ -138,19 +136,8 @@ train_esn <- function(data,
       )
   }
   
-  # Create constant term (intercept term) as matrix
-  if (const == FALSE) {
-    y_const <- NULL
-  } else {
-    y_const <- create_const(
-      n_obs = n_total
-      )
-  }
-  
-  
   # Concatenate input matrices
   inputs <- cbind(
-    y_const,
     y_lag,
     y_fourier,
     xreg
@@ -294,7 +281,6 @@ train_esn <- function(data,
   
   # List with model inputs and settings
   model_inputs <- list(
-    const = const,
     lags = lags,
     fourier = fourier,
     dy = dy,

@@ -24,7 +24,6 @@ Extract and return values from a trained ESN
     \item{\code{n_inputs}: Integer value. The number of model inputs.}
     \item{\code{n_res}: Integer value. The number of internal states within the reservoir (hidden layer).}
     \item{\code{n_outputs}: Integer value. The number of model outputs.}
-    \item{\code{const}: Logical value. If \code{TRUE}, a constant term (intercept) is used.}
     \item{\code{lags}: A \code{list} containing integer vectors with the lags associated with each input variable.}
     \item{\code{fourier}: A \code{list} containing the fourier terms.}
     \item{\code{dy}: Integer vector. The nth-differences of the response variable.}

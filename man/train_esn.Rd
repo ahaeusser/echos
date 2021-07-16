@@ -8,7 +8,6 @@ train_esn(
   data,
   lags,
   fourier = NULL,
-  const = TRUE,
   xreg = NULL,
   dy = 0,
   dx = 0,
@@ -33,8 +32,6 @@ train_esn(
 \item{lags}{A \code{list} containing integer vectors with the lags associated with each input variable.}
 
 \item{fourier}{A \code{list} containing the periods and the number of fourier terms as integer vector.}
-
-\item{const}{Logical value. If \code{TRUE}, an intercept term is used.}
 
 \item{xreg}{A \code{tsibble} containing exogenous variables.}
 

@@ -44,18 +44,11 @@ train_glmnet <- function(X,
     s = lambda
     )
   
-  # # Extract estimated coefficients
-  # wout <- as.matrix(model$beta)
-  # # Calculate fitted values
-  # yf <- X %*% wout
-  
-  
   # Calculate residuals
   yr <- y - yf
   
   # Adjust column names
   colnames(wout) <- colnames(y)
-  # rownames(wout) <- colnames(X)
   colnames(yf) <- colnames(y)
   colnames(yr) <- colnames(y)
   

@@ -7,7 +7,6 @@
 auto_esn(
   .data,
   specials,
-  const = TRUE,
   lags = NULL,
   fourier = NULL,
   xreg = NULL,
@@ -35,8 +34,6 @@ auto_esn(
 \item{.data}{A \code{tsibble} containing the time series data.}
 
 \item{specials}{Currently not is use.}
-
-\item{const}{Logical value. If \code{TRUE}, an intercept term is used.}
 
 \item{lags}{A \code{list} containing integer vectors with the lags associated with each input variable.}
 
