@@ -202,7 +202,7 @@ ESN <- function(formula, ...){
 forecast.ESN <- function(object,
                          new_data,
                          specials = NULL,
-                         n_sim = 100,
+                         n_sim = NULL,
                          n_seed = 42,
                          xreg = NULL,
                          ...) {
@@ -231,7 +231,6 @@ forecast.ESN <- function(object,
     )
   }
 
-  
   # Return forecast
   dist_normal(
     mu = fcst_point,
