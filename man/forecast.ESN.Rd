@@ -8,7 +8,7 @@
   object,
   new_data,
   specials = NULL,
-  n_sim = 100,
+  n_sim = NULL,
   n_seed = 42,
   xreg = NULL,
   ...
