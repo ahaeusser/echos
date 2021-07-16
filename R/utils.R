@@ -607,6 +607,7 @@ scale_data <- function(data,
 #' @param win Numeric matrix. Weights for the input variables.
 #' @param wres Numeric matrix. Weights for the reservoir.
 #' @param wout Numeric matrix. Weights for output variables (estimated coefficients from ridge regression).
+#' @param model_object An object of class \code{glmnet}.
 #' @param n_ahead Integer value. The forecast horizon (n-step ahead).
 #' @param alpha Numeric value. The Leakage rate (smoothing parameter).
 #' @param lags List containing integer vectors with the lags associated with each output variable.
@@ -675,7 +676,7 @@ predict_esn <- function(win,
     # Prepare design matrix
     X <- cbind(inputs[t, , drop = FALSE], states_fcst[t, , drop = FALSE])
     
-    # Calculate point forecasts and save values
+    # Calculate point forecasts
     if (is.null(innov)) {
       fcst[(t - 1), ] <- as.numeric(
         predict(
@@ -684,7 +685,13 @@ predict_esn <- function(win,
           )
         )
     } else {
-      fcst[(t - 1), ] <- X %*% wout + innov[(t - 1), , drop = FALSE]
+      # Calculate interval forecasts
+      fcst[(t - 1), ] <- as.numeric(
+        predict(
+          object = model_object,
+          newx = X
+        )
+      ) + innov[(t - 1), , drop = FALSE]
     }
     
     # Update lagged variables in inputs
@@ -717,6 +724,7 @@ predict_esn <- function(win,
 #' @param win Numeric matrix. Weights for the input variables.
 #' @param wres Numeric matrix. Weights for the reservoir.
 #' @param wout Numeric matrix. Weights for the output variables (estimated coefficients from ridge regression).
+#' @param model_object An object of class \code{glmnet}.
 #' @param n_ahead Integer value. The number of periods for forecasting (forecast horizon).
 #' @param alpha Numeric value. The Leakage rate (smoothing parameter).
 #' @param lags List containing integer vectors with the lags associated with each output variable.
@@ -731,6 +739,7 @@ predict_esn <- function(win,
 simulate_esn <- function(win,
                          wres,
                          wout,
+                         model_object,
                          n_ahead,
                          alpha,
                          lags,
@@ -763,6 +772,7 @@ simulate_esn <- function(win,
         win = win,
         wres = wres,
         wout = wout,
+        model_object = model_object,
         n_ahead = n_ahead,
         alpha = alpha,
         lags = lags,
