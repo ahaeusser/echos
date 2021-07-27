@@ -58,7 +58,8 @@ train_glmnet <- function(X,
     # estimated by the trace of the hat matrix
     dof <- estimate_dof(
       X = X,
-      lambda = lambda)
+      lambda = lambda
+      )
   } else {
     # For LASSO, the degrees of freedom equals the number of non-zero
     # coefficients and can directly be extracted from the trained model
@@ -70,12 +71,20 @@ train_glmnet <- function(X,
   
   # Determinant of the residual variance-covariance matrix
   det_sigma = det((t(yr) %*% yr)) / n_obs
-  # Akaike information criterion (AIC)
-  aic <- log(det_sigma) + (2 / n_obs) * dof
-  # Bayesian information criterion (BIC)
-  bic <- log(det_sigma) + (log(n_obs) / n_obs) * dof
-  # Hannan-Quinn information criterion (HQ)
-  hq <- log(det_sigma) + (2 * log(log(n_obs)) / n_obs) * dof
+  
+  # Number of parameters (plus intercept term)
+  n_pars <- dof + 1
+  
+  # Final Prediction Error (FPE)
+  fpe <- det_sigma * ((1 + n_pars / n_obs) / (1 - n_pars / n_obs))
+  # Akaike Information Criterion (AIC)
+  aic <- n_obs * log(det_sigma) + 2 * n_pars + n_obs * (1 * log(2 * pi) + 1)
+  # Corrected Akaike Information Criterion (AICc)
+  aicc <- aic + 2 * n_pars * ((n_pars + 1) / (n_obs - n_pars - 1))
+  # Normalized Akaike Information Criterion (nAIC)
+  naic <- log(det_sigma) + 2 * n_pars / n_obs
+  # Bayesian Information Criterion (BIC)
+  bic <- n_obs * log(det_sigma) + n_obs * (1 * log(2 * pi) + 1) + n_pars * log(n_obs)
   
   list(
     model_object = model_object,
@@ -84,9 +93,11 @@ train_glmnet <- function(X,
     yr = yr,
     dof = dof,
     det_sigma = det_sigma,
+    fpe = fpe,
     aic = aic,
-    bic = bic,
-    hq = hq
+    aicc = aicc,
+    naic = naic,
+    bic = bic
   )
 }
 

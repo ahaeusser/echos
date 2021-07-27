@@ -73,7 +73,7 @@ auto_esn(
 
 \item{control_tuning}{A \code{list} containing control values for the automatic tuning of hyperparameters:
 \itemize{
-  \item{\code{inf_crit}: Character value. The information criterion used for tuning \code{inf_crit = c("aic", "bic", "hq")}.}
+  \item{\code{inf_crit}: Character value. The information criterion used for tuning \code{inf_crit = c("aic", "aicc", "naic", "bic", "fpe")}.}
   \item{\code{pars_tune}: Logical value. If \code{TRUE}, the hyperparameters are tuned, otherwise hyperparameters are used as defined.}
   \item{\code{lower}: Numeric vector. The lower bounds for \code{alpha}, \code{rho} and \code{lambda} used in the optimization.}
   \item{\code{upper}: Numeric vector. The upper bounds for \code{alpha}, \code{rho} and \code{lambda} used in the optimization.}

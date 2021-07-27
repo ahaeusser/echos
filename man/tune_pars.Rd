@@ -29,7 +29,7 @@ tune_pars(
 
 \item{pars}{Numeric vector containing the hyperparameters.}
 
-\item{inf_crit}{Character value. The information criterion used for tuning \code{inf_crit = c("aic", "bic", "hq")}.}
+\item{inf_crit}{Character value. The information criterion used for tuning \code{inf_crit = c("aic", "aicc", "naic", "bic", "fpe")}.}
 
 \item{lags}{A \code{list} containing integer vectors with the lags associated with each input variable.}
 

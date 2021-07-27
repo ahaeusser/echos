@@ -36,7 +36,9 @@ Extract and return values from a trained ESN
     \item{\code{density}: Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).}
     \item{\code{df}: Numeric value. The effective degree of freedom.}
     \item{\code{aic}: Numeric value. The Akaike information criterion.}
+    \item{\code{aicc}: Numeric value. The corrected Akaike information criterion.}
+    \item{\code{naic}: Numeric value. The normalized Akaike information criterion.}
     \item{\code{bic}: Numeric value. The Bayesian information criterion.}
-    \item{\code{hq}: Numeric value. The Hannan-Quinn information criterion.}
+    \item{\code{fpe}: Numeric value. The Final Prediction Error.}
     }
 }

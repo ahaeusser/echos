@@ -18,6 +18,6 @@ Return summary statistics from a trained ESN as tibble.
    \item{\code{df}: Effective degrees of freedom.}
    \item{\code{aic}: Akaike information criterion.}
    \item{\code{bic}: Bayesian information criterion.}
-   \item{\code{hq}: Hannan-Quinn information criterion.}
+   \item{\code{hqc}: Hannan-Quinn information criterion.}
       }
 }

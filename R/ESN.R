@@ -8,7 +8,7 @@
 #' @param specials Currently not is use.
 #' @param control_tuning A \code{list} containing control values for the automatic tuning of hyperparameters:
 #'  \itemize{
-#'    \item{\code{inf_crit}: Character value. The information criterion used for tuning \code{inf_crit = c("aic", "bic", "hq")}.}
+#'    \item{\code{inf_crit}: Character value. The information criterion used for tuning \code{inf_crit = c("aic", "aicc", "naic", "bic", "fpe")}.}
 #'    \item{\code{pars_tune}: Logical value. If \code{TRUE}, the hyperparameters are tuned, otherwise hyperparameters are used as defined.}
 #'    \item{\code{lower}: Numeric vector. The lower bounds for \code{alpha}, \code{rho} and \code{lambda} used in the optimization.}
 #'    \item{\code{upper}: Numeric vector. The upper bounds for \code{alpha}, \code{rho} and \code{lambda} used in the optimization.}
@@ -313,7 +313,7 @@ tidy.ESN <- function(object) {
 #'    \item{\code{df}: Effective degrees of freedom.}
 #'    \item{\code{aic}: Akaike information criterion.}
 #'    \item{\code{bic}: Bayesian information criterion.}
-#'    \item{\code{hq}: Hannan-Quinn information criterion.}
+#'    \item{\code{hqc}: Hannan-Quinn information criterion.}
 #'       }
 #'
 #' @param object An object of class \code{ESN}.
@@ -377,8 +377,10 @@ report.ESN <- function(object) {
   
   dof <- round(method$model_metrics$dof, 2)
   aic <- round(method$model_metrics$aic, 2)
+  aicc <- round(method$model_metrics$aicc, 2)
+  naic <- round(method$model_metrics$naic, 2)
   bic <- round(method$model_metrics$bic, 2)
-  hq <- round(method$model_metrics$hq, 2)
+  fpe <- round(method$model_metrics$fpe, 2)
   
   scale_win <- round(method$scale_win, 2)
   scale_wres <- round(method$scale_wres, 2)
@@ -427,10 +429,12 @@ report.ESN <- function(object) {
   
   cat(
     "\nMetrics:", "\n",
-    "dof = ", dof, "\n",
-    "aic = ", aic, "\n",
-    "bic = ", bic, "\n",
-    "hq  = ", hq, "\n"
+    "dof  = ", dof, "\n",
+    "aic  = ", aic, "\n",
+    "aicc = ", aicc, "\n",
+    "naic = ", naic, "\n",
+    "bic  = ", bic, "\n",
+    "fpe  = ", fpe, "\n"
   )
   
 }
@@ -527,8 +531,10 @@ reservoir.mdl_df <- function(object) {
 #'     \item{\code{density}: Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).}
 #'     \item{\code{df}: Numeric value. The effective degree of freedom.}
 #'     \item{\code{aic}: Numeric value. The Akaike information criterion.}
+#'     \item{\code{aicc}: Numeric value. The corrected Akaike information criterion.}
+#'     \item{\code{naic}: Numeric value. The normalized Akaike information criterion.}
 #'     \item{\code{bic}: Numeric value. The Bayesian information criterion.}
-#'     \item{\code{hq}: Numeric value. The Hannan-Quinn information criterion.}
+#'     \item{\code{fpe}: Numeric value. The Final Prediction Error.}
 #'     }
 #'
 #' @param object An object of class \code{mdl_df}.
@@ -579,8 +585,10 @@ extract_esn.mdl_df <- function(object) {
         density    = lst_mdl[["model_pars"]][["density"]],
         dof        = lst_mdl[["model_metrics"]][["dof"]],
         aic        = lst_mdl[["model_metrics"]][["aic"]],
+        aicc       = lst_mdl[["model_metrics"]][["aicc"]],
+        naic       = lst_mdl[["model_metrics"]][["naic"]],
         bic        = lst_mdl[["model_metrics"]][["bic"]],
-        hq         = lst_mdl[["model_metrics"]][["hq"]]
+        fpe        = lst_mdl[["model_metrics"]][["fpe"]]
       )
     })
   
