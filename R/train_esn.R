@@ -272,11 +272,9 @@ train_esn <- function(data,
   # Store model metrics
   model_metrics <- tibble(
     dof = model$dof,
-    fpe = model$fpe,
     aic = model$aic,
-    aicc = model$aicc,
-    naic = model$naic,
-    bic = model$bic
+    bic = model$bic,
+    hqc = model$hqc
     )
   
   model_object <- model$model_object

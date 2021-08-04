@@ -68,23 +68,19 @@ train_glmnet <- function(X,
 
   # Number of observations
   n_obs <- nrow(y)
-  
+  # Number of parameters (plus intercept term)
+  n_pars <- dof
   # Determinant of the residual variance-covariance matrix
   det_sigma = det((t(yr) %*% yr)) / n_obs
   
-  # Number of parameters (plus intercept term)
-  n_pars <- dof + 1
-  
-  # Final Prediction Error (FPE)
-  fpe <- det_sigma * ((1 + n_pars / n_obs) / (1 - n_pars / n_obs))
-  # Akaike Information Criterion (AIC)
-  aic <- n_obs * log(det_sigma) + 2 * n_pars + n_obs * (1 * log(2 * pi) + 1)
-  # Corrected Akaike Information Criterion (AICc)
-  aicc <- aic + 2 * n_pars * ((n_pars + 1) / (n_obs - n_pars - 1))
-  # Normalized Akaike Information Criterion (nAIC)
-  naic <- log(det_sigma) + 2 * n_pars / n_obs
-  # Bayesian Information Criterion (BIC)
-  bic <- n_obs * log(det_sigma) + n_obs * (1 * log(2 * pi) + 1) + n_pars * log(n_obs)
+  # Akaike information criterion (AIC)
+  aic <- log(det_sigma) + (2 / n_obs) * n_pars
+  # Bayesian information criterion (BIC)
+  bic <- log(det_sigma) + (log(n_obs) / n_obs) * n_pars
+  # Hannan-Quinn information criterion (HQ)
+  hqc <- log(det_sigma) + (2 * log(log(n_obs)) / n_obs) * n_pars
+  # # Final Prediction Error (FPE)
+  # fpe <- det_sigma * ((1 + n_pars / n_obs) / (1 - n_pars / n_obs))
   
   list(
     model_object = model_object,
@@ -93,11 +89,9 @@ train_glmnet <- function(X,
     yr = yr,
     dof = dof,
     det_sigma = det_sigma,
-    fpe = fpe,
     aic = aic,
-    aicc = aicc,
-    naic = naic,
-    bic = bic
+    bic = bic,
+    hqc = hqc
   )
 }
 

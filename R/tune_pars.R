@@ -6,7 +6,7 @@
 #'   is then minimized within a call to \code{optim()} for varying hyperparameters.
 #'   
 #' @param pars Numeric vector containing the hyperparameters.
-#' @param inf_crit Character value. The information criterion used for tuning \code{inf_crit = c("aic", "aicc", "naic", "bic", "fpe")}.
+#' @param inf_crit Character value. The information criterion used for tuning \code{inf_crit = c("aic", "bic", "hqc")}.
 #' @inheritParams train_esn
 #' 
 #' @return model_value Numeric value. The information criterion to be minimized.
