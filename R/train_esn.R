@@ -15,11 +15,7 @@
 #' @param n_seed Integer value. The seed for the random number generator (for reproducibility).
 #' @param alpha Numeric value. The leakage rate (smoothing parameter) applied to the reservoir.
 #' @param rho Numeric value. The spectral radius for scaling the reservoir weight matrix.
-#' @param lambda Numeric value. The regularization (shrinkage) parameter for ridge regression.
 #' @param density Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).
-#' @param type Numeric value. The elastic net mixing parameter.
-#' @param weights Numeric vector. Observation weights for weighted least squares estimation.
-#' @param penalty Numeric vector. Penalty factors applied to the coefficients. 
 #' @param scale_win Numeric value. The lower and upper bound of the uniform distribution for scaling the input weight matrix.
 #' @param scale_wres Numeric value. The lower and upper bound of the uniform distribution for scaling the reservoir weight matrix.
 #' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data.
@@ -40,16 +36,16 @@ train_esn <- function(data,
                       xreg = NULL,
                       dy = 0,
                       dx = 0,
+                      n_models = 500,
+                      inf_crit = "aic",
+                      max_states = 30,
+                      n_best = 50,
                       n_res = 200,
                       n_initial = 10,
                       n_seed = 42,
                       alpha = 0.8,
                       rho = 1,
-                      lambda = 1e-4,
                       density = 0.1,
-                      type = 1,
-                      weights = NULL,
-                      penalty = NULL,
                       scale_win = 0.1,
                       scale_wres = 0.5,
                       scale_inputs = c(-1, 1)) {
@@ -76,7 +72,7 @@ train_esn <- function(data,
     xreg <- diff_data(
       data = xreg,
       n_diff = dx
-      )
+    )
     
     # Scale data to specified interval
     xreg <- scale_data(
@@ -100,13 +96,13 @@ train_esn <- function(data,
   y <- diff_data(
     data = y,
     n_diff = dy
-    )
+  )
   
   # Scale data to specified interval
   scaled <- scale_data(
     data = y,
     new_range = scale_inputs
-    )
+  )
   
   y <- scaled$data
   old_range <- scaled$old_range
@@ -121,7 +117,7 @@ train_esn <- function(data,
     y_lag <- create_lags(
       data = y,
       lags = lags
-      )
+    )
   }
   
   # Create fourier terms as matrix
@@ -133,7 +129,7 @@ train_esn <- function(data,
       x = 1:n_total,
       period = fourier[[1]],
       k = fourier[[2]]
-      )
+    )
   }
   
   # Concatenate input matrices
@@ -141,7 +137,7 @@ train_esn <- function(data,
     y_lag,
     y_fourier,
     xreg
-    )
+  )
   
   # Drop NAs for training
   inputs <- inputs[complete.cases(inputs), , drop = FALSE]
@@ -168,7 +164,7 @@ train_esn <- function(data,
     n_inputs = n_inputs,
     n_res = n_res,
     scale_runif = c(-scale_win, scale_win)
-    )
+  )
   
   # Create random weight matrix for the reservoir
   wres <- create_wres(
@@ -177,7 +173,7 @@ train_esn <- function(data,
     density = density,
     scale_runif = c(-scale_wres, scale_wres),
     symmetric = FALSE
-    )
+  )
   
   # Run reservoir (create internal states)
   states_train <- run_reservoir(
@@ -185,7 +181,7 @@ train_esn <- function(data,
     win = win,
     wres = wres,
     alpha = alpha
-    )
+  )
   
   # Names of internal states
   colnames(states_train) <- paste0(
@@ -197,6 +193,24 @@ train_esn <- function(data,
     ")")
   
   
+  # #-------------
+  # states_train2 <- states_train^2
+  # # Names of internal states
+  # colnames(states_train2) <- paste0(
+  #   "state2","(",
+  #   formatC(
+  #     x = 1:n_res,
+  #     width = nchar(max(n_res)),
+  #     flag = "0"),
+  #   ")")
+  # Xt <- cbind(inputs, states_train, states_train2)
+  # names_states <- c(
+  #   colnames(states_train),
+  #   colnames(states_train2)
+  # )
+  # #-------------
+  
+  
   # Create output layer (train model) =========================================
   
   # Concatenate inputs and reservoir
@@ -205,44 +219,91 @@ train_esn <- function(data,
   Xt <- Xt[((n_initial + 1):nrow(Xt)), , drop = FALSE]
   yt <- y[((n_initial + 1 + (n_total - n_train)):n_total), , drop = FALSE]
   
-  # Observation weights
-  if (is.null(weights)) {
-    weights <- rep(1, nrow(Xt))
-  }
   
-  # # Penalty factors
-  # if (is.null(penalty)) {
-  #   if (const) {
-  #     penalty <- c(0, rep(1, ncol(Xt) - 1)) 
-  #   } else {
-  #     penalty <- rep(1, ncol(Xt)) 
-  #   }
-  # }
+  set.seed(42)
+  n_states <- sample(
+    x = seq_len(max_states),
+    size = n_models,
+    replace = TRUE
+  )
   
-  # Train linear model via glmnet
-  model <- train_glmnet(
-    X = Xt,
-    y = yt,
-    lambda = lambda,
-    type = type,
-    weights = weights,
-    penalty = penalty
+  states <- map(
+    .x = 1:n_models,
+    .f = ~{sample(
+      x = colnames(states_train),
+      size = n_states[.x],
+      replace = FALSE
     )
+    }
+  )
   
-  # Extract model components
-  wout <- model$wout  # coefficients (output weights)
-  yf <- model$yf      # fitted values (scaled)
-  yr <- model$yr      # residuals (scaled)
+  const <- matrix(
+    data = 1,
+    nrow = nrow(Xt),
+    ncol = 1,
+    dimnames = list(c(), "(Intercept)")
+  )
+  
+  # Estimate models
+  model_object <- map(
+    .x = 1:n_models,
+    .f = ~{
+      fit_lm(
+        x = cbind(const, Xt[, states[[.x]], drop = FALSE]),
+        y = yt
+      )
+    }
+  )
+  
+  model_names <- paste0("model(", 1:n_models, ")")
+  names(model_object) <- model_names
+  
+  # Extract model metrics
+  model_metrics <- map_dfr(
+    .x = 1:n_models,
+    .f = ~{model_object[[.x]]$metrics}
+  )
+  
+  # Identify best models
+  model_metrics <- model_metrics %>%
+    mutate(id = model_names, .before = loglik) %>%
+    arrange(!!sym(inf_crit)) %>%
+    slice_head(n = n_best)
+  
+  # Identify best models
+  model_best <- model_metrics %>%
+    pull(id)
+  
+  # Reduce to best models
+  model_object <- model_object[model_best]
+  
+  # Extract and prepare coefficients
+  wout <- map(
+    .x = 1:n_best,
+    .f = ~{model_object[[.x]]$wout}
+  )
+  
+  names(wout) <- names(model_object)
+  
+  # Extract and prepare fitted values
+  fitted <- map(
+    .x = 1:n_best,
+    .f = ~{model_object[[.x]]$fitted}
+  )
+  
+  names(fitted) <- names(model_object)
+  fitted <- do.call(cbind, fitted)
+  fitted <- as.matrix(rowMeans(fitted))
   
   # Adjust actual values for correct dimension
   actual <- yy[index_train, , drop = FALSE]
   
   # Rescale fitted values
   fitted <- rescale_data(
-    data = yf,
+    data = fitted,
     old_range = old_range,
     new_range = scale_inputs
-    )
+  )
   
   actual <- as.numeric(actual)
   fitted <- as.numeric(fitted)
@@ -264,20 +325,9 @@ train_esn <- function(data,
   # Store model data for forecasting
   model_data <- list(
     yt = yt,
-    yr = yr,
     yy = yy,
     xx = xx
-    )
-  
-  # Store model metrics
-  model_metrics <- tibble(
-    dof = model$dof,
-    aic = model$aic,
-    bic = model$bic,
-    hqc = model$hqc
-    )
-  
-  model_object <- model$model_object
+  )
   
   # List with model inputs and settings
   model_inputs <- list(
@@ -286,36 +336,37 @@ train_esn <- function(data,
     dy = dy,
     dx = dx,
     old_range = old_range
-    )
+  )
   
   # List with hyperparameters
   model_pars <- list(
     alpha = alpha,
     rho = rho,
-    lambda = lambda,
     density = density
-    )
+  )
   
   # List with number of inputs, internal states and outputs
   model_layers <- list(
     n_inputs = n_inputs,
     n_res = n_res,
     n_outputs = n_outputs
-    )
+  )
   
   # List with weight matrices for inputs, reservoir and outputs
   model_weights <- list(
     win = win,
     wres = wres,
     wout = wout
-    )
+  )
   
-  # Create model specification (short summary)
-  model_spec <- create_spec(
-    model_layers = model_layers,
-    model_pars = model_pars,
-    model_inputs = model_inputs
-    )
+  # # Create model specification (short summary)
+  # model_spec <- create_spec(
+  #   model_layers = model_layers,
+  #   model_pars = model_pars,
+  #   model_inputs = model_inputs
+  # )
+  
+  model_spec <- "dummy"
   
   # Store results
   method <- list(
@@ -330,7 +381,7 @@ train_esn <- function(data,
     scale_win = scale_win,
     scale_wres = scale_wres,
     scale_inputs = scale_inputs
-    )
+  )
   
   # Output model
   structure(

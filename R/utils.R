@@ -613,13 +613,8 @@ scale_data <- function(data,
 #' @param lags List containing integer vectors with the lags associated with each output variable.
 #' @param inputs Numeric matrix. Initialized input features (gets updated during forecasting process).
 #' @param states_train Numeric matrix. Internal states from training (necessary due to last values).
-#' @param innov Numeric matrix. The innovations for simulation.
 #' 
-#' @return A \code{list} containing:
-#'    \itemize{
-#'       \item{\code{fcst}: A numeric matrix containing the forecasts.}
-#'       \item{\code{states_train}: A numeric matrix with internal states used for forecasting.}
-#'       }
+#' @return Numeric matrix containing the forecasts.
 #' @noRd
 
 predict_esn <- function(win,
@@ -630,18 +625,20 @@ predict_esn <- function(win,
                         alpha,
                         lags,
                         inputs,
-                        states_train,
-                        innov = NULL) {
+                        states_train) {
   
-  # Number of output variables and internal states (reservoir size)
-  n_outputs <- ncol(wout)
+  # Output weights (estimated coefficients)
+  wout <- model_object$wout
+  # Predictor variables
+  states <- rownames(wout)[-1]
+  # Number of internal states (reservoir size)
   n_res <- nrow(wres)
   
   # Preallocate empty matrices to store point forecasts and internal states
   fcst <- matrix(
     data = NA_real_,
     nrow = n_ahead,
-    ncol = n_outputs,
+    ncol = 1,
     dimnames = list(c(), colnames(wout))
   )
   
@@ -661,7 +658,7 @@ predict_esn <- function(win,
   
   # Names of lagged variables as list
   names_lags_list <- lapply(
-    seq_len(n_outputs),
+    seq_len(ncol(wout)),
     function(n) {
       paste(colnames(wout)[n], "(", lags[[n]], ")", sep = "")
     }
@@ -669,33 +666,33 @@ predict_esn <- function(win,
   
   # Dynamic forecasting (iterative mode)
   for (t in 2:(n_ahead + 1)) {
+    
     # Calculate new internal states
     states_fcst_upd[t, ] <- t(tanh(win %*% t(inputs[t, , drop = FALSE]) + wres %*% t(states_fcst[(t - 1), , drop = FALSE])))
     states_fcst[t, ] <- alpha * states_fcst_upd[t, , drop = FALSE] + (1 - alpha) * states_fcst[(t - 1), , drop = FALSE]
     
-    # Prepare design matrix
-    X <- cbind(inputs[t, , drop = FALSE], states_fcst[t, , drop = FALSE])
+    # # ---------------------------------
+    # states_fcst2 <- states_fcst^2
+    # colnames(states_fcst2) <- paste0(
+    #   "state2","(",
+    #   formatC(
+    #     x = 1:n_res,
+    #     width = nchar(max(n_res)),
+    #     flag = "0"),
+    #   ")")
+    # 
+    # Xf <- cbind(1, states_fcst[t, , drop = FALSE], states_fcst2[t, , drop = FALSE])
+    # colnames(Xf) <- c("(Intercept)", colnames(states_fcst), colnames(states_fcst2))
+    # Xf <- Xf[, c("(Intercept)", states)]
+    # # ---------------------------------
     
-    # Calculate point forecasts
-    if (is.null(innov)) {
-      fcst[(t - 1), ] <- as.numeric(
-        predict(
-          object = model_object,
-          newx = X
-          )
-        )
-    } else {
-      # Calculate interval forecasts
-      fcst[(t - 1), ] <- as.numeric(
-        predict(
-          object = model_object,
-          newx = X
-        )
-      ) + innov[(t - 1), , drop = FALSE]
-    }
+    # Prepare design matrix
+    Xf <- cbind(1, states_fcst[t, states, drop = FALSE])
+    # Calculate point forecast
+    fcst[(t-1), ] <- Xf %*% wout
     
     # Update lagged variables in inputs
-    for (i in seq_len(n_outputs)) {
+    for (i in seq_len(ncol(wout))) {
       # Column index for block-wise looping and updating (by variable)
       index_col <- names_lags_list[[i]]
       # Row index for block-wise looping and updating (by variable)
@@ -707,13 +704,7 @@ predict_esn <- function(win,
     }
   }
   
-  # Store and return results
-  result <- list(
-    fcst = fcst,
-    states_fcst = states_fcst
-  )
-  
-  return(result)
+  return(fcst)
 }
 
 

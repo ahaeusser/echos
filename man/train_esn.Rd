@@ -11,16 +11,16 @@ train_esn(
   xreg = NULL,
   dy = 0,
   dx = 0,
+  n_models = 500,
+  inf_crit = "aic",
+  max_states = 30,
+  n_best = 50,
   n_res = 200,
   n_initial = 10,
   n_seed = 42,
   alpha = 0.8,
   rho = 1,
-  lambda = 1e-04,
   density = 0.1,
-  type = 1,
-  weights = NULL,
-  penalty = NULL,
   scale_win = 0.1,
   scale_wres = 0.5,
   scale_inputs = c(-1, 1)
@@ -49,15 +49,7 @@ train_esn(
 
 \item{rho}{Numeric value. The spectral radius for scaling the reservoir weight matrix.}
 
-\item{lambda}{Numeric value. The regularization (shrinkage) parameter for ridge regression.}
-
 \item{density}{Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).}
-
-\item{type}{Numeric value. The elastic net mixing parameter.}
-
-\item{weights}{Numeric vector. Observation weights for weighted least squares estimation.}
-
-\item{penalty}{Numeric vector. Penalty factors applied to the coefficients.}
 
 \item{scale_win}{Numeric value. The lower and upper bound of the uniform distribution for scaling the input weight matrix.}
 

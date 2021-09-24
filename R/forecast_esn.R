@@ -5,24 +5,19 @@
 #' 
 #' @param object An object of class \code{ESN}. The result of a call to \code{train_esn()} or \code{auto_esn()}.
 #' @param n_ahead Integer value. The number of periods for forecasting (forecast horizon).
-#' @param n_sim Integer value. The number of simulations (number of future sample paths).
 #' @param n_seed Integer value. The seed for the random number generator (for reproducibility).
 #' @param xreg A \code{tsibble} containing exogenous variables.
 #' 
 #' @return A \code{list} containing:
 #'    \itemize{
 #'       \item{\code{point}: Numeric vector containing the point forecasts.}
-#'       \item{\code{sim}: Numeric matrix containing the simulated future sample path.}
-#'       \item{\code{states_fcst}: Numeric matrix containing the internal states.}
 #'       \item{\code{method}: A \code{list} containing several objects and meta information of the trained ESN (weight matrices, hyperparameters, model metrics, etc.).}
 #'       \item{\code{n_ahead}: Integer value. The number of periods for forecasting (forecast horizon).}
-#'       \item{\code{n_sim}: Integer value. The number of simulations (number of future sample paths).}
 #'       }
 #' @export
 
 forecast_esn <- function(object,
                          n_ahead = 12,
-                         n_sim = NULL,
                          n_seed = 42,
                          xreg = NULL) {
   
@@ -32,7 +27,6 @@ forecast_esn <- function(object,
   
   # Prepared model data
   yt <- method$model_data$yt
-  yr <- method$model_data$yr
   xx <- method$model_data$xx
   yy <- method$model_data$yy
   n_total <- nrow(yy)
@@ -76,24 +70,24 @@ forecast_esn <- function(object,
     xreg <- diff_data(
       data = xreg,
       n_diff = dx
-      )
+    )
     
     # Scale data to specified interval
     scaled <- scale_data(
       data = xreg,
       new_range = scale_inputs
-      )
+    )
     
     xreg <- tail(
       x = scaled$data,
       n = n_ahead
-      )
+    )
     
     pad_na <- matrix(
       data = NA_real_,
       nrow = max(unlist(lags)),
       ncol = ncol(xreg)
-      )
+    )
     
     xreg <- rbind(0, xreg, pad_na)
     rownames(xreg) <- NULL
@@ -107,7 +101,7 @@ forecast_esn <- function(object,
       data = yt,
       lags = lags,
       n_ahead = n_ahead
-      )
+    )
   }
   
   # Create fourier terms as matrix
@@ -120,13 +114,13 @@ forecast_esn <- function(object,
       x = (n_total + 1):(n_total + n_ahead),
       period = fourier[[1]],
       k = fourier[[2]]
-      )
+    )
     
     pad_na <- matrix(
       data = NA_real_,
       nrow = max(unlist(lags)),
       ncol = ncol(y_fourier)
-      )
+    )
     
     y_fourier <- rbind(0, y_fourier, pad_na)
   }
@@ -136,104 +130,45 @@ forecast_esn <- function(object,
     y_lag,
     y_fourier,
     xreg
-    )
+  )
   
-  # Point forecasts ===========================================================
+  # Predict trained models
+  model_fcst <- map(
+    .x = 1:length(model_object),
+    .f = ~{
+      predict_esn(
+        win = win,
+        wres = wres,
+        wout = wout,
+        model_object = model_object[[.x]],
+        n_ahead = n_ahead,
+        alpha = alpha,
+        lags = lags,
+        inputs = inputs,
+        states_train = states_train
+      )
+    }
+  )
   
-  # Predict trained ESN
-  model_pred <- predict_esn(
-    win = win,
-    wres = wres,
-    wout = wout,
-    model_object = model_object,
-    n_ahead = n_ahead,
-    alpha = alpha,
-    lags = lags,
-    inputs = inputs,
-    states_train = states_train,
-    innov = NULL
-    )
-  
-  # Extract point forecasts
-  fcst <- model_pred$fcst
-  
-  # Extract internal states
-  # (first row is last row of training an can be dropped)
-  states_fcst <- model_pred$states_fcst[-c(1), ]
+  model_fcst <- do.call(cbind, model_fcst)
+  colnames(model_fcst) <- names(model_object)
+  point <- as.matrix(rowMeans(model_fcst))
   
   # Rescaling of point forecasts
-  fcst <- rescale_data(
-    data = fcst,
+  point <- rescale_data(
+    data = point,
     old_range = old_range,
     new_range = scale_inputs
-    )
+  )
   
   # Integrate differences
-  fcst <- inv_diff_data(
+  point <- inv_diff_data(
     data = yy,
-    data_diff = fcst,
+    data_diff = point,
     n_diff = dy
-    )
+  )
   
-  point <- as.numeric(fcst)
-  
-  # Simulation ================================================================
-  
-  if (is.null(n_sim)) {
-    sim <- NULL
-  } else {
-    # Simulate future sample path
-    # Set seed for reproducibility
-    set.seed(n_seed)
-    
-    model_sim <- simulate_esn(
-      win = win,
-      wres = wres,
-      wout = wout,
-      model_object = model_object,
-      n_ahead = n_ahead,
-      alpha = alpha,
-      lags = lags,
-      inputs = inputs,
-      states_train = states_train,
-      error = yr,
-      n_sim = n_sim
-      )
-    
-    # Rescaling of simulated sample path
-    sim <- lapply(
-      model_sim,
-      function(model_sim) {
-        rescale_data(
-          data = model_sim,
-          old_range = old_range,
-          new_range = scale_inputs
-          )
-      })
-    
-    # Integrate differences
-    sim <- lapply(
-      sim,
-      function(sim) {
-        inv_diff_data(
-          data = yy,
-          data_diff = sim,
-          n_diff = dy
-          )
-      })
-    
-    # Flatten list column wise to matrix
-    sim <- do.call(cbind, sim)
-    
-    # Names of simulations
-    colnames(sim) <- paste0(
-      "sim","(",
-      formatC(
-        x = 1:n_sim,
-        width = nchar(max(n_sim)),
-        flag = "0"),
-      ")")
-  }
+  point <- as.numeric(point)
   
   # Post-processing ===========================================================
   
@@ -241,11 +176,8 @@ forecast_esn <- function(object,
   structure(
     list(
       point = point,
-      sim = sim,
-      states_fcst = states_fcst,
       method = method,
-      n_ahead = n_ahead,
-      n_sim = n_sim),
+      n_ahead = n_ahead),
     class = "forecast_esn"
     )
 }

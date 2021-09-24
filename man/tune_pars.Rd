@@ -49,12 +49,6 @@ tune_pars(
 
 \item{density}{Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).}
 
-\item{type}{Numeric value. The elastic net mixing parameter.}
-
-\item{weights}{Numeric vector. Observation weights for weighted least squares estimation.}
-
-\item{penalty}{Numeric vector. Penalty factors applied to the coefficients.}
-
 \item{scale_wres}{Numeric value. The lower and upper bound of the uniform distribution for scaling the reservoir weight matrix.}
 
 \item{scale_inputs}{Numeric vector. The lower and upper bound for scaling the time series data.}

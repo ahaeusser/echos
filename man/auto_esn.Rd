@@ -12,22 +12,19 @@ auto_esn(
   xreg = NULL,
   dy = 0,
   dx = 0,
+  n_models = 500,
+  inf_crit = "aic",
+  max_states = 30,
+  n_best = 50,
   n_initial = 100,
   n_res = 200,
   n_seed = 42,
   alpha = 0.8,
   rho = 1,
-  lambda = 1e-04,
   density = 0.1,
-  type = 1,
-  weights = NULL,
-  penalty = NULL,
-  scale_inputs = c(-1, 1),
   scale_win = 0.1,
   scale_wres = 0.5,
-  control_tuning = list(inf_crit = "aic", pars_tune = TRUE, lower = c(1e-04, 0.01,
-    1e-08, 0.01), upper = c(0.9999, 2.5, 0.001, 0.5)),
-  ...
+  scale_inputs = c(-1, 1)
 )
 }
 \arguments{
@@ -55,31 +52,13 @@ auto_esn(
 
 \item{rho}{Numeric value. The spectral radius for scaling the reservoir weight matrix.}
 
-\item{lambda}{Numeric value. The regularization (shrinkage) parameter for ridge regression.}
-
 \item{density}{Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).}
-
-\item{type}{Numeric value. The elastic net mixing parameter.}
-
-\item{weights}{Numeric vector. Observation weights for weighted least squares estimation.}
-
-\item{penalty}{Numeric vector. Penalty factors applied to the coefficients.}
-
-\item{scale_inputs}{Numeric vector. The lower and upper bound for scaling the time series data.}
 
 \item{scale_win}{Numeric value. The lower and upper bound of the uniform distribution for scaling the input weight matrix.}
 
 \item{scale_wres}{Numeric value. The lower and upper bound of the uniform distribution for scaling the reservoir weight matrix.}
 
-\item{control_tuning}{A \code{list} containing control values for the automatic tuning of hyperparameters:
-\itemize{
-  \item{\code{inf_crit}: Character value. The information criterion used for tuning \code{inf_crit = c("aic", "bic", "hqc")}.}
-  \item{\code{pars_tune}: Logical value. If \code{TRUE}, the hyperparameters are tuned, otherwise hyperparameters are used as defined.}
-  \item{\code{lower}: Numeric vector. The lower bounds for \code{alpha}, \code{rho} and \code{lambda} used in the optimization.}
-  \item{\code{upper}: Numeric vector. The upper bounds for \code{alpha}, \code{rho} and \code{lambda} used in the optimization.}
-}}
-
-\item{...}{Further arguments passed to \code{stats::optim()}}
+\item{scale_inputs}{Numeric vector. The lower and upper bound for scaling the time series data.}
 }
 \value{
 An object of class \code{ESN}.

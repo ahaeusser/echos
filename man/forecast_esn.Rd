@@ -4,14 +4,12 @@
 \alias{forecast_esn}
 \title{Forecast a trained Echo State Network}
 \usage{
-forecast_esn(object, n_ahead = 12, n_sim = NULL, n_seed = 42, xreg = NULL)
+forecast_esn(object, n_ahead = 12, n_seed = 42, xreg = NULL)
 }
 \arguments{
 \item{object}{An object of class \code{ESN}. The result of a call to \code{train_esn()} or \code{auto_esn()}.}
 
 \item{n_ahead}{Integer value. The number of periods for forecasting (forecast horizon).}
-
-\item{n_sim}{Integer value. The number of simulations (number of future sample paths).}
 
 \item{n_seed}{Integer value. The seed for the random number generator (for reproducibility).}
 
@@ -21,11 +19,8 @@ forecast_esn(object, n_ahead = 12, n_sim = NULL, n_seed = 42, xreg = NULL)
 A \code{list} containing:
    \itemize{
       \item{\code{point}: Numeric vector containing the point forecasts.}
-      \item{\code{sim}: Numeric matrix containing the simulated future sample path.}
-      \item{\code{states_fcst}: Numeric matrix containing the internal states.}
       \item{\code{method}: A \code{list} containing several objects and meta information of the trained ESN (weight matrices, hyperparameters, model metrics, etc.).}
       \item{\code{n_ahead}: Integer value. The number of periods for forecasting (forecast horizon).}
-      \item{\code{n_sim}: Integer value. The number of simulations (number of future sample paths).}
       }
 }
 \description{

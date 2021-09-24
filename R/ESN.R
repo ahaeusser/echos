@@ -6,14 +6,6 @@
 #'
 #' @param .data A \code{tsibble} containing the time series data.
 #' @param specials Currently not is use.
-#' @param control_tuning A \code{list} containing control values for the automatic tuning of hyperparameters:
-#'  \itemize{
-#'    \item{\code{inf_crit}: Character value. The information criterion used for tuning \code{inf_crit = c("aic", "bic", "hqc")}.}
-#'    \item{\code{pars_tune}: Logical value. If \code{TRUE}, the hyperparameters are tuned, otherwise hyperparameters are used as defined.}
-#'    \item{\code{lower}: Numeric vector. The lower bounds for \code{alpha}, \code{rho} and \code{lambda} used in the optimization.}
-#'    \item{\code{upper}: Numeric vector. The upper bounds for \code{alpha}, \code{rho} and \code{lambda} used in the optimization.}
-#'  }
-#' @param ... Further arguments passed to \code{stats::optim()}
 #' @inheritParams train_esn
 #'
 #' @return An object of class \code{ESN}.
@@ -26,25 +18,19 @@ auto_esn <- function(.data,
                      xreg = NULL,
                      dy = 0,
                      dx = 0,
+                     n_models = 500,
+                     inf_crit = "aic",
+                     max_states = 30,
+                     n_best = 50,
                      n_initial = 100,
                      n_res = 200,
                      n_seed = 42,
                      alpha = 0.8,
                      rho = 1,
-                     lambda = 1e-4,
                      density = 0.1,
-                     type = 1,
-                     weights = NULL,
-                     penalty = NULL,
-                     scale_inputs = c(-1, 1),
                      scale_win = 0.1,
                      scale_wres = 0.5,
-                     control_tuning = list(
-                       inf_crit = "aic",
-                       pars_tune = TRUE,
-                       lower = c(1e-4, 1e-2, 1e-8, 0.01),
-                       upper = c(0.9999, 2.5, 1e-3, 0.5)),
-                     ...) {
+                     scale_inputs = c(-1, 1)) {
   
   # Number of response variables
   n_outputs <- length(tsibble::measured_vars(.data))
@@ -63,54 +49,6 @@ auto_esn <- function(.data,
   period <- common_periods(.data)
   period <- sort(as.numeric(period[period < n_obs]))
   
-  
-  # Hyperparameter optimization ===============================================
-  
-  # Starting values
-  pars <- c(
-    alpha,
-    rho,
-    lambda,
-    scale_win
-    )
-  
-  # Tune hyperparameters via L-BFGS-B
-  if (control_tuning$pars_tune == TRUE) {
-    
-    model_pars <- optim(
-      par = pars,
-      fn = tune_pars,
-      lower = control_tuning$lower,
-      upper = control_tuning$upper,
-      method = "L-BFGS-B",
-      data = .data,
-      inf_crit = control_tuning$inf_crit,
-      lags = lags,
-      fourier = fourier,
-      xreg = xreg,
-      dy = dy,
-      dx = dx,
-      n_res = n_res,
-      n_initial = n_initial,
-      n_seed = n_seed,
-      density = density,
-      type = type,
-      weights = weights,
-      penalty = penalty,
-      scale_wres = scale_wres,
-      scale_inputs = scale_inputs
-    )
-    
-    # Vector with optimized hyperparameters
-    pars <- c(
-      model_pars$par[1],
-      model_pars$par[2],
-      model_pars$par[3],
-      model_pars$par[4]
-    )
-  }
-  
-  
   # Train final model =========================================================
   
   model_fit <- train_esn(
@@ -120,17 +58,17 @@ auto_esn <- function(.data,
     xreg = xreg,
     dy = dy,
     dx = dx,
+    n_models = n_models,
+    inf_crit = inf_crit,
+    max_states = max_states,
+    n_best = n_best,
     n_res = n_res,
     n_initial = n_initial,
     n_seed = n_seed,
-    alpha = pars[1],
-    rho = pars[2],
-    lambda = pars[3],
+    alpha = alpha,
+    rho = rho,
     density = density,
-    type = type,
-    weights = weights,
-    penalty = penalty,
-    scale_win = pars[4],
+    scale_win = scale_win,
     scale_wres = scale_wres,
     scale_inputs = scale_inputs
   )
@@ -199,39 +137,22 @@ ESN <- function(formula, ...){
 forecast.ESN <- function(object,
                          new_data,
                          specials = NULL,
-                         n_sim = NULL,
                          n_seed = 42,
                          xreg = NULL,
                          ...) {
-  # Extract model
-  model_fit <- object$model
   
   # Forecast model
   model_fcst <- forecast_esn(
-    object = model_fit,
+    object = object$model,
     n_ahead = nrow(new_data),
-    n_sim = n_sim,
     n_seed = n_seed,
     xreg = xreg
     )
   
-  # Extract point forecasts
-  fcst_point <- model_fcst$point
-  
-  # Extract simulations
-  if (is.null(model_fcst$sim)) {
-    fcst_std <- rep(NA_real_, length(fcst_point))
-  } else {
-    fcst_std <- rowSds(
-      x = model_fcst$sim,
-      na.rm = TRUE
-    )
-  }
-
   # Return forecast
   dist_normal(
-    mu = fcst_point,
-    sigma = fcst_std
+    mu = model_fcst$point,
+    sigma = NA_real_
     )
 }
 

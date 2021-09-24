@@ -4,15 +4,7 @@
 \alias{forecast.ESN}
 \title{Forecast a trained ESN}
 \usage{
-\method{forecast}{ESN}(
-  object,
-  new_data,
-  specials = NULL,
-  n_sim = NULL,
-  n_seed = 42,
-  xreg = NULL,
-  ...
-)
+\method{forecast}{ESN}(object, new_data, specials = NULL, n_seed = 42, xreg = NULL, ...)
 }
 \arguments{
 \item{object}{An object of class \code{ESN}.}
@@ -21,13 +13,13 @@
 
 \item{specials}{Currently not in use}
 
-\item{n_sim}{Integer value. The number of future sample path to generate.}
-
 \item{n_seed}{Integer value. The seed for the random number generator (for reproducibility).}
 
 \item{xreg}{A \code{tsibble} containing exogenous variables.}
 
 \item{...}{Currently not in use.}
+
+\item{n_sim}{Integer value. The number of future sample path to generate.}
 }
 \value{
 An object of class \code{fable}.
