@@ -29,7 +29,8 @@ Imports:
     rlang,
     feasts,
     distributional,
-    glmnet
+    glmnet,
+    forecast
 LinkingTo:
     Rcpp,
     RcppArmadillo

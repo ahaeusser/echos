@@ -12,12 +12,7 @@ auto_esn(
   xreg = NULL,
   dy = 0,
   dx = 0,
-  n_models = 500,
-  inf_crit = "aic",
-  max_states = 30,
-  n_best = 50,
-  n_initial = 100,
-  n_res = 200,
+  inf_crit = "bic",
   n_seed = 42,
   alpha = 0.8,
   rho = 1,
@@ -41,10 +36,6 @@ auto_esn(
 \item{dy}{Integer vector. The nth-differences of the response variable.}
 
 \item{dx}{Integer vector. The nth-differences of the exogenous variables.}
-
-\item{n_initial}{Integer value. The number of observations of internal states for initial drop out (throw-off).}
-
-\item{n_res}{Integer value. The number of internal states within the reservoir (hidden layer).}
 
 \item{n_seed}{Integer value. The seed for the random number generator (for reproducibility).}
 

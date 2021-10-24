@@ -192,25 +192,6 @@ train_esn <- function(data,
       flag = "0"),
     ")")
   
-  
-  # #-------------
-  # states_train2 <- states_train^2
-  # # Names of internal states
-  # colnames(states_train2) <- paste0(
-  #   "state2","(",
-  #   formatC(
-  #     x = 1:n_res,
-  #     width = nchar(max(n_res)),
-  #     flag = "0"),
-  #   ")")
-  # Xt <- cbind(inputs, states_train, states_train2)
-  # names_states <- c(
-  #   colnames(states_train),
-  #   colnames(states_train2)
-  # )
-  # #-------------
-  
-  
   # Create output layer (train model) =========================================
   
   # Concatenate inputs and reservoir
@@ -219,7 +200,6 @@ train_esn <- function(data,
   Xt <- Xt[((n_initial + 1):nrow(Xt)), , drop = FALSE]
   yt <- y[((n_initial + 1 + (n_total - n_train)):n_total), , drop = FALSE]
   
-  
   set.seed(42)
   n_states <- sample(
     x = seq_len(max_states),
@@ -227,15 +207,17 @@ train_esn <- function(data,
     replace = TRUE
   )
   
+  set.seed(42)
   states <- map(
     .x = 1:n_models,
-    .f = ~{sample(
-      x = colnames(states_train),
-      size = n_states[.x],
-      replace = FALSE
+    .f = ~{
+      sample(
+        x = colnames(states_train),
+        size = n_states[.x],
+        replace = FALSE
+      )
+      }
     )
-    }
-  )
   
   const <- matrix(
     data = 1,
@@ -254,7 +236,7 @@ train_esn <- function(data,
       )
     }
   )
-  
+
   model_names <- paste0("model(", 1:n_models, ")")
   names(model_object) <- model_names
   
@@ -386,6 +368,8 @@ train_esn <- function(data,
   # Output model
   structure(
     list(
+      Xt = Xt,
+      yt = yt,
       actual = actual,
       fitted = fitted,
       resid = resid,

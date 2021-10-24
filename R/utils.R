@@ -629,8 +629,12 @@ predict_esn <- function(win,
   
   # Output weights (estimated coefficients)
   wout <- model_object$wout
-  # Predictor variables
+  
+  
+  # names of predictor variables (excluding intercept term)
   states <- rownames(wout)[-1]
+  
+  
   # Number of internal states (reservoir size)
   n_res <- nrow(wres)
   
@@ -670,21 +674,6 @@ predict_esn <- function(win,
     # Calculate new internal states
     states_fcst_upd[t, ] <- t(tanh(win %*% t(inputs[t, , drop = FALSE]) + wres %*% t(states_fcst[(t - 1), , drop = FALSE])))
     states_fcst[t, ] <- alpha * states_fcst_upd[t, , drop = FALSE] + (1 - alpha) * states_fcst[(t - 1), , drop = FALSE]
-    
-    # # ---------------------------------
-    # states_fcst2 <- states_fcst^2
-    # colnames(states_fcst2) <- paste0(
-    #   "state2","(",
-    #   formatC(
-    #     x = 1:n_res,
-    #     width = nchar(max(n_res)),
-    #     flag = "0"),
-    #   ")")
-    # 
-    # Xf <- cbind(1, states_fcst[t, , drop = FALSE], states_fcst2[t, , drop = FALSE])
-    # colnames(Xf) <- c("(Intercept)", colnames(states_fcst), colnames(states_fcst2))
-    # Xf <- Xf[, c("(Intercept)", states)]
-    # # ---------------------------------
     
     # Prepare design matrix
     Xf <- cbind(1, states_fcst[t, states, drop = FALSE])
