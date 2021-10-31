@@ -161,10 +161,14 @@ tune_inputs <- function(data,
     n_sample = n_models
   )
   
-  grid_fourier <- random_fourier(
-    fourier = fourier,
-    n_sample = n_models
-  )
+  if (is.null(fourier)) {
+    grid_fourier <- NULL
+  } else {
+    grid_fourier <- random_fourier(
+      fourier = fourier,
+      n_sample = n_models
+    )
+  }
   
   random_grid <- bind_cols(
     grid_lags,
@@ -217,10 +221,14 @@ tune_inputs <- function(data,
     type = "lag"
   )
   
-  input_fourier <- tibble(
-    input = colnames(y_fourier),
-    type = "fourier"
-  )
+  if (is.null(fourier)) {
+    input_fourier <- NULL
+  } else {
+    input_fourier <- tibble(
+      input = colnames(y_fourier),
+      type = "fourier"
+    )
+  }
   
   input_types <- bind_rows(
     input_lag,
