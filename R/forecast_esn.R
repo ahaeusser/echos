@@ -34,6 +34,7 @@ forecast_esn <- function(object,
   # Number of inputs, internal states within the reservoir and outputs
   n_inputs <- method$model_layers$n_inputs
   n_res <- method$model_layers$n_res
+  n_states <- method$model_layers$n_states
   n_outputs <- method$model_layers$n_outputs
   
   # Weight matrices for inputs, reservoir and outputs
@@ -49,13 +50,13 @@ forecast_esn <- function(object,
   
   # Internal states and leakage rate
   states_train <- object$states_train
-  alpha <- method$model_pars$alpha
+  model_pars <- method$model_pars
+  model_object <- method$model_object
   
   # Model inputs
   lags <- method$model_inputs$lags
   fourier <- method$model_inputs$fourier
   
-  model_object <- method$model_object
   
   # Create input layer ========================================================
   
@@ -134,15 +135,15 @@ forecast_esn <- function(object,
   
   # Predict trained models
   model_fcst <- map(
-    .x = 1:length(model_object),
+    .x = 1:length(wout),
     .f = ~{
       predict_esn(
         win = win,
         wres = wres,
-        wout = wout,
-        model_object = model_object[[.x]],
+        wout = wout[[.x]],
+        model_pars = model_pars,
+        n_states = n_states,
         n_ahead = n_ahead,
-        alpha = alpha,
         lags = lags,
         inputs = inputs,
         states_train = states_train
@@ -152,22 +153,23 @@ forecast_esn <- function(object,
   
   model_fcst <- do.call(cbind, model_fcst)
   colnames(model_fcst) <- names(model_object)
-  point <- as.matrix(rowMeans(model_fcst))
   
   # Rescaling of point forecasts
-  point <- rescale_data(
-    data = point,
+  model_fcst <- rescale_data(
+    data = model_fcst,
     old_range = old_range,
     new_range = scale_inputs
   )
   
   # Integrate differences
-  point <- inv_diff_data(
+  model_fcst <- inv_diff_data(
     data = yy,
-    data_diff = point,
+    data_diff = model_fcst,
     n_diff = dy
   )
   
+  # Calculate ensemble point forecast
+  point <- as.matrix(rowMeans(model_fcst))
   point <- as.numeric(point)
   
   # Post-processing ===========================================================

@@ -260,22 +260,22 @@ create_spec <- function(model_layers,
 #' @description This function creates the random input weight matrices.
 #' 
 #' @param n_inputs Integer value. The number of input features.
-#' @param n_res Integer value. The number of internal states within the reservoir (reservoir size).
+#' @param n_states Integer value. The number of internal states within the reservoir (reservoir size).
 #' @param scale_runif Numeric vector. The lower and upper bound of the uniform distribution.
 #' 
 #' @return win List containing the input weight matrices.
 #' @noRd
 
 create_win <- function(n_inputs,
-                       n_res,
+                       n_states,
                        scale_runif) {
   
   win <- matrix(
     data = runif(
-      n = n_res * n_inputs,
+      n = n_states * n_inputs,
       min = scale_runif[1],
       max = scale_runif[2]),
-    nrow = n_res,
+    nrow = n_states,
     ncol = n_inputs
     )
   
@@ -288,7 +288,7 @@ create_win <- function(n_inputs,
 #' @description This function creates the random reservoir weight matrix
 #'    (scaled to spectral radius rho).
 #' 
-#' @param n_res Integer value. The number of internal states within the reservoir (reservoir size).
+#' @param n_states Integer value. The number of internal states within the reservoir (reservoir size).
 #' @param rho Numeric value. The spectral radius for scaling the weight matrix.
 #' @param density Numeric value. The parameter defines the connectivity of the reservoir weight matrix (dense or sparse).
 #' @param scale_runif Numeric vector. The lower and upper bound of the uniform distribution.
@@ -297,7 +297,7 @@ create_win <- function(n_inputs,
 #' @return wres Numeric matrix. The final reservoir weight matrix.
 #' @noRd
 
-create_wres <- function(n_res,
+create_wres <- function(n_states,
                         rho,
                         density,
                         scale_runif,
@@ -306,17 +306,17 @@ create_wres <- function(n_res,
   # Create initial random weight matrix for the reservoir
   wres <- matrix(
     data = runif(
-      n = n_res * n_res,
+      n = n_states * n_states,
       min = scale_runif[1],
       max = scale_runif[2]),
-    nrow = n_res,
-    ncol = n_res
+    nrow = n_states,
+    ncol = n_states
     )
   
   # Create a random sparse pattern matrix with defined density
   wsparse <- rsparsematrix(
-    nrow = n_res,
-    ncol = n_res,
+    nrow = n_states,
+    ncol = n_states,
     density = density,
     rand.x = NULL,
     symmetric = symmetric
@@ -331,6 +331,103 @@ create_wres <- function(n_res,
   # Rescale the reservoir weight matrix to spectral radius rho
   wres <- 1 / max_abs_eig * wres * rho
   return(wres)
+}
+
+
+
+
+
+
+create_reservoir <- function(inputs,
+                             n_states,
+                             n_initial,
+                             n_seed,
+                             alpha,
+                             rho,
+                             density,
+                             scale_win,
+                             scale_wres,
+                             names) {
+  
+  # Set seed for random draws
+  set.seed(n_seed)
+  
+  # Number of inputs
+  n_inputs <- ncol(inputs)
+  
+  # Create random weight matrices for the input variables
+  win <- create_win(
+    n_inputs = n_inputs,
+    n_states = n_states,
+    scale_runif = c(-scale_win, scale_win)
+  )
+  
+  # Create random weight matrix for the reservoir
+  wres <- create_wres(
+    n_states = n_states,
+    rho = rho,
+    density = density,
+    scale_runif = c(-scale_wres, scale_wres),
+    symmetric = FALSE
+  )
+  
+  # Run reservoir (create internal states)
+  states <- run_reservoir(
+    inputs = inputs,
+    win = win,
+    wres = wres,
+    alpha = alpha
+  )
+  
+  if (!is.null(names)) {
+    colnames(states) <- names
+  }
+  
+  reservoir <- list(
+    win = win,
+    wres = wres,
+    states = states
+  )
+  
+  return(reservoir)
+}
+
+
+
+paste_names <- function(x, n) {
+  x <- paste0(
+    x,"(",
+    formatC(
+      x = 1:n,
+      width = nchar(n),
+      flag = "0"),
+    ")")
+  
+  return(x)
+}
+
+
+
+paste_names2 <- function(x, n1, n2) {
+
+  n1 <- formatC(
+    x = 1:n1,
+    width = nchar(n1),
+    flag = "0")
+  
+  n2 <- formatC(
+    x = 1:n2,
+    width = nchar(n2),
+    flag = "0")
+  
+  names <- expand_grid(
+    x = x,
+    n1 = n1,
+    n2 = n2) %>%
+    mutate(name = paste0(x, "(", n1, "-", n2, ")")) %>%
+    pull(name)
+  
+  return(names)
 }
 
 
@@ -411,21 +508,22 @@ inv_diff_data <- function(data,
                           data_diff,
                           n_diff) {
   
-  names_outputs <- colnames(data)
-  n_outputs <- ncol(data)
+  names_outputs <- colnames(data_diff)
+  n_outputs <- ncol(data_diff)
   
   y_int <- lapply(
     seq_len(n_outputs),
     function(n) {
       inv_diff_vec(
-        y = data[, n],
+        y = data,
         y_diff = data_diff[, n],
-        n_diff = n_diff[n])
-      }
-    )
+        n_diff = n_diff)
+    }
+  )
   
   y_int <- do.call(cbind, y_int)
   colnames(y_int) <- names_outputs
+  
   return(y_int)
 }
 
@@ -620,23 +718,19 @@ scale_data <- function(data,
 predict_esn <- function(win,
                         wres,
                         wout,
-                        model_object,
+                        model_pars,
+                        n_states,
                         n_ahead,
-                        alpha,
                         lags,
                         inputs,
                         states_train) {
   
-  # Output weights (estimated coefficients)
-  wout <- model_object$wout
-  
-  
   # names of predictor variables (excluding intercept term)
   states <- rownames(wout)[-1]
   
-  
-  # Number of internal states (reservoir size)
-  n_res <- nrow(wres)
+  # Number of reservoirs
+  n_res <- nrow(model_pars)
+  # n_states <- 100
   
   # Preallocate empty matrices to store point forecasts and internal states
   fcst <- matrix(
@@ -646,16 +740,31 @@ predict_esn <- function(win,
     dimnames = list(c(), colnames(wout))
   )
   
-  states_fcst_upd <- matrix(
-    data = NA_real_,
-    nrow = (n_ahead + 1),
-    ncol = (n_res),
-    dimnames = list(c(), colnames(states_train))
+  states_fcst_upd <- map(
+    .x = seq_len(n_res),
+    .f = ~{
+      matrix(
+        data = NA_real_,
+        nrow = (n_ahead + 1),
+        ncol = (n_states),
+        dimnames = list(c(), colnames(states_train[[.x]]))
+      )
+    }
   )
+  
   
   # Create copy and fill first row with last values from states_train
   states_fcst <- states_fcst_upd
-  states_fcst[1, ] <- states_train[nrow(states_train), ]
+  
+  states_fcst <- map(
+    .x = seq_len(n_res),
+    .f = ~{
+      states_fcst[[.x]][1, ] <- states_train[[.x]][nrow(states_train[[.x]]), , drop = FALSE]
+      states_fcst[[.x]]
+    }
+  )
+  
+  
   
   # Number of lags by output variable
   n_lags <- lapply(lags, length)
@@ -668,15 +777,24 @@ predict_esn <- function(win,
     }
   )
   
+  
+  
+  
   # Dynamic forecasting (iterative mode)
   for (t in 2:(n_ahead + 1)) {
     
     # Calculate new internal states
-    states_fcst_upd[t, ] <- t(tanh(win %*% t(inputs[t, , drop = FALSE]) + wres %*% t(states_fcst[(t - 1), , drop = FALSE])))
-    states_fcst[t, ] <- alpha * states_fcst_upd[t, , drop = FALSE] + (1 - alpha) * states_fcst[(t - 1), , drop = FALSE]
+    
+    for (xx in 1:n_res) {
+      states_fcst_upd[[xx]][t, ] <- t(tanh(win %*% t(inputs[t, , drop = FALSE]) + wres[[xx]] %*% t(states_fcst[[xx]][(t - 1), , drop = FALSE])))
+      states_fcst[[xx]][t, ] <- model_pars$alpha[xx] * states_fcst_upd[[xx]][t, , drop = FALSE] + (1 - model_pars$alpha[xx]) * states_fcst[[xx]][(t - 1), , drop = FALSE]
+    }
     
     # Prepare design matrix
-    Xf <- cbind(1, states_fcst[t, states, drop = FALSE])
+    Xf <- do.call(cbind, states_fcst)
+    Xf <- Xf[t, states, drop = FALSE]
+    Xf <- cbind(1, Xf)
+    
     # Calculate point forecast
     fcst[(t-1), ] <- Xf %*% wout
     

@@ -36,11 +36,11 @@ train_esn <- function(data,
                       xreg = NULL,
                       dy = 0,
                       dx = 0,
-                      n_models = 500,
                       inf_crit = "aic",
-                      max_states = 30,
+                      n_models = 500,
+                      n_vars = 30,
                       n_best = 50,
-                      n_res = 200,
+                      n_states = 200,
                       n_initial = 10,
                       n_seed = 42,
                       alpha = 0.8,
@@ -52,8 +52,24 @@ train_esn <- function(data,
   
   # Pre-processing ============================================================
   
+  model_pars <- expand_grid(
+    alpha = alpha,
+    rho = rho
+  )
+  
+  n_res <- nrow(model_pars)
+  
+  model_pars <- model_pars %>%
+    mutate(
+      reservoir = paste_names(
+        x = "reservoir",
+        n = n_res),
+      .before = alpha
+    )
+  
   # Prepare constants as integers
-  n_res <- as.integer(n_res)
+  n_states <- as.integer(n_states)
+  n_res <- as.integer(nrow(model_pars))
   n_initial <- as.integer(n_initial)
   n_seed <- as.integer(n_seed)
   
@@ -154,71 +170,76 @@ train_esn <- function(data,
   index_states <- c((1 + (n_total - n_train)):n_total)
   
   
+  names_states <- paste_names2(
+    x = "state",
+    n1 = n_res,
+    n2 = n_states
+  )
+  
+  names_states <- split(
+    x = names_states,
+    f = ceiling(seq_along(names_states) / n_states)
+  )
+  
+  model_pars <- model_pars %>%
+    mutate(
+      states = names_states,
+      .after = reservoir
+    )
+  
   # Create hidden layer (reservoir) ===========================================
   
   # Set seed for random draws
   set.seed(n_seed)
   
   # Create random weight matrices for the input variables
+  # (win is equal for all reservoirs)
   win <- create_win(
     n_inputs = n_inputs,
-    n_res = n_res,
+    n_states = n_states,
     scale_runif = c(-scale_win, scale_win)
   )
   
-  # Create random weight matrix for the reservoir
-  wres <- create_wres(
-    n_res = n_res,
-    rho = rho,
-    density = density,
-    scale_runif = c(-scale_wres, scale_wres),
-    symmetric = FALSE
+  # Create random weight matrix for each reservoir
+  wres <- map(
+    .x = seq_len(n_res),
+    .f = ~{
+      create_wres(
+        n_states = n_states,
+        rho = model_pars$rho[.x],
+        density = density,
+        scale_runif = c(-scale_wres, scale_wres),
+        symmetric = FALSE
+      )
+    }
   )
   
-  # Run reservoir (create internal states)
-  states_train <- run_reservoir(
-    inputs = inputs,
-    win = win,
-    wres = wres,
-    alpha = alpha
+  names(wres) <- model_pars$reservoir
+  
+  # Run reservoirs (create internal states)
+  states_train <- map(
+    .x = seq_len(n_res),
+    .f = ~{
+      states <- run_reservoir(
+        inputs = inputs,
+        win = win,
+        wres = wres[[.x]],
+        alpha = model_pars$alpha[.x]
+      )
+      colnames(states) <- model_pars$states[[.x]]
+      states
+    }
   )
   
-  # Names of internal states
-  colnames(states_train) <- paste0(
-    "state","(",
-    formatC(
-      x = 1:n_res,
-      width = nchar(max(n_res)),
-      flag = "0"),
-    ")")
+  names(states_train) <- model_pars$reservoir
+  
   
   # Create output layer (train model) =========================================
   
   # Concatenate inputs and reservoir
-  Xt <- cbind(inputs, states_train)
-  # Adjust response and design matrix for initial throw-off and lag-length
-  Xt <- Xt[((n_initial + 1):nrow(Xt)), , drop = FALSE]
-  yt <- y[((n_initial + 1 + (n_total - n_train)):n_total), , drop = FALSE]
+  Xt <- do.call(cbind, states_train)
   
-  set.seed(42)
-  n_states <- sample(
-    x = seq_len(max_states),
-    size = n_models,
-    replace = TRUE
-  )
-  
-  set.seed(42)
-  states <- map(
-    .x = 1:n_models,
-    .f = ~{
-      sample(
-        x = colnames(states_train),
-        size = n_states[.x],
-        replace = FALSE
-      )
-      }
-    )
-  
+  # Intercept term as matrix
   const <- matrix(
     data = 1,
     nrow = nrow(Xt),
@@ -226,18 +247,48 @@ train_esn <- function(data,
     dimnames = list(c(), "(Intercept)")
   )
   
+  # Bind intercept and predictor variables
+  Xt <- cbind(const, Xt)
+  
+  # Adjust response and design matrix for initial throw-off and lag-length
+  Xt <- Xt[((n_initial + 1):nrow(Xt)), , drop = FALSE]
+  yt <- y[((n_initial + 1 + (n_total - n_train)):n_total), , drop = FALSE]
+  
+  set.seed(n_seed)
+  
+  n_vars <- sample(
+    x = seq_len(n_vars),
+    size = n_models,
+    replace = TRUE
+  )
+  
+  states <- map(
+    .x = 1:n_models,
+    .f = ~{
+      sample(
+        x = colnames(Xt[, -1, drop = FALSE]),
+        size = n_vars[.x],
+        replace = FALSE
+      )
+    }
+  )
+  
   # Estimate models
   model_object <- map(
     .x = 1:n_models,
     .f = ~{
       fit_lm(
-        x = cbind(const, Xt[, states[[.x]], drop = FALSE]),
+        x = Xt[, c("(Intercept)", states[[.x]]), drop = FALSE],
         y = yt
       )
     }
   )
-
-  model_names <- paste0("model(", 1:n_models, ")")
+  
+  model_names <- paste_names(
+    x = "model", 
+    n = n_models
+  )
+  
   names(model_object) <- model_names
   
   # Extract model metrics
@@ -248,13 +299,15 @@ train_esn <- function(data,
   
   # Identify best models
   model_metrics <- model_metrics %>%
-    mutate(id = model_names, .before = loglik) %>%
+    mutate(
+      model = model_names,
+      .before = loglik) %>%
     arrange(!!sym(inf_crit)) %>%
     slice_head(n = n_best)
   
   # Identify best models
   model_best <- model_metrics %>%
-    pull(id)
+    pull(model)
   
   # Reduce to best models
   model_object <- model_object[model_best]
@@ -320,17 +373,11 @@ train_esn <- function(data,
     old_range = old_range
   )
   
-  # List with hyperparameters
-  model_pars <- list(
-    alpha = alpha,
-    rho = rho,
-    density = density
-  )
-  
   # List with number of inputs, internal states and outputs
   model_layers <- list(
     n_inputs = n_inputs,
     n_res = n_res,
+    n_states = n_states,
     n_outputs = n_outputs
   )
   
@@ -352,14 +399,14 @@ train_esn <- function(data,
   
   # Store results
   method <- list(
-    model_inputs = model_inputs,
     model_data = model_data,
+    model_inputs = model_inputs,
     model_metrics = model_metrics,
-    model_object = model_object,
     model_spec = model_spec,
     model_pars = model_pars,
     model_layers = model_layers,
     model_weights = model_weights,
+    model_object = model_object,
     scale_win = scale_win,
     scale_wres = scale_wres,
     scale_inputs = scale_inputs
@@ -368,8 +415,6 @@ train_esn <- function(data,
   # Output model
   structure(
     list(
-      Xt = Xt,
-      yt = yt,
       actual = actual,
       fitted = fitted,
       resid = resid,

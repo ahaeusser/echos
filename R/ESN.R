@@ -19,6 +19,7 @@ auto_esn <- function(.data,
                      dy = 0,
                      dx = 0,
                      inf_crit = "bic",
+                     n_states = 100,
                      n_seed = 42,
                      alpha = 0.8,
                      rho = 1,
@@ -32,11 +33,14 @@ auto_esn <- function(.data,
   # Number of observations
   n_obs <- nrow(.data)
   
-  #--------------------
+  model_pars <- expand_grid(
+    alpha = alpha,
+    rho = rho
+  )
   
-  n_res <- floor(n_obs * 0.5)
-  n_models <- floor(n_res * 0.5)
-  max_states <- floor(n_obs / 20)
+  n_res <- nrow(model_pars)
+  n_models <- floor(n_states * n_res * 0.5)
+  n_vars <- floor(n_obs * 0.05) # 0.05
   n_best <- floor(n_models * 0.1)
   n_initial <- floor(n_obs * 0.05)
   
@@ -44,16 +48,14 @@ auto_esn <- function(.data,
     dy <- ndiffs(as.ts(.data))
   }
   
-  #--------------------
-
   if (n_outputs > 1) {
     abort("Only univariate responses are supported by ESN.")
   }
-
+  
   if(any(is.na(.data))){
     abort("ESN does not support missing values.")
   }
-
+  
   # # Maximum seasonal period which is feasible
   # period <- common_periods(.data)
   # period <- sort(as.numeric(period[period < n_obs]))
@@ -73,7 +75,7 @@ auto_esn <- function(.data,
     n_models = n_models,
     n_seed = n_seed
   )
-
+  
   lags <- model_inputs$lags
   fourier <- model_inputs$fourier
   
@@ -86,11 +88,11 @@ auto_esn <- function(.data,
     xreg = xreg,
     dy = dy,
     dx = dx,
-    n_models = n_models,
     inf_crit = inf_crit,
-    max_states = max_states,
+    n_models = n_models,
+    n_vars = n_vars,
     n_best = n_best,
-    n_res = n_res,
+    n_states = n_states,
     n_initial = n_initial,
     n_seed = n_seed,
     alpha = alpha,

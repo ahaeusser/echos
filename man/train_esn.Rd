@@ -11,11 +11,11 @@ train_esn(
   xreg = NULL,
   dy = 0,
   dx = 0,
-  n_models = 500,
   inf_crit = "aic",
-  max_states = 30,
+  n_models = 500,
+  n_vars = 30,
   n_best = 50,
-  n_res = 200,
+  n_states = 200,
   n_initial = 10,
   n_seed = 42,
   alpha = 0.8,
@@ -39,8 +39,6 @@ train_esn(
 
 \item{dx}{Integer vector. The nth-differences of the exogenous variables.}
 
-\item{n_res}{Integer value. The number of internal states within the reservoir (hidden layer).}
-
 \item{n_initial}{Integer value. The number of observations of internal states for initial drop out (throw-off).}
 
 \item{n_seed}{Integer value. The seed for the random number generator (for reproducibility).}
@@ -56,6 +54,8 @@ train_esn(
 \item{scale_wres}{Numeric value. The lower and upper bound of the uniform distribution for scaling the reservoir weight matrix.}
 
 \item{scale_inputs}{Numeric vector. The lower and upper bound for scaling the time series data.}
+
+\item{n_res}{Integer value. The number of internal states within the reservoir (hidden layer).}
 }
 \value{
 A \code{list} containing:

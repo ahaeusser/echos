@@ -13,6 +13,7 @@ auto_esn(
   dy = 0,
   dx = 0,
   inf_crit = "bic",
+  n_states = 100,
   n_seed = 42,
   alpha = 0.8,
   rho = 1,
