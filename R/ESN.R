@@ -39,8 +39,23 @@ auto_esn <- function(.data,
   )
   
   n_res <- nrow(model_pars)
+  
+  
+  
+  # ---------------------------------------------
+  
   n_models <- floor(n_states * n_res * 0.5)
-  n_vars <- floor(n_obs * 0.05) # 0.05
+  
+  if (n_models > 500) {
+    n_models <- 500
+    }
+  
+  n_vars <- floor(n_obs * 0.05) # 0.1
+  
+  # ---------------------------------------------
+  
+  
+  
   n_best <- floor(n_models * 0.1)
   n_initial <- floor(n_obs * 0.05)
   
@@ -294,6 +309,7 @@ report.ESN <- function(object) {
   
   n_inputs <- method$model_layer$n_inputs
   n_res <- method$model_layer$n_res
+  n_states <- method$model_layer$n_states
   n_outputs <- method$model_layer$n_outputs
   
   lags <- unlist(method$model_inputs$lags)
@@ -321,30 +337,25 @@ report.ESN <- function(object) {
     dx <- as.numeric(method$model_inputs$dx)
   }
   
-  alpha <- round(method$model_pars$alpha, 3)
-  rho <- round(method$model_pars$rho, 3)
-  lambda <- round(method$model_pars$lambda, 3)
-  density <- round(method$model_pars$density, 3)
+  alpha <- unique(method$model_pars$alpha)
+  rho <- unique(method$model_pars$rho)
+  density <- unique(method$model_pars$density)
   
-  dof <- round(method$model_metrics$dof, 3)
-  aic <- round(method$model_metrics$aic, 3)
-  bic <- round(method$model_metrics$bic, 3)
-  hqc <- round(method$model_metrics$hqc, 3)
-  
-  scale_win <- round(method$scale_win, 3)
-  scale_wres <- round(method$scale_wres, 3)
-  scale_inputs <- round(method$scale_inputs, 3)
+  scale_win <- method$scale_win
+  scale_wres <- method$scale_wres
+  scale_inputs <- method$scale_inputs
   
   cat(
     "\nNetwork size:", "\n",
-    "Inputs    = ", n_inputs, "\n",
-    "Reservoir = ", n_res, "\n",
-    "Outputs   = ", n_outputs, "\n"
+    "inputs     = ", n_inputs, "\n",
+    "reservoirs = ", n_res, "\n",
+    "states     = ", n_states, "\n",
+    "outputs    = ", n_outputs, "\n"
   )
   
   cat(
     "\nModel inputs:", "\n",
-    "lags    = ", lags, "\n",
+    "lags    = ", paste0("(", paste0(lags, collapse = ", "), ")"), "\n",
     "fourier = ", fourier, "\n",
     "xreg    = ", xreg, "\n"
   )
@@ -357,31 +368,22 @@ report.ESN <- function(object) {
   
   cat(
     "\nScaling (input data): \n",
-    "scale_inputs = ", "(", scale_inputs[1], ", ", scale_inputs[2], ")", "\n",
+    "scale_inputs = ", "[", scale_inputs[1], ", ", scale_inputs[2], "]", "\n",
     sep = ""
   )
   
   cat(
-    "\nScaling (weights): \n",
-    "scale_win  = ", "(", -scale_win, ", ", scale_win, ")", "\n",
-    "scale_wres = ", "(", -scale_wres, ", ", scale_wres, ")", "\n",
+    "\nScaling (weight matrices): \n",
+    "scale_win  = ", "[", -scale_win, ", ", scale_win, "]", "\n",
+    "scale_wres = ", "[", -scale_wres, ", ", scale_wres, "]", "\n",
     sep = ""
   )
   
   cat(
     "\nHyperparameters:", "\n",
-    "alpha   = ", alpha, "\n",
-    "rho     = ", rho, "\n",
-    "lambda  = ", lambda, "\n",
-    "density = ", density, "\n"
-  )
-  
-  cat(
-    "\nMetrics:", "\n",
-    "dof  = ", dof, "\n",
-    "aic  = ", aic, "\n",
-    "bic  = ", bic, "\n",
-    "hqc  = ", hqc, "\n"
+    "alpha   = ", paste0("(", paste0(alpha, collapse = ", "), ")"), "\n",
+    "rho     = ", paste0("(", paste0(rho, collapse = ", "), ")"), "\n",
+    "density = ", paste0("(", paste0(density, collapse = ", "), ")"), "\n"
   )
   
 }
