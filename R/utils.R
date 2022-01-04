@@ -207,49 +207,31 @@ rotate <- function(x) {
 #' 
 #' @description This function creates the model specification (short summary) as a string.
 #'
-#' @param model_layers List containing the number of inputs (n_inputs), reservoir size (n_res) and the number of outputs (n_outputs).
-#' @param model_pars List containing the hyperparameters alpha, rho, lambda and density.
-#' @param model_inputs List containing the model inputs (lags, fourier).
+#' @param model_layers List containing the number of inputs (n_inputs), 
+#'   reservoir size (n_res), internal states (n_states) and the number of 
+#'   outputs (n_outputs).
 #'
 #' @return model_spec Character value. The model specification as string.
 #' @noRd
 
-create_spec <- function(model_layers,
-                        model_pars,
-                        model_inputs) {
+create_spec <- function(model_layers) {
   
-  # Number of inputs and outputs and reservoir size
-  str_layer <- paste0(
-    "{",
-    model_layers$n_inputs, ",",
-    model_layers$n_res, ",",
-    model_layers$n_outputs,
-    "}")
-  
-  # Hyperparameters
-  str_pars <- paste0(
-    "{",
-    round(model_pars$alpha, 2), ",",
-    round(model_pars$rho, 2), ",",
-    round(model_pars$lambda, 2),
-    "}")
-  
-  # Seasonality and periodicity
-  if (is.null(model_inputs$fourier)) {
-    str_fourier <- NULL
-  } else {
-    str_fourier <- paste(
-      ", {",
-      paste("(", model_inputs$fourier[[1]], "-", model_inputs$fourier[[2]], ")",
-            collapse = ",",
-            sep = ""),
-      "}",
-      sep = "")
-  }
+  # Number of input variables
+  n_inputs <- model_layers$n_inputs
+  # Number of reservoirs
+  n_res <- model_layers$n_res
+  # Number of internal states per reservoir
+  n_states <- model_layers$n_states
+  # Number of output variables
+  n_outputs <- model_layers$n_outputs
   
   # Model specification
   model_spec <- paste0(
-    "ESN", "(", str_layer, ", ", str_pars, str_fourier, ")")
+    "ESN", "(", 
+    n_inputs, ",", 
+    "{", n_res, ",", n_states, "}", ",", 
+    n_outputs, 
+    ")")
   
   return(model_spec)
 }

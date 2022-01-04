@@ -54,7 +54,8 @@ train_esn <- function(data,
   
   model_pars <- expand_grid(
     alpha = alpha,
-    rho = rho
+    rho = rho,
+    density = density
   )
   
   n_res <- nrow(model_pars)
@@ -388,14 +389,8 @@ train_esn <- function(data,
     wout = wout
   )
   
-  # # Create model specification (short summary)
-  # model_spec <- create_spec(
-  #   model_layers = model_layers,
-  #   model_pars = model_pars,
-  #   model_inputs = model_inputs
-  # )
-  
-  model_spec <- "dummy"
+  # Create model specification (short summary)
+  model_spec <- create_spec(model_layers = model_layers)
   
   # Store results
   method <- list(
