@@ -27,9 +27,7 @@ Imports:
     Matrix,
     matrixStats,
     rlang,
-    feasts,
     distributional,
-    glmnet,
     forecast
 LinkingTo:
     Rcpp,

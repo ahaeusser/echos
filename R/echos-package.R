@@ -4,13 +4,11 @@
 #' @importFrom strex str_nth_number
 #' @importFrom matrixStats colCumsums colDiffs colMins colMaxs rowSds
 #' @importFrom Matrix rsparsematrix
-#' @importFrom feasts unitroot_ndiffs unitroot_kpss
 #' @importFrom forecast ndiffs
 #' @importFrom rlang is_empty .data abort
 #' @importFrom stats complete.cases diffinv na.omit optim pacf qnorm runif lm as.ts
 #' @importFrom utils tail
 #' @importFrom distributional dist_normal
-#' @importFrom glmnet glmnet cv.glmnet
 #' @importFrom broom glance
 #' @import Rcpp
 #' @import RcppArmadillo
