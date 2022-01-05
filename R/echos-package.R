@@ -6,10 +6,9 @@
 #' @importFrom Matrix rsparsematrix
 #' @importFrom forecast ndiffs
 #' @importFrom rlang is_empty .data abort
-#' @importFrom stats complete.cases diffinv na.omit optim pacf qnorm runif lm as.ts
+#' @importFrom stats complete.cases diffinv na.omit runif lm as.ts coef lm.fit predict
 #' @importFrom utils tail
 #' @importFrom distributional dist_normal
-#' @importFrom broom glance
 #' @import Rcpp
 #' @import RcppArmadillo
 #' @import tsibble
