@@ -2,7 +2,7 @@
 % Please edit documentation in R/tune_inputs.R
 \name{tune_inputs}
 \alias{tune_inputs}
-\title{Best subset regression to select model inputs}
+\title{Random subset regression to select model inputs}
 \usage{
 tune_inputs(
   data,
@@ -19,7 +19,7 @@ tune_inputs(
 )
 }
 \arguments{
-\item{data}{A \code{tsibble} containing the time series data.}
+\item{data}{A \code{tsibble} containing the response variable.}
 
 \item{lags}{A \code{list} containing integer vectors with the lags associated with each input variable.}
 
@@ -35,23 +35,21 @@ tune_inputs(
 
 \item{scale_inputs}{Numeric vector. The lower and upper bound for scaling the time series data.}
 
-\item{inf_crit}{Character value. The information criterion \code{inf_crit = c("aic", "bic", "hq")}.}
+\item{inf_crit}{Character value. The information criterion used for variable selection \code{inf_crit = c("aic", "aicc", "bic")}.}
 
-\item{n_models}{Integer value. The number of random samples for random search.}
+\item{n_models}{Integer value. The maximum number of (random) models to train for model selection.}
 
 \item{n_seed}{Integer value. The seed for the random number generator (for reproducibility).}
 }
 \value{
 A \code{list} containing:
   \itemize{
-    \item{\code{const}: Logical value. If \code{TRUE}, an intercept term is used.}
     \item{\code{lags}: A \code{list} containing integer vectors with the lags associated with each input variable.}
-    \item{\code{n_fourier}: Integer vector. The number of fourier terms (seasonal cycles per period).}
+    \item{\code{fourier}: Integer vector. The fourier terms (seasonal cycles per period).}
     }
 }
 \description{
-The function \code{tune_inputs()} performs best subset
+The function \code{tune_inputs()} performs random subset
   regression to identify the optimal model inputs. The models are estimated
-  via Ordinary Least Squares (OLS). If the number of all possible models
-  exceeds \code{n_sample}, a random search is performed.
+  via Ordinary Least Squares (OLS).
 }

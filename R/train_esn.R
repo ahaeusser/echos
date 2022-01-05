@@ -10,7 +10,11 @@
 #' @param xreg A \code{tsibble} containing exogenous variables.
 #' @param dy Integer vector. The nth-differences of the response variable.
 #' @param dx Integer vector. The nth-differences of the exogenous variables.
-#' @param n_res Integer value. The number of internal states within the reservoir (hidden layer).
+#' @param inf_crit Character value. The information criterion used for variable selection \code{inf_crit = c("aic", "aicc", "bic")}.
+#' @param n_models Integer value. The maximum number of (random) models to train for model selection.
+#' @param n_vars Integer value. The maximum number of predictor variables per model. 
+#' @param n_best Integer value. The number of best models to use for ensemble model.
+#' @param n_states Integer value. The number of internal states per reservoir.
 #' @param n_initial Integer value. The number of observations of internal states for initial drop out (throw-off).
 #' @param n_seed Integer value. The seed for the random number generator (for reproducibility).
 #' @param alpha Numeric value. The leakage rate (smoothing parameter) applied to the reservoir.
@@ -69,10 +73,20 @@ train_esn <- function(data,
     )
   
   # Prepare constants as integers
+  n_models <- as.integer(n_models)
+  n_vars <- as.integer(n_vars)
+  n_best <- as.integer(n_best)
   n_states <- as.integer(n_states)
-  n_res <- as.integer(nrow(model_pars))
   n_initial <- as.integer(n_initial)
   n_seed <- as.integer(n_seed)
+  n_res <- as.integer(nrow(model_pars))
+  
+  # Store ensemble information
+  model_ensemble <- tibble(
+    n_models = n_models,
+    n_best = n_best,
+    n_vars = n_vars
+  )
   
   # Prepare exogenous variables
   if (is.null(xreg)) {
@@ -123,7 +137,6 @@ train_esn <- function(data,
   
   y <- scaled$data
   old_range <- scaled$old_range
-  
   
   # Create input layer ========================================================
   
@@ -234,7 +247,6 @@ train_esn <- function(data,
   
   names(states_train) <- model_pars$reservoir
   
-  
   # Create output layer (train model) =========================================
   
   # Concatenate inputs and reservoir
@@ -302,7 +314,7 @@ train_esn <- function(data,
   model_metrics <- model_metrics %>%
     mutate(
       model = model_names,
-      .before = loglik) %>%
+      .before = .data$loglik) %>%
     arrange(!!sym(inf_crit)) %>%
     slice_head(n = n_best)
   
@@ -355,7 +367,6 @@ train_esn <- function(data,
   fitted <- c(rep(NA_real_, n_total - n_obs), fitted)
   resid <- c(rep(NA_real_, n_total - n_obs), resid)
   
-  
   # Post-processing ===========================================================
   
   # Store model data for forecasting
@@ -402,6 +413,7 @@ train_esn <- function(data,
     model_layers = model_layers,
     model_weights = model_weights,
     model_object = model_object,
+    model_ensemble = model_ensemble,
     scale_win = scale_win,
     scale_wres = scale_wres,
     scale_inputs = scale_inputs

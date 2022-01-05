@@ -317,64 +317,51 @@ create_wres <- function(n_states,
 
 
 
+#' @title Convert a named list of matrices into a tibble in long format.
+#' 
+#' @description The function converts a named list of matrices into a tibble in
+#'   long format. Furthermore, the function adds an additional column 
+#'   \code{lst_name} with the original names of the list. The column names of
+#'   the matrices are within the column \code{col_name}.
+#'
+#' @param x A named list containing matrices
+#' @param lst_name Character value.
+#' @param col_name Character value.
+#'
+#' @return A tibble.
+#' @noRd
 
-
-
-create_reservoir <- function(inputs,
-                             n_states,
-                             n_initial,
-                             n_seed,
-                             alpha,
-                             rho,
-                             density,
-                             scale_win,
-                             scale_wres,
-                             names) {
+lst_to_df <- function(x, lst_name, col_name) {
   
-  # Set seed for random draws
-  set.seed(n_seed)
+  names <- names(x)
   
-  # Number of inputs
-  n_inputs <- ncol(inputs)
-  
-  # Create random weight matrices for the input variables
-  win <- create_win(
-    n_inputs = n_inputs,
-    n_states = n_states,
-    scale_runif = c(-scale_win, scale_win)
+  df <- map_dfr(
+    .x = seq_len(length(x)),
+    .f = ~{
+      x[[.x]] %>%
+        as_tibble() %>%
+        mutate(idx = row_number()) %>%
+        pivot_longer(
+          cols = -idx,
+          names_to = col_name,
+          values_to = "value") %>%
+        arrange(!!sym(col_name)) %>%
+        mutate(!!sym(lst_name) := names[.x], .before = col_name)
+    }
   )
-  
-  # Create random weight matrix for the reservoir
-  wres <- create_wres(
-    n_states = n_states,
-    rho = rho,
-    density = density,
-    scale_runif = c(-scale_wres, scale_wres),
-    symmetric = FALSE
-  )
-  
-  # Run reservoir (create internal states)
-  states <- run_reservoir(
-    inputs = inputs,
-    win = win,
-    wres = wres,
-    alpha = alpha
-  )
-  
-  if (!is.null(names)) {
-    colnames(states) <- names
-  }
-  
-  reservoir <- list(
-    win = win,
-    wres = wres,
-    states = states
-  )
-  
-  return(reservoir)
 }
 
 
+#' @title Helper function to concatenate a string and one number.
+#' 
+#' @description Helper function to concatenate a string and one number (e.g.
+#'   test(1), test(2), ..., test(n)).
+#'
+#' @param x Character value.
+#' @param n Integer value.
+#'
+#' @return x Character vector.
+#' @noRd
 
 paste_names <- function(x, n) {
   x <- paste0(
@@ -389,6 +376,16 @@ paste_names <- function(x, n) {
 }
 
 
+#' @title Helper function to concatenate a string and two numbers.
+#' 
+#' @description Helper function to concatenate a string and two numbers,
+#'   separated by a minus sign (e.g. test(1-1), test(1-2), ..., test(n1-n2)).
+#'
+#' @param x Character value.
+#' @param n Integer value.
+#'
+#' @return x Character vector.
+#' @noRd
 
 paste_names2 <- function(x, n1, n2) {
 
@@ -407,7 +404,7 @@ paste_names2 <- function(x, n1, n2) {
     n1 = n1,
     n2 = n2) %>%
     mutate(name = paste0(x, "(", n1, "-", n2, ")")) %>%
-    pull(name)
+    pull(.data$name)
   
   return(names)
 }
@@ -734,7 +731,6 @@ predict_esn <- function(win,
     }
   )
   
-  
   # Create copy and fill first row with last values from states_train
   states_fcst <- states_fcst_upd
   
@@ -746,8 +742,6 @@ predict_esn <- function(win,
     }
   )
   
-  
-  
   # Number of lags by output variable
   n_lags <- lapply(lags, length)
   
@@ -758,9 +752,6 @@ predict_esn <- function(win,
       paste(colnames(wout)[n], "(", lags[[n]], ")", sep = "")
     }
   )
-  
-  
-  
   
   # Dynamic forecasting (iterative mode)
   for (t in 2:(n_ahead + 1)) {
@@ -794,73 +785,4 @@ predict_esn <- function(win,
   }
   
   return(fcst)
-}
-
-
-#' @title Simulate a fitted ESN
-#' 
-#' @description Simulate future sample path from a fitted ESN.
-#' 
-#' @param win Numeric matrix. Weights for the input variables.
-#' @param wres Numeric matrix. Weights for the reservoir.
-#' @param wout Numeric matrix. Weights for the output variables (estimated coefficients from ridge regression).
-#' @param model_object An object of class \code{glmnet}.
-#' @param n_ahead Integer value. The number of periods for forecasting (forecast horizon).
-#' @param alpha Numeric value. The Leakage rate (smoothing parameter).
-#' @param lags List containing integer vectors with the lags associated with each output variable.
-#' @param inputs Numeric matrix. Initialized input features (gets updated during forecasting process).
-#' @param states_train Numeric matrix. Internal states from training (necessary due to last values).
-#' @param error Numeric matrix. The innovations for simulation (re-sampled residuals from fitted model).
-#' @param n_sim Integer value. The number of simulations.
-#' 
-#' @return sim A \code{list} with simulated future sample paths as numeric matrix.
-#' @noRd
-
-simulate_esn <- function(win,
-                         wres,
-                         wout,
-                         model_object,
-                         n_ahead,
-                         alpha,
-                         lags,
-                         inputs,
-                         states_train,
-                         error,
-                         n_sim) {
-  
-  # Number of response variables
-  n_outputs <- ncol(wout)
-  
-  # Create list of matrices sampled from residuals
-  innov <- lapply(
-    seq_len(n_sim),
-    function(n_sim) {
-      sapply(
-        seq_len(n_outputs),
-        function(n_outputs) {
-          sample(error[, n_outputs], size = n_ahead, replace = TRUE)
-          }
-        )
-      }
-    )
-  
-  # Simulate future sample path with normal distributed innovations
-  sim <- lapply(
-    innov,
-    function(innov) {
-      predict_esn(
-        win = win,
-        wres = wres,
-        wout = wout,
-        model_object = model_object,
-        n_ahead = n_ahead,
-        alpha = alpha,
-        lags = lags,
-        inputs = inputs,
-        states_train = states_train,
-        innov = innov)$fcst
-      }
-    )
-  
-  return(sim)
 }

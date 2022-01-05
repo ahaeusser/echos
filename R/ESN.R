@@ -171,7 +171,6 @@ ESN <- function(formula, ...){
 #' @param object An object of class \code{ESN}.
 #' @param new_data Forecast horizon (n-step ahead forecast)
 #' @param specials Currently not in use
-#' @param n_sim Integer value. The number of future sample path to generate.
 #' @param n_seed Integer value. The seed for the random number generator (for reproducibility).
 #' @param xreg A \code{tsibble} containing exogenous variables.
 #' @param ... Currently not in use.
@@ -307,11 +306,18 @@ report.ESN <- function(object) {
   
   method <- object$model$method
   
+  # Layers
   n_inputs <- method$model_layer$n_inputs
   n_res <- method$model_layer$n_res
   n_states <- method$model_layer$n_states
   n_outputs <- method$model_layer$n_outputs
   
+  # Ensemble
+  n_models <- method$model_ensemble$n_models
+  n_best <- method$model_ensemble$n_best
+  n_vars <- method$model_ensemble$n_vars
+  
+  # Inputs
   lags <- unlist(method$model_inputs$lags)
   fourier <- method$model_inputs$fourier
   
@@ -327,6 +333,7 @@ report.ESN <- function(object) {
       sep = "")
   }
   
+  # Differences
   dy <- as.numeric(method$model_inputs$dy)
   
   if (is.null(method$model_data$xx)) {
@@ -337,50 +344,54 @@ report.ESN <- function(object) {
     dx <- as.numeric(method$model_inputs$dx)
   }
   
+  # Hyperparameters
   alpha <- unique(method$model_pars$alpha)
   rho <- unique(method$model_pars$rho)
   density <- unique(method$model_pars$density)
   
+  # Scaling
   scale_win <- method$scale_win
   scale_wres <- method$scale_wres
   scale_inputs <- method$scale_inputs
   
   cat(
-    "\nNetwork size:", "\n",
-    "inputs     = ", n_inputs, "\n",
-    "reservoirs = ", n_res, "\n",
-    "states     = ", n_states, "\n",
-    "outputs    = ", n_outputs, "\n"
+    "\n--- Layers -----------------------------------------------------", "\n",
+    "n_inputs  = ", n_inputs, "\n",
+    "n_res     = ", n_res, "\n",
+    "n_states  = ", n_states, "\n",
+    "n_outputs = ", n_outputs, "\n"
   )
   
   cat(
-    "\nModel inputs:", "\n",
+    "\n--- Ensemble ---------------------------------------------------", "\n",
+    "n_models = ", n_models, "\n",
+    "n_best   = ", n_best, "\n",
+    "n_vars   = ", n_vars, "\n"
+  )
+  
+  cat(
+    "\n--- Inputs -----------------------------------------------------", "\n",
     "lags    = ", paste0("(", paste0(lags, collapse = ", "), ")"), "\n",
     "fourier = ", fourier, "\n",
     "xreg    = ", xreg, "\n"
   )
   
   cat(
-    "\nDifferences:", "\n",
+    "\n--- Differences ------------------------------------------------", "\n",
     "dy = ", dy, "\n",
     "dx = ", dx, "\n"
   )
   
   cat(
-    "\nScaling (input data): \n",
+    "\n--- Scaling ----------------------------------------------------", "\n",
     "scale_inputs = ", "[", scale_inputs[1], ", ", scale_inputs[2], "]", "\n",
+    "scale_win    = ", "[", -scale_win, ", ", scale_win, "]", "\n",
+    "scale_wres   = ", "[", -scale_wres, ", ", scale_wres, "]", "\n",
     sep = ""
   )
   
   cat(
-    "\nScaling (weight matrices): \n",
-    "scale_win  = ", "[", -scale_win, ", ", scale_win, "]", "\n",
-    "scale_wres = ", "[", -scale_wres, ", ", scale_wres, "]", "\n",
-    sep = ""
-  )
-  
-  cat(
-    "\nHyperparameters:", "\n",
+    "\n--- Hyperparameters --------------------------------------------", "\n",
     "alpha   = ", paste0("(", paste0(alpha, collapse = ", "), ")"), "\n",
     "rho     = ", paste0("(", paste0(rho, collapse = ", "), ")"), "\n",
     "density = ", paste0("(", paste0(density, collapse = ", "), ")"), "\n"
@@ -415,7 +426,7 @@ reservoir.mdl_df <- function(object) {
       cols = mable_vars(object),
       names_to = ".model",
       values_to = ".spec"
-      )
+    )
   
   key_tbl <- object %>%
     as_tibble() %>%
@@ -425,15 +436,11 @@ reservoir.mdl_df <- function(object) {
   object <- map(
     .x = seq_len(nrow(key_tbl)),
     .f = ~{
-      object[[".spec"]][[.x]]$fit$model$states_train %>%
-        as_tibble() %>%
-        mutate(idx = row_number()) %>%
-        relocate(.data$idx) %>%
-        pivot_longer(
-          cols = -.data$idx,
-          names_to = "state",
-          values_to = "value") %>%
-        arrange(.data$state)
+      lst_to_df(
+        x = object[[".spec"]][[.x]]$fit$model$states_train,
+        lst_name = "reservoir",
+        col_name = "state"
+      )
     }
   )
   
@@ -502,7 +509,7 @@ extract_esn.mdl_df <- function(object) {
       cols = mable_vars(object),
       names_to = ".model",
       values_to = ".spec"
-      )
+    )
   
   key_tbl <- object %>%
     as_tibble() %>%
@@ -519,24 +526,22 @@ extract_esn.mdl_df <- function(object) {
         spec       = lst_mdl[["model_spec"]],
         n_inputs   = lst_mdl[["model_layers"]][["n_inputs"]],
         n_res      = lst_mdl[["model_layers"]][["n_res"]],
+        n_states   = lst_mdl[["model_layers"]][["n_states"]],
         n_outputs  = lst_mdl[["model_layers"]][["n_outputs"]],
+        n_models   = lst_mdl[["model_ensemble"]][["n_models"]],
+        n_best     = lst_mdl[["model_ensemble"]][["n_best"]],
+        n_vars     = lst_mdl[["model_ensemble"]][["n_vars"]],
         lags       = list(lst_mdl[["model_inputs"]][["lags"]]),
         fourier    = list(lst_mdl[["model_inputs"]][["fourier"]]),
         dy         = lst_mdl[["model_inputs"]][["dy"]],
         dx         = lst_mdl[["model_inputs"]][["dx"]],
         scale_win  = lst_mdl[["scale_win"]],
         scale_wres = lst_mdl[["scale_wres"]],
-        alpha      = lst_mdl[["model_pars"]][["alpha"]],
-        rho        = lst_mdl[["model_pars"]][["rho"]],
-        lambda     = lst_mdl[["model_pars"]][["lambda"]],
-        density    = lst_mdl[["model_pars"]][["density"]],
-        dof        = lst_mdl[["model_metrics"]][["dof"]],
-        aic        = lst_mdl[["model_metrics"]][["aic"]],
-        bic        = lst_mdl[["model_metrics"]][["bic"]],
-        hqc        = lst_mdl[["model_metrics"]][["hqc"]]
+        alpha      = list(unique(lst_mdl[["model_pars"]][["alpha"]])),
+        rho        = list(unique(lst_mdl[["model_pars"]][["rho"]])),
+        density    = list(unique(lst_mdl[["model_pars"]][["density"]]))
       )
     })
-  
   
   # Add columns with key variables
   object <- map(

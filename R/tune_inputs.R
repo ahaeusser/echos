@@ -1,28 +1,16 @@
 
-#' @title Best subset regression to select model inputs
+#' @title Random subset regression to select model inputs
 #' 
-#' @description The function \code{tune_inputs()} performs best subset
+#' @description The function \code{tune_inputs()} performs random subset
 #'   regression to identify the optimal model inputs. The models are estimated
-#'   via Ordinary Least Squares (OLS). If the number of all possible models
-#'   exceeds \code{n_sample}, a random search is performed.
+#'   via Ordinary Least Squares (OLS).
 #'
-#' @param data A \code{tsibble} containing the time series data.
-#' @param lags A \code{list} containing integer vectors with the lags associated with each input variable.
-#' @param fourier A \code{list} containing the periods and the number of fourier terms as integer vector.
-#' @param xreg A \code{tsibble} containing exogenous variables.
-#' @param dy Integer vector. The nth-differences of the response variable.
-#' @param dx Integer vector. The nth-differences of the exogenous variables.
-#' @param n_initial Integer value. The number of observations of internal states for initial drop out (throw-off).
-#' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data.
-#' @param inf_crit Character value. The information criterion \code{inf_crit = c("aic", "bic", "hq")}.
-#' @param n_models Integer value. The number of random samples for random search.
-#' @param n_seed Integer value. The seed for the random number generator (for reproducibility).
+#' @inheritParams train_esn
 #'
 #' @return A \code{list} containing:
 #'   \itemize{
-#'     \item{\code{const}: Logical value. If \code{TRUE}, an intercept term is used.}
 #'     \item{\code{lags}: A \code{list} containing integer vectors with the lags associated with each input variable.}
-#'     \item{\code{n_fourier}: Integer vector. The number of fourier terms (seasonal cycles per period).}
+#'     \item{\code{fourier}: Integer vector. The fourier terms (seasonal cycles per period).}
 #'     } 
 #' @export
 
@@ -209,7 +197,7 @@ tune_inputs <- function(data,
   
   # Identify best models
   model_metrics <- model_metrics %>%
-    mutate(id = model_names, .before = loglik) %>%
+    mutate(id = model_names, .before = .data$loglik) %>%
     arrange(!!sym(inf_crit)) %>%
     slice_head(n = 1)
   
@@ -245,8 +233,8 @@ tune_inputs <- function(data,
   if (any(model_inputs$type == "lag")) {
     lags <- model_inputs %>%
       filter(type == "lag") %>%
-      mutate(value = str_nth_number(input, n = 1)) %>%
-      pull(value) %>%
+      mutate(value = str_nth_number(.data$input, n = 1)) %>%
+      pull(.data$value) %>%
       list()
   } else {
     # If usage is zero for all lags, at least lag one is used (fallback option)
@@ -257,10 +245,10 @@ tune_inputs <- function(data,
   if (any(model_inputs$type == "fourier")) {
     fourier <- model_inputs %>%
       filter(type == "fourier") %>%
-      mutate(k = str_nth_number(input, n = 1)) %>%
-      mutate(period = str_nth_number(input, n = 2)) %>%
-      group_by(period) %>%
-      summarise(k = max(k, na.rm = TRUE), .groups = "drop")
+      mutate(k = str_nth_number(.data$input, n = 1)) %>%
+      mutate(period = str_nth_number(.data$input, n = 2)) %>%
+      group_by(.data$period) %>%
+      summarise(k = max(.data$k, na.rm = TRUE), .groups = "drop")
     
     fourier <- list(
       fourier$period,

@@ -38,6 +38,10 @@ auto_esn(
 
 \item{dx}{Integer vector. The nth-differences of the exogenous variables.}
 
+\item{inf_crit}{Character value. The information criterion used for variable selection \code{inf_crit = c("aic", "aicc", "bic")}.}
+
+\item{n_states}{Integer value. The number of internal states per reservoir.}
+
 \item{n_seed}{Integer value. The seed for the random number generator (for reproducibility).}
 
 \item{alpha}{Numeric value. The leakage rate (smoothing parameter) applied to the reservoir.}

@@ -39,6 +39,16 @@ train_esn(
 
 \item{dx}{Integer vector. The nth-differences of the exogenous variables.}
 
+\item{inf_crit}{Character value. The information criterion used for variable selection \code{inf_crit = c("aic", "aicc", "bic")}.}
+
+\item{n_models}{Integer value. The maximum number of (random) models to train for model selection.}
+
+\item{n_vars}{Integer value. The maximum number of predictor variables per model.}
+
+\item{n_best}{Integer value. The number of best models to use for ensemble model.}
+
+\item{n_states}{Integer value. The number of internal states per reservoir.}
+
 \item{n_initial}{Integer value. The number of observations of internal states for initial drop out (throw-off).}
 
 \item{n_seed}{Integer value. The seed for the random number generator (for reproducibility).}
@@ -54,8 +64,6 @@ train_esn(
 \item{scale_wres}{Numeric value. The lower and upper bound of the uniform distribution for scaling the reservoir weight matrix.}
 
 \item{scale_inputs}{Numeric vector. The lower and upper bound for scaling the time series data.}
-
-\item{n_res}{Integer value. The number of internal states within the reservoir (hidden layer).}
 }
 \value{
 A \code{list} containing:

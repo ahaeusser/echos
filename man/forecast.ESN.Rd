@@ -18,8 +18,6 @@
 \item{xreg}{A \code{tsibble} containing exogenous variables.}
 
 \item{...}{Currently not in use.}
-
-\item{n_sim}{Integer value. The number of future sample path to generate.}
 }
 \value{
 An object of class \code{fable}.
