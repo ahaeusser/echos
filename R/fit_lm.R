@@ -1,13 +1,18 @@
 
 #' @title Estimate a linear model via Ordinary Least Squares
 #' 
-#' @description Estimate a linear model via Ordinary Least Squares.
+#' @description Estimate a linear model via Ordinary Least Squares (OLS). 
+#'   \code{fit_lm()} is a wrapper function for \code{stats::lm.fit()} with some
+#'   additional output like goodness-of-fit metrics (e.g. information criteria). 
+#'   The function is slightly faster than \code{stats::lm()}, bit most 
+#'   importantly, the resulting object size is much smaller.
 #'
 #' @param X Numeric matrix. The design matrix containing the predictor variables.
 #' @param y Numeric matrix. The response variable(s).
 #'
-#' @return A list containing the estimated coefficients, fitted values etc.
-#' @noRd
+#' @return A list containing the estimated coefficients, fitted values and some
+#'   goodness-of-fit metrics.
+#' @export
 
 fit_lm <- function(x, y) {
   
@@ -51,5 +56,4 @@ fit_lm <- function(x, y) {
     fitted = fitted,
     metrics = metrics
   )
-  
 }
