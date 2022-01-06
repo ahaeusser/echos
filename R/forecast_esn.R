@@ -184,3 +184,114 @@ forecast_esn <- function(object,
     class = "forecast_esn"
     )
 }
+
+
+#' @title Forecast a trained Echo State Network (internal function)
+#' 
+#' @description Calculate point forecasts of a trained Echo State Network
+#'   (internal function).
+#' 
+#' @param win Numeric matrix. Weights for the input variables.
+#' @param wres Numeric matrix. Weights for the reservoir.
+#' @param wout Numeric matrix. Weights for output variables (estimated coefficients from ridge regression).
+#' @param model_object An object of class \code{glmnet}.
+#' @param n_ahead Integer value. The forecast horizon (n-step ahead).
+#' @param alpha Numeric value. The Leakage rate (smoothing parameter).
+#' @param lags List containing integer vectors with the lags associated with each output variable.
+#' @param inputs Numeric matrix. Initialized input features (gets updated during forecasting process).
+#' @param states_train Numeric matrix. Internal states from training (necessary due to last values).
+#' 
+#' @return Numeric matrix containing the forecasts.
+#' @noRd
+
+predict_esn <- function(win,
+                        wres,
+                        wout,
+                        model_pars,
+                        n_states,
+                        n_ahead,
+                        lags,
+                        inputs,
+                        states_train) {
+  
+  # names of predictor variables (excluding intercept term)
+  states <- rownames(wout)[-1]
+  
+  # Number of reservoirs
+  n_res <- nrow(model_pars)
+  
+  # Preallocate empty matrices to store point forecasts and internal states
+  fcst <- matrix(
+    data = NA_real_,
+    nrow = n_ahead,
+    ncol = 1,
+    dimnames = list(c(), colnames(wout))
+  )
+  
+  states_fcst_upd <- map(
+    .x = seq_len(n_res),
+    .f = ~{
+      matrix(
+        data = NA_real_,
+        nrow = (n_ahead + 1),
+        ncol = (n_states),
+        dimnames = list(c(), colnames(states_train[[.x]]))
+      )
+    }
+  )
+  
+  # Create copy and fill first row with last values from states_train
+  states_fcst <- states_fcst_upd
+  
+  states_fcst <- map(
+    .x = seq_len(n_res),
+    .f = ~{
+      states_fcst[[.x]][1, ] <- states_train[[.x]][nrow(states_train[[.x]]), , drop = FALSE]
+      states_fcst[[.x]]
+    }
+  )
+  
+  # Number of lags by output variable
+  n_lags <- lapply(lags, length)
+  
+  # Names of lagged variables as list
+  names_lags_list <- lapply(
+    seq_len(ncol(wout)),
+    function(n) {
+      paste(colnames(wout)[n], "(", lags[[n]], ")", sep = "")
+    }
+  )
+  
+  # Dynamic forecasting (iterative mode)
+  for (t in 2:(n_ahead + 1)) {
+    
+    # Calculate new internal states
+    
+    for (xx in 1:n_res) {
+      states_fcst_upd[[xx]][t, ] <- t(tanh(win %*% t(inputs[t, , drop = FALSE]) + wres[[xx]] %*% t(states_fcst[[xx]][(t - 1), , drop = FALSE])))
+      states_fcst[[xx]][t, ] <- model_pars$alpha[xx] * states_fcst_upd[[xx]][t, , drop = FALSE] + (1 - model_pars$alpha[xx]) * states_fcst[[xx]][(t - 1), , drop = FALSE]
+    }
+    
+    # Prepare design matrix
+    Xf <- do.call(cbind, states_fcst)
+    Xf <- Xf[t, states, drop = FALSE]
+    Xf <- cbind(1, Xf)
+    
+    # Calculate point forecast
+    fcst[(t-1), ] <- Xf %*% wout
+    
+    # Update lagged variables in inputs
+    for (i in seq_len(ncol(wout))) {
+      # Column index for block-wise looping and updating (by variable)
+      index_col <- names_lags_list[[i]]
+      # Row index for block-wise looping and updating (by variable)
+      index_row <- inputs[, index_col, drop = FALSE]
+      index_row <- as.numeric(apply(index_row, MARGIN = 2, FUN = function(x) min(which(is.na(x)))))
+      for (ii in seq_len(n_lags[[i]])) {
+        inputs[index_row[ii], index_col[ii]] <- fcst[(t-1), i]
+      }
+    }
+  }
+  
+  return(fcst)
+}
