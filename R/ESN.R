@@ -50,7 +50,7 @@ auto_esn <- function(.data,
     n_models <- 500
     }
   
-  n_vars <- floor(n_obs * 0.05) # 0.1
+  n_vars <- floor(n_obs * 0.1) # 0.1
   
   # ---------------------------------------------
   
