@@ -18,13 +18,15 @@ auto_esn <- function(.data,
                      xreg = NULL,
                      dy = 0,
                      dx = 0,
-                     inf_crit = "bic",
-                     n_states = 100,
+                     inf_crit = "mse",
+                     n_res = 10,
+                     n_states = 50,
+                     n_models = 500,
                      n_seed = 42,
-                     alpha = 0.8,
-                     rho = 1,
+                     alpha = c(0.25, 0.75),
+                     rho = c(0.5, 1),
                      density = 0.1,
-                     scale_win = 0.1,
+                     scale_win = c(0.01, 1),
                      scale_wres = 0.5,
                      scale_inputs = c(-1, 1)) {
   
@@ -33,29 +35,7 @@ auto_esn <- function(.data,
   # Number of observations
   n_obs <- nrow(.data)
   
-  model_pars <- expand_grid(
-    alpha = alpha,
-    rho = rho
-  )
-  
-  n_res <- nrow(model_pars)
-  
-  
-  
-  # ---------------------------------------------
-  
-  n_models <- floor(n_states * n_res * 0.5)
-  
-  if (n_models > 500) {
-    n_models <- 500
-    }
-  
-  n_vars <- floor(n_obs * 0.1) # 0.1
-  
-  # ---------------------------------------------
-  
-  
-  
+  n_vars <- floor(n_obs * 0.1)
   n_best <- floor(n_models * 0.1)
   n_initial <- floor(n_obs * 0.05)
   
@@ -107,6 +87,7 @@ auto_esn <- function(.data,
     n_models = n_models,
     n_vars = n_vars,
     n_best = n_best,
+    n_res = n_res,
     n_states = n_states,
     n_initial = n_initial,
     n_seed = n_seed,

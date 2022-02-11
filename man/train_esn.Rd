@@ -15,13 +15,14 @@ train_esn(
   n_models = 500,
   n_vars = 30,
   n_best = 50,
-  n_states = 200,
+  n_res = 10,
+  n_states = 50,
   n_initial = 10,
   n_seed = 42,
-  alpha = 0.8,
-  rho = 1,
+  alpha = c(0.25, 0, 75),
+  rho = c(0.5, 1),
   density = 0.1,
-  scale_win = 0.1,
+  scale_win = c(0.01, 1),
   scale_wres = 0.5,
   scale_inputs = c(-1, 1)
 )

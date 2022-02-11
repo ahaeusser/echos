@@ -170,6 +170,7 @@ forecast_esn <- function(object,
   
   # Calculate ensemble point forecast
   point <- as.matrix(rowMeans(model_fcst))
+  # point <- as.matrix(rowMedians(model_fcst))
   point <- as.numeric(point)
   
   # Post-processing ===========================================================
@@ -268,7 +269,7 @@ predict_esn <- function(win,
     # Calculate new internal states
     
     for (xx in 1:n_res) {
-      states_fcst_upd[[xx]][t, ] <- t(tanh(win %*% t(inputs[t, , drop = FALSE]) + wres[[xx]] %*% t(states_fcst[[xx]][(t - 1), , drop = FALSE])))
+      states_fcst_upd[[xx]][t, ] <- t(tanh(win[[xx]] %*% t(inputs[t, , drop = FALSE]) + wres[[xx]] %*% t(states_fcst[[xx]][(t - 1), , drop = FALSE])))
       states_fcst[[xx]][t, ] <- model_pars$alpha[xx] * states_fcst_upd[[xx]][t, , drop = FALSE] + (1 - model_pars$alpha[xx]) * states_fcst[[xx]][(t - 1), , drop = FALSE]
     }
     

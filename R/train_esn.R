@@ -44,33 +44,18 @@ train_esn <- function(data,
                       n_models = 500,
                       n_vars = 30,
                       n_best = 50,
-                      n_states = 200,
+                      n_res = 10,
+                      n_states = 50,
                       n_initial = 10,
                       n_seed = 42,
-                      alpha = 0.8,
-                      rho = 1,
+                      alpha = c(0.25, 0,75),
+                      rho = c(0.5, 1),
                       density = 0.1,
-                      scale_win = 0.1,
+                      scale_win = c(0.01, 1),
                       scale_wres = 0.5,
                       scale_inputs = c(-1, 1)) {
   
   # Pre-processing ============================================================
-  
-  model_pars <- expand_grid(
-    alpha = alpha,
-    rho = rho,
-    density = density
-  )
-  
-  n_res <- nrow(model_pars)
-  
-  model_pars <- model_pars %>%
-    mutate(
-      reservoir = paste_names(
-        x = "reservoir",
-        n = n_res),
-      .before = alpha
-    )
   
   # Prepare constants as integers
   n_models <- as.integer(n_models)
@@ -79,7 +64,42 @@ train_esn <- function(data,
   n_states <- as.integer(n_states)
   n_initial <- as.integer(n_initial)
   n_seed <- as.integer(n_seed)
-  n_res <- as.integer(nrow(model_pars))
+  n_res <- as.integer(n_res)
+  
+  set.seed(n_seed)
+  
+  alpha <- runif(
+    n = n_res,
+    min = min(alpha),
+    max = max(alpha)
+  )
+  
+  rho <- runif(
+    n = n_res,
+    min = min(rho),
+    max = max(rho)
+  )
+  
+  scale_win <- runif(
+    n = n_res,
+    min = min(scale_win),
+    max = max(scale_win)
+  )
+  
+  model_pars <- tibble(
+    alpha = alpha,
+    rho = rho,
+    scale_win = scale_win,
+    density = density
+  )
+  
+  model_pars <- model_pars %>%
+    mutate(
+      reservoir = paste_names(
+        x = "reservoir",
+        n = n_res),
+      .before = alpha
+    )
   
   # Store ensemble information
   model_ensemble <- tibble(
@@ -207,11 +227,15 @@ train_esn <- function(data,
   set.seed(n_seed)
   
   # Create random weight matrices for the input variables
-  # (win is equal for all reservoirs)
-  win <- create_win(
-    n_inputs = n_inputs,
-    n_states = n_states,
-    scale_runif = c(-scale_win, scale_win)
+  win <- map(
+    .x = seq_len(n_res),
+    .f = ~{
+      create_win(
+        n_inputs = n_inputs,
+        n_states = n_states,
+        scale_runif = c(-model_pars[["scale_win"]][.x], model_pars[["scale_win"]][.x])
+      )
+    }
   )
   
   # Create random weight matrix for each reservoir
@@ -220,7 +244,7 @@ train_esn <- function(data,
     .f = ~{
       create_wres(
         n_states = n_states,
-        rho = model_pars$rho[.x],
+        rho = model_pars[["rho"]][.x],
         density = density,
         scale_runif = c(-scale_wres, scale_wres),
         symmetric = FALSE
@@ -236,9 +260,9 @@ train_esn <- function(data,
     .f = ~{
       states <- run_reservoir(
         inputs = inputs,
-        win = win,
+        win = win[[.x]],
         wres = wres[[.x]],
-        alpha = model_pars$alpha[.x]
+        alpha = model_pars[["alpha"]][.x]
       )
       colnames(states) <- model_pars$states[[.x]]
       states

@@ -12,13 +12,15 @@ auto_esn(
   xreg = NULL,
   dy = 0,
   dx = 0,
-  inf_crit = "bic",
-  n_states = 100,
+  inf_crit = "mse",
+  n_res = 10,
+  n_states = 50,
+  n_models = 500,
   n_seed = 42,
-  alpha = 0.8,
-  rho = 1,
+  alpha = c(0.25, 0.75),
+  rho = c(0.5, 1),
   density = 0.1,
-  scale_win = 0.1,
+  scale_win = c(0.01, 1),
   scale_wres = 0.5,
   scale_inputs = c(-1, 1)
 )
@@ -41,6 +43,8 @@ auto_esn(
 \item{inf_crit}{Character value. The information criterion used for variable selection \code{inf_crit = c("aic", "aicc", "bic")}.}
 
 \item{n_states}{Integer value. The number of internal states per reservoir.}
+
+\item{n_models}{Integer value. The maximum number of (random) models to train for model selection.}
 
 \item{n_seed}{Integer value. The seed for the random number generator (for reproducibility).}
 
