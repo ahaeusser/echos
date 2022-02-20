@@ -18,15 +18,14 @@ auto_esn <- function(.data,
                      xreg = NULL,
                      dy = 0,
                      dx = 0,
-                     inf_crit = "mse",
-                     n_res = 10,
-                     n_states = 50,
+                     inf_crit = "aic",
+                     n_states = 500,
                      n_models = 500,
                      n_seed = 42,
-                     alpha = c(0.25, 0.75),
-                     rho = c(0.5, 1),
+                     alpha = 1,
+                     rho = 1,
                      density = 0.1,
-                     scale_win = c(0.01, 1),
+                     scale_win = 0.5,
                      scale_wres = 0.5,
                      scale_inputs = c(-1, 1)) {
   
@@ -36,6 +35,7 @@ auto_esn <- function(.data,
   n_obs <- nrow(.data)
   
   n_vars <- floor(n_obs * 0.1)
+  n_vars <- 100
   n_best <- floor(n_models * 0.1)
   n_initial <- floor(n_obs * 0.05)
   
@@ -57,22 +57,22 @@ auto_esn <- function(.data,
   
   # Tune model inputs (lags and fourier terms) ================================
   
-  model_inputs <- tune_inputs(
-    data = .data,
-    lags = lags,
-    fourier = fourier,
-    xreg = xreg,
-    dy = dy,
-    dx = dx,
-    n_initial = n_initial,
-    scale_inputs = scale_inputs,
-    inf_crit = inf_crit,
-    n_models = n_models,
-    n_seed = n_seed
-  )
-  
-  lags <- model_inputs$lags
-  fourier <- model_inputs$fourier
+  # model_inputs <- tune_inputs(
+  #   data = .data,
+  #   lags = lags,
+  #   fourier = fourier,
+  #   xreg = xreg,
+  #   dy = dy,
+  #   dx = dx,
+  #   n_initial = n_initial,
+  #   scale_inputs = scale_inputs,
+  #   inf_crit = inf_crit,
+  #   n_models = n_models,
+  #   n_seed = n_seed
+  # )
+  # 
+  # lags <- model_inputs$lags
+  # fourier <- model_inputs$fourier
   
   # Train final model =========================================================
   
@@ -87,7 +87,6 @@ auto_esn <- function(.data,
     n_models = n_models,
     n_vars = n_vars,
     n_best = n_best,
-    n_res = n_res,
     n_states = n_states,
     n_initial = n_initial,
     n_seed = n_seed,

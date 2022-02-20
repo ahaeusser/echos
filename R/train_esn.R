@@ -42,16 +42,15 @@ train_esn <- function(data,
                       dx = 0,
                       inf_crit = "aic",
                       n_models = 500,
-                      n_vars = 30,
+                      n_vars = 100,
                       n_best = 50,
-                      n_res = 10,
-                      n_states = 50,
+                      n_states = 500,
                       n_initial = 10,
                       n_seed = 42,
-                      alpha = c(0.25, 0,75),
-                      rho = c(0.5, 1),
+                      alpha = 1,
+                      rho = 1,
                       density = 0.1,
-                      scale_win = c(0.01, 1),
+                      scale_win = 0.5,
                       scale_wres = 0.5,
                       scale_inputs = c(-1, 1)) {
   
@@ -64,34 +63,45 @@ train_esn <- function(data,
   n_states <- as.integer(n_states)
   n_initial <- as.integer(n_initial)
   n_seed <- as.integer(n_seed)
-  n_res <- as.integer(n_res)
   
-  set.seed(n_seed)
   
-  alpha <- runif(
-    n = n_res,
-    min = min(alpha),
-    max = max(alpha)
-  )
   
-  rho <- runif(
-    n = n_res,
-    min = min(rho),
-    max = max(rho)
-  )
+  # n_res <- as.integer(n_res)
+  #
+  # set.seed(n_seed)
+  # 
+  # alpha <- runif(
+  #   n = n_res,
+  #   min = min(alpha),
+  #   max = max(alpha)
+  # )
+  # 
+  # rho <- runif(
+  #   n = n_res,
+  #   min = min(rho),
+  #   max = max(rho)
+  # )
+  # 
+  # scale_win <- runif(
+  #   n = n_res,
+  #   min = min(scale_win),
+  #   max = max(scale_win)
+  # )
+  # 
+  # model_pars <- tibble(
+  #   alpha = alpha,
+  #   rho = rho,
+  #   scale_win = scale_win,
+  #   density = density
+  # )
   
-  scale_win <- runif(
-    n = n_res,
-    min = min(scale_win),
-    max = max(scale_win)
-  )
-  
-  model_pars <- tibble(
+  model_pars <- expand_grid(
     alpha = alpha,
     rho = rho,
     scale_win = scale_win,
     density = density
   )
+  n_res <- nrow(model_pars)
   
   model_pars <- model_pars %>%
     mutate(
