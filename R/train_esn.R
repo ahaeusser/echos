@@ -303,18 +303,29 @@ train_esn <- function(data,
   
   set.seed(n_seed)
   
-  n_vars <- sample(
-    x = seq_len(n_vars),
-    size = n_models,
-    replace = TRUE
-  )
+  # n_vars <- sample(
+  #   x = seq_len(n_vars),
+  #   size = n_models,
+  #   replace = TRUE
+  # )
+  # 
+  # states <- map(
+  #   .x = 1:n_models,
+  #   .f = ~{
+  #     sample(
+  #       x = colnames(Xt[, -1, drop = FALSE]),
+  #       size = n_vars[.x],
+  #       replace = FALSE
+  #     )
+  #   }
+  # )
   
   states <- map(
     .x = 1:n_models,
     .f = ~{
       sample(
         x = colnames(Xt[, -1, drop = FALSE]),
-        size = n_vars[.x],
+        size = n_vars,
         replace = FALSE
       )
     }

@@ -15,6 +15,7 @@ auto_esn(
   inf_crit = "aic",
   n_states = 500,
   n_models = 500,
+  n_vars = 50,
   n_seed = 42,
   alpha = 1,
   rho = 1,
@@ -44,6 +45,8 @@ auto_esn(
 \item{n_states}{Integer value. The number of internal states per reservoir.}
 
 \item{n_models}{Integer value. The maximum number of (random) models to train for model selection.}
+
+\item{n_vars}{Integer value. The maximum number of predictor variables per model.}
 
 \item{n_seed}{Integer value. The seed for the random number generator (for reproducibility).}
 

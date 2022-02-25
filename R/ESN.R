@@ -21,6 +21,7 @@ auto_esn <- function(.data,
                      inf_crit = "aic",
                      n_states = 500,
                      n_models = 500,
+                     n_vars = 50,
                      n_seed = 42,
                      alpha = 1,
                      rho = 1,
@@ -34,8 +35,7 @@ auto_esn <- function(.data,
   # Number of observations
   n_obs <- nrow(.data)
   
-  n_vars <- floor(n_obs * 0.1)
-  n_vars <- 100
+  # n_vars <- floor(n_obs * 0.1)
   n_best <- floor(n_models * 0.1)
   n_initial <- floor(n_obs * 0.05)
   
