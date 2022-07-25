@@ -12,10 +12,10 @@ train_esn(
   dy = 0,
   dx = 0,
   inf_crit = "aic",
-  n_models = 500,
-  n_vars = 100,
+  n_states = 100,
+  n_models = 100,
+  n_vars = 10,
   n_best = 50,
-  n_states = 500,
   n_initial = 10,
   n_seed = 42,
   alpha = 1,
@@ -41,13 +41,13 @@ train_esn(
 
 \item{inf_crit}{Character value. The information criterion used for variable selection \code{inf_crit = c("aic", "aicc", "bic")}.}
 
+\item{n_states}{Integer value. The number of internal states per reservoir.}
+
 \item{n_models}{Integer value. The maximum number of (random) models to train for model selection.}
 
 \item{n_vars}{Integer value. The maximum number of predictor variables per model.}
 
 \item{n_best}{Integer value. The number of best models to use for ensemble model.}
-
-\item{n_states}{Integer value. The number of internal states per reservoir.}
 
 \item{n_initial}{Integer value. The number of observations of internal states for initial drop out (throw-off).}
 

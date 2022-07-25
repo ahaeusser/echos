@@ -5,7 +5,6 @@
 #' 
 #' @param object An object of class \code{ESN}. The result of a call to \code{train_esn()} or \code{auto_esn()}.
 #' @param n_ahead Integer value. The number of periods for forecasting (forecast horizon).
-#' @param n_seed Integer value. The seed for the random number generator (for reproducibility).
 #' @param xreg A \code{tsibble} containing exogenous variables.
 #' 
 #' @return A \code{list} containing:
@@ -18,7 +17,6 @@
 
 forecast_esn <- function(object,
                          n_ahead = 12,
-                         n_seed = 42,
                          xreg = NULL) {
   
   # Pre-processing ============================================================
@@ -33,7 +31,6 @@ forecast_esn <- function(object,
   
   # Number of inputs, internal states within the reservoir and outputs
   n_inputs <- method$model_layers$n_inputs
-  n_res <- method$model_layers$n_res
   n_states <- method$model_layers$n_states
   n_outputs <- method$model_layers$n_outputs
   
@@ -50,7 +47,6 @@ forecast_esn <- function(object,
   
   # Internal states and leakage rate
   states_train <- object$states_train
-  model_pars <- method$model_pars
   model_object <- method$model_object
   
   # Model inputs
@@ -141,7 +137,7 @@ forecast_esn <- function(object,
         win = win,
         wres = wres,
         wout = wout[[.x]],
-        model_pars = model_pars,
+        alpha = alpha,
         n_states = n_states,
         n_ahead = n_ahead,
         lags = lags,
@@ -170,7 +166,6 @@ forecast_esn <- function(object,
   
   # Calculate ensemble point forecast
   point <- as.matrix(rowMeans(model_fcst))
-  # point <- as.matrix(rowMedians(model_fcst))
   point <- as.numeric(point)
   
   # Post-processing ===========================================================
@@ -195,9 +190,9 @@ forecast_esn <- function(object,
 #' @param win Numeric matrix. Weights for the input variables.
 #' @param wres Numeric matrix. Weights for the reservoir.
 #' @param wout Numeric matrix. Weights for output variables (estimated coefficients from ridge regression).
-#' @param model_object An object of class \code{glmnet}.
-#' @param n_ahead Integer value. The forecast horizon (n-step ahead).
 #' @param alpha Numeric value. The Leakage rate (smoothing parameter).
+#' @param n_states Integer value. The number of internal states.
+#' @param n_ahead Integer value. The forecast horizon (n-step ahead).
 #' @param lags List containing integer vectors with the lags associated with each output variable.
 #' @param inputs Numeric matrix. Initialized input features (gets updated during forecasting process).
 #' @param states_train Numeric matrix. Internal states from training (necessary due to last values).
@@ -208,7 +203,7 @@ forecast_esn <- function(object,
 predict_esn <- function(win,
                         wres,
                         wout,
-                        model_pars,
+                        alpha,
                         n_states,
                         n_ahead,
                         lags,
@@ -218,9 +213,6 @@ predict_esn <- function(win,
   # names of predictor variables (excluding intercept term)
   states <- rownames(wout)[-1]
   
-  # Number of reservoirs
-  n_res <- nrow(model_pars)
-  
   # Preallocate empty matrices to store point forecasts and internal states
   fcst <- matrix(
     data = NA_real_,
@@ -229,28 +221,16 @@ predict_esn <- function(win,
     dimnames = list(c(), colnames(wout))
   )
   
-  states_fcst_upd <- map(
-    .x = seq_len(n_res),
-    .f = ~{
-      matrix(
-        data = NA_real_,
-        nrow = (n_ahead + 1),
-        ncol = (n_states),
-        dimnames = list(c(), colnames(states_train[[.x]]))
-      )
-    }
+  states_fcst_upd <- matrix(
+    data = NA_real_,
+    nrow = (n_ahead + 1),
+    ncol = (n_states),
+    dimnames = list(c(), colnames(states_train))
   )
   
   # Create copy and fill first row with last values from states_train
   states_fcst <- states_fcst_upd
-  
-  states_fcst <- map(
-    .x = seq_len(n_res),
-    .f = ~{
-      states_fcst[[.x]][1, ] <- states_train[[.x]][nrow(states_train[[.x]]), , drop = FALSE]
-      states_fcst[[.x]]
-    }
-  )
+  states_fcst[1, ] <- states_train[nrow(states_train), , drop = FALSE]
   
   # Number of lags by output variable
   n_lags <- lapply(lags, length)
@@ -267,15 +247,11 @@ predict_esn <- function(win,
   for (t in 2:(n_ahead + 1)) {
     
     # Calculate new internal states
-    
-    for (xx in 1:n_res) {
-      states_fcst_upd[[xx]][t, ] <- t(tanh(win[[xx]] %*% t(inputs[t, , drop = FALSE]) + wres[[xx]] %*% t(states_fcst[[xx]][(t - 1), , drop = FALSE])))
-      states_fcst[[xx]][t, ] <- model_pars$alpha[xx] * states_fcst_upd[[xx]][t, , drop = FALSE] + (1 - model_pars$alpha[xx]) * states_fcst[[xx]][(t - 1), , drop = FALSE]
-    }
+    states_fcst_upd[t, ] <- t(tanh(win %*% t(inputs[t, , drop = FALSE]) + wres %*% t(states_fcst[(t - 1), , drop = FALSE])))
+    states_fcst[t, ] <- alpha * states_fcst_upd[t, , drop = FALSE] + (1 - alpha) * states_fcst[(t - 1), , drop = FALSE]
     
     # Prepare design matrix
-    Xf <- do.call(cbind, states_fcst)
-    Xf <- Xf[t, states, drop = FALSE]
+    Xf <- states_fcst[t, states, drop = FALSE]
     Xf <- cbind(1, Xf)
     
     # Calculate point forecast

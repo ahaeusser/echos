@@ -28,7 +28,8 @@ Imports:
     matrixStats,
     rlang,
     distributional,
-    forecast
+    forecast,
+    MASS
 LinkingTo:
     Rcpp,
     RcppArmadillo

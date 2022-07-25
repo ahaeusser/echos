@@ -4,7 +4,7 @@
 \alias{forecast.ESN}
 \title{Forecast a trained ESN}
 \usage{
-\method{forecast}{ESN}(object, new_data, specials = NULL, n_seed = 42, xreg = NULL, ...)
+\method{forecast}{ESN}(object, new_data, specials = NULL, xreg = NULL, ...)
 }
 \arguments{
 \item{object}{An object of class \code{ESN}.}
@@ -12,8 +12,6 @@
 \item{new_data}{Forecast horizon (n-step ahead forecast)}
 
 \item{specials}{Currently not in use}
-
-\item{n_seed}{Integer value. The seed for the random number generator (for reproducibility).}
 
 \item{xreg}{A \code{tsibble} containing exogenous variables.}
 

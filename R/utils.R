@@ -188,136 +188,6 @@ create_fourier <- function(x,
 }
 
 
-#' @title Create random grid of lags
-#' 
-#' @description The function creates a \code{tibble} with random combinations
-#'    of lags (sampling with replacement). The number of combinations (rows)
-#'    is given by \code{n_sample} and the number of columns is determined by
-#'    \code{y_lag}.
-#'
-#' @param y_lag Numeric matrix. The result of a call to \code{create_lags()}.
-#' @param n_sample Integer value. The number of random samples.
-#'
-#' @return out Random grid of lags as \code{tibble}.
-#' @noRd 
-
-random_lags <- function(y_lag,
-                        n_sample = 1000) {
-  
-  out <- matrix(
-    data = 0,
-    nrow = n_sample,
-    ncol = ncol(y_lag),
-    dimnames = list(c(), colnames(y_lag)))
-  
-  for (i in seq_len(n_sample)) {
-    index <- sort(sample(
-      x = seq_len(ncol(y_lag)),
-      size = sample(
-        x = seq_len(ncol(y_lag)),
-        size = 1),
-      replace = FALSE))
-    out[i, index] <- 1
-  }
-  
-  out <- as_tibble(out)
-  return(out)
-}
-
-
-#' @title Create random grid of fourier terms
-#' 
-#' @description The function creates a \code{tibble} with random combinations
-#'    of fourier terms (sampling with replacement). The number of combinations
-#'    (rows) is given by \code{n_sample} and the number of columns is
-#'    determined by \code{fourier} (period and k). One fourier term is 
-#'    always a pair of sine and cosine terms. If higher order fourier terms
-#'    are used, it is assumed that the previous terms are added too.
-#'
-#' @param fourier A \code{list} containing the periods and the number of fourier terms as integer vector.
-#' @param n_sample Integer value. The number of random samples.
-#'
-#' @return out Random grid of fourier terms as \code{tibble}.
-#' @noRd
-
-random_fourier <- function(fourier,
-                           n_sample = 1000) {
-  
-  # Prepare vectors with number of fourier terms k and periods
-  fourier <- tibble(
-    period = fourier[[1]],
-    k = fourier[[2]]) %>%
-    filter(k != 0)
-  
-  period <- fourier$period
-  k <- fourier$k
-  
-  # Initialize empty list
-  out <- vector(
-    mode = "list",
-    length = length(period)
-  )
-  
-  # Create matrices with zeros and ones as blocks
-  for (j in 1:length(period)) {
-    
-    # Initialize matrix with zeros
-    mat <- matrix(
-      data = 0,
-      nrow = k[j],
-      ncol = k[j])
-    
-    # Fill lower triangular with ones
-    mat[lower.tri(mat, diag = TRUE)] <- 1
-    
-    # Repeat each column two times (one for sine and one for cosine)
-    mat <- matrix(
-      data = rep(mat, each = 2),
-      ncol = 2 * ncol(mat), 
-      byrow = TRUE)
-    
-    # Add row with zeros and flip matrix
-    mat <- rbind(mat, 0)
-    mat <- rotate(rotate(mat))
-    
-    colnames(mat) <- paste0(
-      paste0(c("sin(", "cos("), rep(1:k[j], rep(2, k[j]))),
-      "-", round(period[j]), ")")
-    
-    # Store matrices in list
-    out[[j]] <- mat
-  }
-  
-  # Merge matrices for multiple periods or extract just the matrix
-  if (length(period) > 1) {
-    out <- do.call(merge, out)
-  } else {
-    out <- out[[1]]
-  }
-  
-  out <- as_tibble(out) %>%
-    sample_n(
-      size = n_sample,
-      replace = TRUE)
-  
-  return(out)
-}
-
-
-#' @title Rotate a matrix
-#' 
-#' @description Little helper function to rotate a matrix. If you apply rotate
-#'    two times, the matrix is flipped (\code{rotate(rotate(x))}).
-#'
-#' @param x Numeric matrix.
-#'
-#' @return Numeric matrix.
-#' @noRd
-
-rotate <- function(x) {
-  t(apply(x, 2, rev))
-}
-
 
 #' @title Create model specification
 #' 
@@ -381,6 +251,7 @@ create_win <- function(n_inputs,
 }
 
 
+
 #' @title Create the reservoir weight matrix
 #' 
 #' @description This function creates the random reservoir weight matrix
@@ -433,41 +304,6 @@ create_wres <- function(n_states,
 
 
 
-#' @title Convert a named list of matrices into a tibble in long format.
-#' 
-#' @description The function converts a named list of matrices into a tibble in
-#'   long format. Furthermore, the function adds an additional column 
-#'   \code{lst_name} with the original names of the list. The column names of
-#'   the matrices are within the column \code{col_name}.
-#'
-#' @param x A named list containing matrices
-#' @param lst_name Character value.
-#' @param col_name Character value.
-#'
-#' @return A tibble.
-#' @noRd
-
-lst_to_df <- function(x, lst_name, col_name) {
-  
-  names <- names(x)
-  
-  df <- map_dfr(
-    .x = seq_len(length(x)),
-    .f = ~{
-      x[[.x]] %>%
-        as_tibble() %>%
-        mutate(idx = row_number()) %>%
-        pivot_longer(
-          cols = -idx,
-          names_to = col_name,
-          values_to = "value") %>%
-        arrange(!!sym(col_name)) %>%
-        mutate(!!sym(lst_name) := names[.x], .before = col_name)
-    }
-  )
-}
-
-
 #' @title Helper function to concatenate a string and one number.
 #' 
 #' @description Helper function to concatenate a string and one number (e.g.
@@ -491,39 +327,6 @@ paste_names <- function(x, n) {
   return(x)
 }
 
-
-#' @title Helper function to concatenate a string and two numbers.
-#' 
-#' @description Helper function to concatenate a string and two numbers,
-#'   separated by a minus sign (e.g. test(1-1), test(1-2), ..., test(n1-n2)).
-#'
-#' @param x Character value.
-#' @param n Integer value.
-#'
-#' @return x Character vector.
-#' @noRd
-
-paste_names2 <- function(x, n1, n2) {
-
-  n1 <- formatC(
-    x = 1:n1,
-    width = nchar(n1),
-    flag = "0")
-  
-  n2 <- formatC(
-    x = 1:n2,
-    width = nchar(n2),
-    flag = "0")
-  
-  names <- expand_grid(
-    x = x,
-    n1 = n1,
-    n2 = n2) %>%
-    mutate(name = paste0(x, "(", n1, "-", n2, ")")) %>%
-    pull(.data$name)
-  
-  return(names)
-}
 
 
 #' @title Calculate nth-differences of a numeric matrix

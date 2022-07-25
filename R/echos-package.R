@@ -9,6 +9,7 @@
 #' @importFrom stats complete.cases diffinv na.omit runif lm as.ts coef lm.fit predict
 #' @importFrom utils tail
 #' @importFrom distributional dist_normal
+#' @importFrom MASS rlm
 #' @import Rcpp
 #' @import RcppArmadillo
 #' @import tsibble

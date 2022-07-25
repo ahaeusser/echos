@@ -1,11 +1,10 @@
 
-#' @title Estimate a linear model via Ordinary Least Squares
+#' @title Estimate a linear model via robust regression
 #' 
-#' @description Estimate a linear model via Ordinary Least Squares (OLS). 
-#'   \code{fit_lm()} is a wrapper function for \code{stats::lm.fit()} with some
+#' @description Estimate a linear model via robust regression. 
+#'   \code{fit_rlm()} is a wrapper function for \code{MASS::rlm()} with some
 #'   additional output like goodness-of-fit metrics (e.g. information criteria). 
-#'   The function is slightly faster than \code{stats::lm()}, bit most 
-#'   importantly, the resulting object size is much smaller.
+#'   The resulting object size is much smaller.
 #'
 #' @param X Numeric matrix. The design matrix containing the predictor variables.
 #' @param y Numeric matrix. The response variable(s).
@@ -14,10 +13,10 @@
 #'   goodness-of-fit metrics.
 #' @export
 
-fit_lm <- function(x, y) {
+fit_rlm <- function(x, y) {
   
   # Fit linear model
-  model <- lm.fit(
+  model <- rlm(
     x = x,
     y = y
   )

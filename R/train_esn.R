@@ -12,9 +12,9 @@
 #' @param dx Integer vector. The nth-differences of the exogenous variables.
 #' @param inf_crit Character value. The information criterion used for variable selection \code{inf_crit = c("aic", "aicc", "bic")}.
 #' @param n_models Integer value. The maximum number of (random) models to train for model selection.
+#' @param n_states Integer value. The number of internal states per reservoir.
 #' @param n_vars Integer value. The maximum number of predictor variables per model. 
 #' @param n_best Integer value. The number of best models to use for ensemble model.
-#' @param n_states Integer value. The number of internal states per reservoir.
 #' @param n_initial Integer value. The number of observations of internal states for initial drop out (throw-off).
 #' @param n_seed Integer value. The seed for the random number generator (for reproducibility).
 #' @param alpha Numeric value. The leakage rate (smoothing parameter) applied to the reservoir.
@@ -41,10 +41,10 @@ train_esn <- function(data,
                       dy = 0,
                       dx = 0,
                       inf_crit = "aic",
-                      n_models = 500,
-                      n_vars = 100,
+                      n_states = 100,
+                      n_models = 100,
+                      n_vars = 10,
                       n_best = 50,
-                      n_states = 500,
                       n_initial = 10,
                       n_seed = 42,
                       alpha = 1,
@@ -63,53 +63,6 @@ train_esn <- function(data,
   n_states <- as.integer(n_states)
   n_initial <- as.integer(n_initial)
   n_seed <- as.integer(n_seed)
-  
-  
-  
-  # n_res <- as.integer(n_res)
-  #
-  # set.seed(n_seed)
-  # 
-  # alpha <- runif(
-  #   n = n_res,
-  #   min = min(alpha),
-  #   max = max(alpha)
-  # )
-  # 
-  # rho <- runif(
-  #   n = n_res,
-  #   min = min(rho),
-  #   max = max(rho)
-  # )
-  # 
-  # scale_win <- runif(
-  #   n = n_res,
-  #   min = min(scale_win),
-  #   max = max(scale_win)
-  # )
-  # 
-  # model_pars <- tibble(
-  #   alpha = alpha,
-  #   rho = rho,
-  #   scale_win = scale_win,
-  #   density = density
-  # )
-  
-  model_pars <- expand_grid(
-    alpha = alpha,
-    rho = rho,
-    scale_win = scale_win,
-    density = density
-  )
-  n_res <- nrow(model_pars)
-  
-  model_pars <- model_pars %>%
-    mutate(
-      reservoir = paste_names(
-        x = "reservoir",
-        n = n_res),
-      .before = alpha
-    )
   
   # Store ensemble information
   model_ensemble <- tibble(
@@ -201,7 +154,6 @@ train_esn <- function(data,
   
   # Drop NAs for training
   inputs <- inputs[complete.cases(inputs), , drop = FALSE]
-  
   # Number of observations (training)
   n_train <- nrow(inputs)
   # Number of observations (accounted for initial throw-off)
@@ -213,23 +165,10 @@ train_esn <- function(data,
   # Train index (without initial throw-off)
   index_states <- c((1 + (n_total - n_train)):n_total)
   
-  
-  names_states <- paste_names2(
+  names_states <- paste_names(
     x = "state",
-    n1 = n_res,
-    n2 = n_states
+    n = n_states
   )
-  
-  names_states <- split(
-    x = names_states,
-    f = ceiling(seq_along(names_states) / n_states)
-  )
-  
-  model_pars <- model_pars %>%
-    mutate(
-      states = names_states,
-      .after = reservoir
-    )
   
   # Create hidden layer (reservoir) ===========================================
   
@@ -237,65 +176,44 @@ train_esn <- function(data,
   set.seed(n_seed)
   
   # Create random weight matrices for the input variables
-  win <- map(
-    .x = seq_len(n_res),
-    .f = ~{
-      create_win(
-        n_inputs = n_inputs,
-        n_states = n_states,
-        scale_runif = c(-model_pars[["scale_win"]][.x], model_pars[["scale_win"]][.x])
-      )
-    }
+  
+  win <- create_win(
+    n_inputs = n_inputs,
+    n_states = n_states,
+    scale_runif = c(-scale_win, scale_win)
   )
   
   # Create random weight matrix for each reservoir
-  wres <- map(
-    .x = seq_len(n_res),
-    .f = ~{
-      create_wres(
-        n_states = n_states,
-        rho = model_pars[["rho"]][.x],
-        density = density,
-        scale_runif = c(-scale_wres, scale_wres),
-        symmetric = FALSE
-      )
-    }
+  wres <- create_wres(
+    n_states = n_states,
+    rho = rho,
+    density = density,
+    scale_runif = c(-scale_wres, scale_wres),
+    symmetric = FALSE
   )
-  
-  names(wres) <- model_pars$reservoir
   
   # Run reservoirs (create internal states)
-  states_train <- map(
-    .x = seq_len(n_res),
-    .f = ~{
-      states <- run_reservoir(
-        inputs = inputs,
-        win = win[[.x]],
-        wres = wres[[.x]],
-        alpha = model_pars[["alpha"]][.x]
-      )
-      colnames(states) <- model_pars$states[[.x]]
-      states
-    }
+  states_train <- run_reservoir(
+    inputs = inputs,
+    win = win,
+    wres = wres,
+    alpha = alpha
   )
   
-  names(states_train) <- model_pars$reservoir
+  colnames(states_train) <- names_states
   
   # Create output layer (train model) =========================================
-  
-  # Concatenate inputs and reservoir
-  Xt <- do.call(cbind, states_train)
   
   # Intercept term as matrix
   const <- matrix(
     data = 1,
-    nrow = nrow(Xt),
+    nrow = nrow(states_train),
     ncol = 1,
     dimnames = list(c(), "(Intercept)")
   )
   
   # Bind intercept and predictor variables
-  Xt <- cbind(const, Xt)
+  Xt <- cbind(const, states_train)
   
   # Adjust response and design matrix for initial throw-off and lag-length
   Xt <- Xt[((n_initial + 1):nrow(Xt)), , drop = FALSE]
@@ -321,7 +239,7 @@ train_esn <- function(data,
   # )
   
   states <- map(
-    .x = 1:n_models,
+    .x = seq_len(n_models),
     .f = ~{
       sample(
         x = colnames(Xt[, -1, drop = FALSE]),
@@ -333,7 +251,7 @@ train_esn <- function(data,
   
   # Estimate models
   model_object <- map(
-    .x = 1:n_models,
+    .x = seq_len(n_models),
     .f = ~{
       fit_lm(
         x = Xt[, c("(Intercept)", states[[.x]]), drop = FALSE],
@@ -341,6 +259,17 @@ train_esn <- function(data,
       )
     }
   )
+  
+  # # Estimate models
+  # model_object <- map(
+  #   .x = seq_len(n_models),
+  #   .f = ~{
+  #     fit_rlm(
+  #       x = Xt[, c("(Intercept)", states[[.x]]), drop = FALSE],
+  #       y = yt
+  #     )
+  #   }
+  # )
   
   model_names <- paste_names(
     x = "model", 
@@ -351,8 +280,8 @@ train_esn <- function(data,
   
   # Extract model metrics
   model_metrics <- map_dfr(
-    .x = 1:n_models,
-    .f = ~{model_object[[.x]]$metrics}
+    .x = seq_len(n_models),
+    .f = ~{model_object[[.x]][["metrics"]]}
   )
   
   # Identify best models
@@ -364,24 +293,27 @@ train_esn <- function(data,
     slice_head(n = n_best)
   
   # Identify best models
-  model_best <- model_metrics %>%
-    pull(model)
+  model_best <- model_metrics[["model"]]
   
   # Reduce to best models
   model_object <- model_object[model_best]
   
   # Extract and prepare coefficients
   wout <- map(
-    .x = 1:n_best,
-    .f = ~{model_object[[.x]]$wout}
+    .x = seq_len(n_best),
+    .f = ~{
+      model_object[[.x]][["wout"]]
+    }
   )
   
   names(wout) <- names(model_object)
   
   # Extract and prepare fitted values
   fitted <- map(
-    .x = 1:n_best,
-    .f = ~{model_object[[.x]]$fitted}
+    .x = seq_len(n_best),
+    .f = ~{
+      model_object[[.x]][["fitted"]]
+    }
   )
   
   names(fitted) <- names(model_object)
@@ -433,7 +365,6 @@ train_esn <- function(data,
   # List with number of inputs, internal states and outputs
   model_layers <- list(
     n_inputs = n_inputs,
-    n_res = n_res,
     n_states = n_states,
     n_outputs = n_outputs
   )
@@ -454,7 +385,6 @@ train_esn <- function(data,
     model_inputs = model_inputs,
     model_metrics = model_metrics,
     model_spec = model_spec,
-    model_pars = model_pars,
     model_layers = model_layers,
     model_weights = model_weights,
     model_object = model_object,

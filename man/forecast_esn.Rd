@@ -4,14 +4,12 @@
 \alias{forecast_esn}
 \title{Forecast a trained Echo State Network}
 \usage{
-forecast_esn(object, n_ahead = 12, n_seed = 42, xreg = NULL)
+forecast_esn(object, n_ahead = 12, xreg = NULL)
 }
 \arguments{
 \item{object}{An object of class \code{ESN}. The result of a call to \code{train_esn()} or \code{auto_esn()}.}
 
 \item{n_ahead}{Integer value. The number of periods for forecasting (forecast horizon).}
-
-\item{n_seed}{Integer value. The seed for the random number generator (for reproducibility).}
 
 \item{xreg}{A \code{tsibble} containing exogenous variables.}
 }

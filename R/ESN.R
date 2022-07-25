@@ -19,13 +19,12 @@ auto_esn <- function(.data,
                      dy = 0,
                      dx = 0,
                      inf_crit = "aic",
-                     n_states = 500,
-                     n_models = 500,
-                     n_vars = 50,
+                     n_states = 200,
+                     n_models = 200,
                      n_seed = 42,
                      alpha = 1,
                      rho = 1,
-                     density = 0.1,
+                     density = 0.05,
                      scale_win = 0.5,
                      scale_wres = 0.5,
                      scale_inputs = c(-1, 1)) {
@@ -34,14 +33,23 @@ auto_esn <- function(.data,
   n_outputs <- length(tsibble::measured_vars(.data))
   # Number of observations
   n_obs <- nrow(.data)
-  
-  # n_vars <- floor(n_obs * 0.1)
-  n_best <- floor(n_models * 0.1)
+  # Number of best models to choose out of n_models
+  n_best <- floor(n_models * 0.2)
+  # Number of predictor variables
+  n_vars <- floor(n_obs * 0.1) # 0.075
+  # Number of initial observations to drop
   n_initial <- floor(n_obs * 0.05)
   
   if (is.null(dy)) {
     dy <- ndiffs(as.ts(.data))
+    if (dy > 1) {
+      dy <- 1
+    }
   }
+  
+  # if (is.null(dy)) {
+  #   dy <- ndiffs(as.ts(.data))
+  # }
   
   if (n_outputs > 1) {
     abort("Only univariate responses are supported by ESN.")
@@ -51,30 +59,7 @@ auto_esn <- function(.data,
     abort("ESN does not support missing values.")
   }
   
-  # # Maximum seasonal period which is feasible
-  # period <- common_periods(.data)
-  # period <- sort(as.numeric(period[period < n_obs]))
-  
-  # Tune model inputs (lags and fourier terms) ================================
-  
-  # model_inputs <- tune_inputs(
-  #   data = .data,
-  #   lags = lags,
-  #   fourier = fourier,
-  #   xreg = xreg,
-  #   dy = dy,
-  #   dx = dx,
-  #   n_initial = n_initial,
-  #   scale_inputs = scale_inputs,
-  #   inf_crit = inf_crit,
-  #   n_models = n_models,
-  #   n_seed = n_seed
-  # )
-  # 
-  # lags <- model_inputs$lags
-  # fourier <- model_inputs$fourier
-  
-  # Train final model =========================================================
+  # Train model ===============================================================
   
   model_fit <- train_esn(
     data = .data,
@@ -151,7 +136,6 @@ ESN <- function(formula, ...){
 #' @param object An object of class \code{ESN}.
 #' @param new_data Forecast horizon (n-step ahead forecast)
 #' @param specials Currently not in use
-#' @param n_seed Integer value. The seed for the random number generator (for reproducibility).
 #' @param xreg A \code{tsibble} containing exogenous variables.
 #' @param ... Currently not in use.
 #' 
@@ -161,21 +145,22 @@ ESN <- function(formula, ...){
 forecast.ESN <- function(object,
                          new_data,
                          specials = NULL,
-                         n_seed = 42,
                          xreg = NULL,
                          ...) {
   
-  # Forecast model
+
+  # Forecast models
   model_fcst <- forecast_esn(
-    object = object$model,
-    n_ahead = nrow(new_data),
-    n_seed = n_seed,
-    xreg = xreg
-    )
+    object = object[["model"]],
+    n_ahead = n_ahead
+  )
+  model_fcst <- model_fcst[["model_fcst"]]
+  point <- as.numeric(rowMeans(model_fcst))
+  # sigma <- as.numeric(rowSds(model_fcst))
   
   # Return forecast
   dist_normal(
-    mu = model_fcst$point,
+    mu = point,
     sigma = NA_real_
     )
 }
@@ -224,7 +209,7 @@ residuals.ESN <- function(object, ...){
 #' @export
 
 model_sum.ESN <- function(object){
-  object$spec
+  object[["spec"]]
 }
 
 

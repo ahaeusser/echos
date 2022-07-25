@@ -1,5 +1,5 @@
 
-#' @title Estimate a linear model via Ordinary Least Squares
+#' @title Estimate a linear model via ridge regression
 #' 
 #' @description Estimate a linear model via Ordinary Least Squares (OLS). 
 #'   \code{fit_lm()} is a wrapper function for \code{stats::lm.fit()} with some
@@ -14,24 +14,20 @@
 #'   goodness-of-fit metrics.
 #' @export
 
-fit_lm <- function(x, y) {
+fit_ridge <- function(x, y, lambda) {
   
-  # Fit linear model
-  model <- lm.fit(
-    x = x,
-    y = y
-  )
-  
-  # Extract coefficients and fitted values
-  wout <- as.matrix(coef(model))
+  # Estimate coefficients of linear model
+  wout <- solve(crossprod(x) + diag(lambda, ncol(x)), crossprod(x, y))
   colnames(wout) <- colnames(y)
-  fitted <- fitted(model)
+  
+  # Calculate fitted values and residuals
+  fitted <- x %*% wout
+  resid <- y - fitted
   
   # Calculate and store model metrics
   nobs <- nrow(x)
-  df <- ncol(x) + 1
+  df <- estimate_dof(x = x, lambda = lambda)
   w <- rep.int(1, nobs)
-  resid <- resid(model)
   loglik <- 0.5 * (sum(log(w)) - nobs * (log(2 * pi) + 1 - log(nobs) + log(sum(w * resid^2))))
   aic <- -2 * loglik + 2 * df
   aicc <- aic + (2*df^2 + 2*df) / (nobs - df - 1)
@@ -44,6 +40,7 @@ fit_lm <- function(x, y) {
     loglik = loglik,
     nobs = nobs,
     df = df,
+    lambda = lambda,
     aic = aic,
     aicc = aicc,
     bic = bic,
@@ -59,3 +56,30 @@ fit_lm <- function(x, y) {
     metrics = metrics
   )
 }
+
+
+
+
+#' @title Estimate effective degrees of freedom
+#' 
+#' @description The function estimates the effective degrees of freedom.
+#'
+#' @param x Numeric matrix. The design matrix containing the predictor variables.
+#' @param lambda Numeric value. The regularization parameter.
+#'
+#' @return Numeric value.
+#' @noRd
+
+estimate_dof <- function(x, lambda) {
+  
+  # Diagonal matrix with lambda values
+  Ipp_lambda <- diag(
+    x = lambda,
+    nrow = ncol(x),
+    ncol = ncol(x)
+  )
+  
+  # Calculate effective degrees of freedom
+  sum(diag((x %*% solve(crossprod(x) + Ipp_lambda)) %*% t(x)))
+}
+
