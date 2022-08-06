@@ -2,7 +2,7 @@
 #' @importFrom purrr map map_dfr invoke cross_df
 #' @importFrom tidyr pivot_longer expand_grid
 #' @importFrom strex str_nth_number
-#' @importFrom matrixStats colCumsums colDiffs colMins colMaxs rowSds
+#' @importFrom matrixStats colCumsums colDiffs colMins colMaxs rowSds rowMedians
 #' @importFrom Matrix rsparsematrix
 #' @importFrom forecast ndiffs
 #' @importFrom rlang is_empty .data abort

@@ -19,6 +19,7 @@ auto_esn <- function(.data,
                      dy = 0,
                      dx = 0,
                      inf_crit = "aic",
+                     operator = "mean",
                      n_states = 200,
                      n_models = 200,
                      n_seed = 42,
@@ -69,6 +70,7 @@ auto_esn <- function(.data,
     dy = dy,
     dx = dx,
     inf_crit = inf_crit,
+    operator = operator,
     n_models = n_models,
     n_vars = n_vars,
     n_best = n_best,
@@ -154,8 +156,10 @@ forecast.ESN <- function(object,
     object = object[["model"]],
     n_ahead = n_ahead
   )
-  model_fcst <- model_fcst[["model_fcst"]]
-  point <- as.numeric(rowMeans(model_fcst))
+  
+  point <- model_fcst[["point"]]
+  # model_fcst <- model_fcst[["model_fcst"]]
+  # point <- as.numeric(rowMeans(model_fcst))
   # sigma <- as.numeric(rowSds(model_fcst))
   
   # Return forecast

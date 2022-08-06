@@ -53,6 +53,8 @@ forecast_esn <- function(object,
   lags <- method$model_inputs$lags
   fourier <- method$model_inputs$fourier
   
+  # Ensemble
+  operator <- method$operator
   
   # Create input layer ========================================================
   
@@ -165,7 +167,15 @@ forecast_esn <- function(object,
   )
   
   # Calculate ensemble point forecast
-  point <- as.matrix(rowMeans(model_fcst))
+  # point <- as.matrix(rowMeans(model_fcst))
+  
+  point <- as.matrix(
+    integrate_ensemble(
+      x = model_fcst, 
+      operator = operator
+    )
+  )
+  
   point <- as.numeric(point)
   
   # Post-processing ===========================================================

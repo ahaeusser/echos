@@ -13,6 +13,7 @@ auto_esn(
   dy = 0,
   dx = 0,
   inf_crit = "aic",
+  operator = "mean",
   n_states = 200,
   n_models = 200,
   n_seed = 42,
@@ -40,6 +41,8 @@ auto_esn(
 \item{dx}{Integer vector. The nth-differences of the exogenous variables.}
 
 \item{inf_crit}{Character value. The information criterion used for variable selection \code{inf_crit = c("aic", "aicc", "bic")}.}
+
+\item{operator}{Character value. The integration operator for the ensemble \code{operator = c("mean", "median", "mode")}.}
 
 \item{n_states}{Integer value. The number of internal states per reservoir.}
 

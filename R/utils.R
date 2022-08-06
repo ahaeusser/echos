@@ -593,3 +593,75 @@ scale_data <- function(data,
   
   return(result)
 }
+
+
+#' @title Estimate mode of a distribution based on Kernel Density Estimation
+#'
+#' @description The function estimates the mode of a distribution based on Kernel Density Estimation.
+#'
+#' @param x Numeric vector.
+#' @param na_rm Logical value. If \code{TRUE}, missing values are dropped.
+#' @param ... Further arguments passed to \code{stats::densitiy()}.
+#'
+#' @return mode Numeric value. The mode of the distribution.
+#' @noRd
+
+estimate_mode <- function(x,
+                          na_rm = TRUE,
+                          ...) {
+  
+  if (na_rm == TRUE) {
+    x <- x[!is.na(x)]
+  }
+  
+  object <- density(x = x, ...)
+  mode_id <- which.max(object$y)
+  mode <- object$x[mode_id]
+  
+  return(mode)
+}
+
+
+#' @title Estimate the modes for each row of a numeric matrix
+#'
+#' @description The functions estimates the modes for each row of a numeric
+#'   matrix (similar to \code{rowMeans(.)}).
+#'
+#' @param x Numeric matrix.
+#' @param na_rm Logical value. If \code{TRUE}, missing values are dropped.
+#'
+#' @return Numeric vector.
+#' @noRd
+
+rowModes <- function(x, na_rm = TRUE) {
+  map_dbl(
+    .x = seq_len(nrow(x)),
+    .f = ~{
+      estimate_mode(
+        x = as.numeric(x[.x, ]),
+        na_rm = na_rm
+      )
+    }
+  )
+}
+
+
+#' @title Ensemble integration operator
+#' 
+#' @description The function is a switch for the ensemble integration operator
+#'   and allows to switch the arithmetic mean, the median and the mode.
+#'
+#' @param x Numeric matrix.
+#' @param operator Character value. Either \code{"mean"}, \code{"median"} or \code{"mode"}
+#'
+#' @return Numeric vector.
+#' @noRd
+
+integrate_ensemble <- function(x, operator) {
+  switch(
+    operator,
+    mean   = rowMeans(x = x, na.rm = TRUE),
+    median = rowMedians(x = x, na.rm = TRUE),
+    mode   = rowModes(x = x, na_rm = TRUE)
+  )
+}

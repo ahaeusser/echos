@@ -11,6 +11,7 @@
 #' @param dy Integer vector. The nth-differences of the response variable.
 #' @param dx Integer vector. The nth-differences of the exogenous variables.
 #' @param inf_crit Character value. The information criterion used for variable selection \code{inf_crit = c("aic", "aicc", "bic")}.
+#' @param operator Character value. The integration operator for the ensemble \code{operator = c("mean", "median", "mode")}.
 #' @param n_models Integer value. The maximum number of (random) models to train for model selection.
 #' @param n_states Integer value. The number of internal states per reservoir.
 #' @param n_vars Integer value. The maximum number of predictor variables per model. 
@@ -41,6 +42,7 @@ train_esn <- function(data,
                       dy = 0,
                       dx = 0,
                       inf_crit = "aic",
+                      operator = "mean",
                       n_states = 100,
                       n_models = 100,
                       n_vars = 10,
@@ -318,7 +320,14 @@ train_esn <- function(data,
   
   names(fitted) <- names(model_object)
   fitted <- do.call(cbind, fitted)
-  fitted <- as.matrix(rowMeans(fitted))
+  # fitted <- as.matrix(rowMeans(fitted))
+  
+  fitted <- as.matrix(
+    integrate_ensemble(
+      x = fitted, 
+      operator = operator
+      )
+    )
   
   # Adjust actual values for correct dimension
   actual <- yy[index_train, , drop = FALSE]
@@ -391,7 +400,8 @@ train_esn <- function(data,
     model_ensemble = model_ensemble,
     scale_win = scale_win,
     scale_wres = scale_wres,
-    scale_inputs = scale_inputs
+    scale_inputs = scale_inputs,
+    operator = operator
   )
   
   # Output model
