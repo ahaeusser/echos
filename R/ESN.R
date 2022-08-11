@@ -37,7 +37,7 @@ auto_esn <- function(.data,
   # Number of best models to choose out of n_models
   n_best <- floor(n_models * 0.2) # 0.2
   # Number of predictor variables
-  n_vars <- floor(n_obs * 0.1) # 0.1
+  n_vars <- floor(n_obs * 0.2) # 0.1
   # Number of initial observations to drop
   n_initial <- floor(n_obs * 0.05)
   

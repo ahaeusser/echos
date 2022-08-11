@@ -184,6 +184,7 @@ forecast_esn <- function(object,
   structure(
     list(
       point = point,
+      # inputs = inputs,
       model_fcst = model_fcst,
       method = method,
       n_ahead = n_ahead),

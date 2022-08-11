@@ -201,8 +201,9 @@ train_esn <- function(data,
     wres = wres,
     alpha = alpha
   )
-  
+
   colnames(states_train) <- names_states
+  
   
   # Create output layer (train model) =========================================
   
@@ -223,33 +224,33 @@ train_esn <- function(data,
   
   set.seed(n_seed)
   
-  # n_vars <- sample(
-  #   x = seq_len(n_vars),
-  #   size = n_models,
-  #   replace = TRUE
-  # )
-  # 
-  # states <- map(
-  #   .x = 1:n_models,
-  #   .f = ~{
-  #     sample(
-  #       x = colnames(Xt[, -1, drop = FALSE]),
-  #       size = n_vars[.x],
-  #       replace = FALSE
-  #     )
-  #   }
-  # )
-  
+  n_vars <- sample(
+    x = seq_len(n_vars),
+    size = n_models,
+    replace = TRUE
+  )
+
   states <- map(
-    .x = seq_len(n_models),
+    .x = 1:n_models,
     .f = ~{
       sample(
         x = colnames(Xt[, -1, drop = FALSE]),
-        size = n_vars,
+        size = n_vars[.x],
         replace = FALSE
       )
     }
   )
+  
+  # states <- map(
+  #   .x = seq_len(n_models),
+  #   .f = ~{
+  #     sample(
+  #       x = colnames(Xt[, -1, drop = FALSE]),
+  #       size = n_vars,
+  #       replace = FALSE
+  #     )
+  #   }
+  # )
   
   # Estimate models
   model_object <- map(
@@ -272,7 +273,7 @@ train_esn <- function(data,
   #     )
   #   }
   # )
-  
+
   model_names <- paste_names(
     x = "model", 
     n = n_models
@@ -401,7 +402,8 @@ train_esn <- function(data,
     scale_win = scale_win,
     scale_wres = scale_wres,
     scale_inputs = scale_inputs,
-    operator = operator
+    operator = operator,
+    Xt = Xt
   )
   
   # Output model
