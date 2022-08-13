@@ -16,8 +16,12 @@
 
 fit_ridge <- function(x, y, lambda) {
   
+  lpp <- diag(lambda, ncol(x))
+  lpp[1, 1] <- 1
+  
   # Estimate coefficients of linear model
-  wout <- solve(crossprod(x) + diag(lambda, ncol(x)), crossprod(x, y))
+  # wout <- solve(crossprod(x) + diag(lambda, ncol(x)), crossprod(x, y))
+  wout <- solve(crossprod(x) + lpp, crossprod(x, y))
   colnames(wout) <- colnames(y)
   
   # Calculate fitted values and residuals

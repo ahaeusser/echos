@@ -224,22 +224,22 @@ train_esn <- function(data,
   
   set.seed(n_seed)
   
-  n_vars <- sample(
-    x = seq_len(n_vars),
-    size = n_models,
-    replace = TRUE
-  )
-
-  states <- map(
-    .x = 1:n_models,
-    .f = ~{
-      sample(
-        x = colnames(Xt[, -1, drop = FALSE]),
-        size = n_vars[.x],
-        replace = FALSE
-      )
-    }
-  )
+  # n_vars <- sample(
+  #   x = seq_len(n_vars),
+  #   size = n_models,
+  #   replace = TRUE
+  # )
+  # 
+  # states <- map(
+  #   .x = 1:n_models,
+  #   .f = ~{
+  #     sample(
+  #       x = colnames(Xt[, -1, drop = FALSE]),
+  #       size = n_vars[.x],
+  #       replace = FALSE
+  #     )
+  #   }
+  # )
   
   # states <- map(
   #   .x = seq_len(n_models),
@@ -251,17 +251,17 @@ train_esn <- function(data,
   #     )
   #   }
   # )
-  
-  # Estimate models
-  model_object <- map(
-    .x = seq_len(n_models),
-    .f = ~{
-      fit_lm(
-        x = Xt[, c("(Intercept)", states[[.x]]), drop = FALSE],
-        y = yt
-      )
-    }
-  )
+  # 
+  # # Estimate models
+  # model_object <- map(
+  #   .x = seq_len(n_models),
+  #   .f = ~{
+  #     fit_lm(
+  #       x = Xt[, c("(Intercept)", states[[.x]]), drop = FALSE],
+  #       y = yt
+  #     )
+  #   }
+  # )
   
   # # Estimate models
   # model_object <- map(
@@ -273,6 +273,24 @@ train_esn <- function(data,
   #     )
   #   }
   # )
+  
+  lambda <- runif(
+    n = n_models,
+    min = 1e-4,
+    max = 2
+  )
+
+  # Estimate models
+  model_object <- map(
+    .x = seq_len(n_models),
+    .f = ~{
+      fit_ridge(
+        x = Xt,
+        y = yt,
+        lambda = lambda[.x]
+      )
+    }
+  )
 
   model_names <- paste_names(
     x = "model", 
@@ -403,7 +421,8 @@ train_esn <- function(data,
     scale_wres = scale_wres,
     scale_inputs = scale_inputs,
     operator = operator,
-    Xt = Xt
+    Xt = Xt,
+    yt = yt
   )
   
   # Output model
