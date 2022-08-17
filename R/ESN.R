@@ -20,8 +20,8 @@ auto_esn <- function(.data,
                      dx = 0,
                      inf_crit = "aic",
                      operator = "mean",
-                     n_states = 200,
-                     n_models = 200,
+                     n_states = NULL,
+                     n_models = NULL,
                      n_seed = 42,
                      alpha = 1,
                      rho = 1,
@@ -30,10 +30,22 @@ auto_esn <- function(.data,
                      scale_wres = 0.5,
                      scale_inputs = c(-1, 1)) {
   
+  
+
+  
   # Number of response variables
   n_outputs <- length(tsibble::measured_vars(.data))
   # Number of observations
   n_obs <- nrow(.data)
+  
+  if (is.null(n_states)) {
+    n_states <- n_obs
+  }
+  
+  if (is.null(n_models)) {
+    n_models <- n_obs * 2
+  }
+  
   # Number of best models to choose out of n_models
   n_best <- floor(n_models * 0.2) # 0.2
   n_best <- 1
