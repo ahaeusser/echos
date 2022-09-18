@@ -11,11 +11,8 @@
 #' @param dy Integer vector. The nth-differences of the response variable.
 #' @param dx Integer vector. The nth-differences of the exogenous variables.
 #' @param inf_crit Character value. The information criterion used for variable selection \code{inf_crit = c("aic", "aicc", "bic")}.
-#' @param operator Character value. The integration operator for the ensemble \code{operator = c("mean", "median", "mode")}.
 #' @param n_models Integer value. The maximum number of (random) models to train for model selection.
 #' @param n_states Integer value. The number of internal states per reservoir.
-#' @param n_vars Integer value. The maximum number of predictor variables per model. 
-#' @param n_best Integer value. The number of best models to use for ensemble model.
 #' @param n_initial Integer value. The number of observations of internal states for initial drop out (throw-off).
 #' @param n_seed Integer value. The seed for the random number generator (for reproducibility).
 #' @param alpha Numeric value. The leakage rate (smoothing parameter) applied to the reservoir.
@@ -42,11 +39,8 @@ train_esn <- function(data,
                       dy = 0,
                       dx = 0,
                       inf_crit = "aic",
-                      operator = "mean",
                       n_states = 100,
-                      n_models = 100,
-                      n_vars = 10,
-                      n_best = 50,
+                      n_models = 200,
                       n_initial = 10,
                       n_seed = 42,
                       alpha = 1,
@@ -60,18 +54,9 @@ train_esn <- function(data,
   
   # Prepare constants as integers
   n_models <- as.integer(n_models)
-  n_vars <- as.integer(n_vars)
-  n_best <- as.integer(n_best)
   n_states <- as.integer(n_states)
   n_initial <- as.integer(n_initial)
   n_seed <- as.integer(n_seed)
-  
-  # Store ensemble information
-  model_ensemble <- tibble(
-    n_models = n_models,
-    n_best = n_best,
-    n_vars = n_vars
-  )
   
   # Prepare exogenous variables
   if (is.null(xreg)) {
@@ -178,7 +163,6 @@ train_esn <- function(data,
   set.seed(n_seed)
   
   # Create random weight matrices for the input variables
-  
   win <- create_win(
     n_inputs = n_inputs,
     n_states = n_states,
@@ -201,7 +185,7 @@ train_esn <- function(data,
     wres = wres,
     alpha = alpha
   )
-
+  
   colnames(states_train) <- names_states
   
   
@@ -224,62 +208,12 @@ train_esn <- function(data,
   
   set.seed(n_seed)
   
-  # n_vars <- sample(
-  #   x = seq_len(n_vars),
-  #   size = n_models,
-  #   replace = TRUE
-  # )
-  # 
-  # states <- map(
-  #   .x = 1:n_models,
-  #   .f = ~{
-  #     sample(
-  #       x = colnames(Xt[, -1, drop = FALSE]),
-  #       size = n_vars[.x],
-  #       replace = FALSE
-  #     )
-  #   }
-  # )
-  
-  # states <- map(
-  #   .x = seq_len(n_models),
-  #   .f = ~{
-  #     sample(
-  #       x = colnames(Xt[, -1, drop = FALSE]),
-  #       size = n_vars,
-  #       replace = FALSE
-  #     )
-  #   }
-  # )
-  # 
-  # # Estimate models
-  # model_object <- map(
-  #   .x = seq_len(n_models),
-  #   .f = ~{
-  #     fit_lm(
-  #       x = Xt[, c("(Intercept)", states[[.x]]), drop = FALSE],
-  #       y = yt
-  #     )
-  #   }
-  # )
-  
-  # # Estimate models
-  # model_object <- map(
-  #   .x = seq_len(n_models),
-  #   .f = ~{
-  #     fit_rlm(
-  #       x = Xt[, c("(Intercept)", states[[.x]]), drop = FALSE],
-  #       y = yt
-  #     )
-  #   }
-  # )
-  
   lambda <- runif(
     n = n_models,
     min = 1e-4,
     max = 2
   )
-
+  
   # Estimate models
   model_object <- map(
     .x = seq_len(n_models),
@@ -291,9 +225,9 @@ train_esn <- function(data,
       )
     }
   )
-
+  
   model_names <- paste_names(
-    x = "model", 
+    x = "model",
     n = n_models
   )
   
@@ -305,48 +239,26 @@ train_esn <- function(data,
     .f = ~{model_object[[.x]][["metrics"]]}
   )
   
-  # Identify best models
+  # Order model metrics by information criterion
   model_metrics <- model_metrics %>%
     mutate(
       model = model_names,
       .before = .data$loglik) %>%
-    arrange(!!sym(inf_crit)) %>%
-    slice_head(n = n_best)
+    arrange(!!sym(inf_crit))
   
-  # Identify best models
-  model_best <- model_metrics[["model"]]
+  # Identify best model
+  model_best <- model_metrics %>%
+    slice_head(n = 1) %>%
+    pull(model)
   
-  # Reduce to best models
-  model_object <- model_object[model_best]
+  # Reduce to best model
+  model_object <- model_object[[model_best]]
   
-  # Extract and prepare coefficients
-  wout <- map(
-    .x = seq_len(n_best),
-    .f = ~{
-      model_object[[.x]][["wout"]]
-    }
-  )
+  # Extract estimated coefficients (output weights)
+  wout <- model_object[["wout"]]
   
-  names(wout) <- names(model_object)
-  
-  # Extract and prepare fitted values
-  fitted <- map(
-    .x = seq_len(n_best),
-    .f = ~{
-      model_object[[.x]][["fitted"]]
-    }
-  )
-  
-  names(fitted) <- names(model_object)
-  fitted <- do.call(cbind, fitted)
-  # fitted <- as.matrix(rowMeans(fitted))
-  
-  fitted <- as.matrix(
-    integrate_ensemble(
-      x = fitted, 
-      operator = operator
-      )
-    )
+  # Extract fitted values
+  fitted <- model_object[["fitted"]]
   
   # Adjust actual values for correct dimension
   actual <- yy[index_train, , drop = FALSE]
@@ -416,11 +328,9 @@ train_esn <- function(data,
     model_layers = model_layers,
     model_weights = model_weights,
     model_object = model_object,
-    model_ensemble = model_ensemble,
     scale_win = scale_win,
     scale_wres = scale_wres,
     scale_inputs = scale_inputs,
-    operator = operator,
     Xt = Xt,
     yt = yt
   )

@@ -53,8 +53,6 @@ forecast_esn <- function(object,
   lags <- method$model_inputs$lags
   fourier <- method$model_inputs$fourier
   
-  # Ensemble
-  operator <- method$operator
   
   # Create input layer ========================================================
   
@@ -131,26 +129,18 @@ forecast_esn <- function(object,
     xreg
   )
   
-  # Predict trained models
-  model_fcst <- map(
-    .x = 1:length(wout),
-    .f = ~{
-      predict_esn(
-        win = win,
-        wres = wres,
-        wout = wout[[.x]],
-        alpha = alpha,
-        n_states = n_states,
-        n_ahead = n_ahead,
-        lags = lags,
-        inputs = inputs,
-        states_train = states_train
-      )
-    }
+  # Predict trained model
+  model_fcst <- predict_esn(
+    win = win,
+    wres = wres,
+    wout = wout,
+    alpha = alpha,
+    n_states = n_states,
+    n_ahead = n_ahead,
+    lags = lags,
+    inputs = inputs,
+    states_train = states_train
   )
-  
-  model_fcst <- do.call(cbind, model_fcst)
-  colnames(model_fcst) <- names(model_object)
   
   # Rescaling of point forecasts
   model_fcst <- rescale_data(
@@ -166,17 +156,7 @@ forecast_esn <- function(object,
     n_diff = dy
   )
   
-  # Calculate ensemble point forecast
-  # point <- as.matrix(rowMeans(model_fcst))
-  
-  point <- as.matrix(
-    integrate_ensemble(
-      x = model_fcst, 
-      operator = operator
-    )
-  )
-  
-  point <- as.numeric(point)
+  point <- as.numeric(model_fcst)
   
   # Post-processing ===========================================================
   
@@ -184,7 +164,6 @@ forecast_esn <- function(object,
   structure(
     list(
       point = point,
-      # inputs = inputs,
       model_fcst = model_fcst,
       method = method,
       n_ahead = n_ahead),

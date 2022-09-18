@@ -19,7 +19,6 @@ auto_esn <- function(.data,
                      dy = 0,
                      dx = 0,
                      inf_crit = "aic",
-                     operator = "mean",
                      n_states = NULL,
                      n_models = NULL,
                      n_seed = 42,
@@ -30,27 +29,19 @@ auto_esn <- function(.data,
                      scale_wres = 0.5,
                      scale_inputs = c(-1, 1)) {
   
-  
-
-  
   # Number of response variables
   n_outputs <- length(tsibble::measured_vars(.data))
   # Number of observations
   n_obs <- nrow(.data)
   
   if (is.null(n_states)) {
-    n_states <- n_obs
+    n_states <- floor(n_obs * 0.4)
   }
   
   if (is.null(n_models)) {
-    n_models <- n_obs * 2
+    n_models <- n_states * 2
   }
   
-  # Number of best models to choose out of n_models
-  n_best <- floor(n_models * 0.2) # 0.2
-  n_best <- 1
-  # Number of predictor variables
-  n_vars <- floor(n_obs * 0.2) # 0.1
   # Number of initial observations to drop
   n_initial <- floor(n_obs * 0.05)
   
@@ -60,10 +51,6 @@ auto_esn <- function(.data,
       dy <- 1
     }
   }
-  
-  # if (is.null(dy)) {
-  #   dy <- ndiffs(as.ts(.data))
-  # }
   
   if (n_outputs > 1) {
     abort("Only univariate responses are supported by ESN.")
@@ -83,10 +70,7 @@ auto_esn <- function(.data,
     dy = dy,
     dx = dx,
     inf_crit = inf_crit,
-    operator = operator,
     n_models = n_models,
-    n_vars = n_vars,
-    n_best = n_best,
     n_states = n_states,
     n_initial = n_initial,
     n_seed = n_seed,
@@ -171,9 +155,6 @@ forecast.ESN <- function(object,
   )
   
   point <- model_fcst[["point"]]
-  # model_fcst <- model_fcst[["model_fcst"]]
-  # point <- as.numeric(rowMeans(model_fcst))
-  # sigma <- as.numeric(rowSds(model_fcst))
   
   # Return forecast
   dist_normal(
