@@ -19,6 +19,7 @@ train_esn(
   alpha = 1,
   rho = 1,
   density = 0.1,
+  lambda = c(1e-04, 2),
   scale_win = 0.5,
   scale_wres = 0.5,
   scale_inputs = c(-1, 1)
@@ -52,6 +53,8 @@ train_esn(
 \item{rho}{Numeric value. The spectral radius for scaling the reservoir weight matrix.}
 
 \item{density}{Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).}
+
+\item{lambda}{Numeric vector. Lower and upper bound of lambda sequence for ridge regression.}
 
 \item{scale_win}{Numeric value. The lower and upper bound of the uniform distribution for scaling the input weight matrix.}
 

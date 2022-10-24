@@ -18,6 +18,7 @@
 #' @param alpha Numeric value. The leakage rate (smoothing parameter) applied to the reservoir.
 #' @param rho Numeric value. The spectral radius for scaling the reservoir weight matrix.
 #' @param density Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).
+#' @param lambda Numeric vector. Lower and upper bound of lambda sequence for ridge regression.
 #' @param scale_win Numeric value. The lower and upper bound of the uniform distribution for scaling the input weight matrix.
 #' @param scale_wres Numeric value. The lower and upper bound of the uniform distribution for scaling the reservoir weight matrix.
 #' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data.
@@ -46,6 +47,7 @@ train_esn <- function(data,
                       alpha = 1,
                       rho = 1,
                       density = 0.1,
+                      lambda = c(1e-4, 2),
                       scale_win = 0.5,
                       scale_wres = 0.5,
                       scale_inputs = c(-1, 1)) {
@@ -208,10 +210,10 @@ train_esn <- function(data,
   
   set.seed(n_seed)
   
-  lambda <- runif(
+  lambdas <- runif(
     n = n_models,
-    min = 1e-4,
-    max = 2
+    min = lambda[1],
+    max = lambda[2]
   )
   
   # Estimate models
@@ -221,7 +223,7 @@ train_esn <- function(data,
       fit_ridge(
         x = Xt,
         y = yt,
-        lambda = lambda[.x]
+        lambda = lambdas[.x]
       )
     }
   )
