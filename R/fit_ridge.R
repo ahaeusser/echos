@@ -62,8 +62,6 @@ fit_ridge <- function(x, y, lambda) {
 }
 
 
-
-
 #' @title Estimate effective degrees of freedom
 #' 
 #' @description The function estimates the effective degrees of freedom.
