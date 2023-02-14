@@ -216,6 +216,11 @@ train_esn <- function(data,
     max = lambda[2]
   )
   
+  # lambdas <- rexp(
+  #   n = n_models,
+  #   rate = 6
+  #   )
+  
   # Estimate models
   model_object <- map(
     .x = seq_len(n_models),

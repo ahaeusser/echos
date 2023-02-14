@@ -36,7 +36,7 @@ auto_esn <- function(.data,
   n_obs <- nrow(.data)
   
   if (is.null(n_states)) {
-    n_states <- floor(n_obs * 0.4)
+    n_states <- min(floor(n_obs * 0.4), 100)
   }
   
   if (is.null(n_models)) {
