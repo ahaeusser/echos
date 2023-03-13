@@ -494,7 +494,6 @@ rescale_data <- function(data,
   # Extract maximum and minimum for inverse scaling
   min <- old_range["min", ]
   max <- old_range["max", ]
-  mean <- old_range["mean", ]
   
   # Extract lower and upper bound
   lower <- new_range[1]
@@ -513,12 +512,6 @@ rescale_data <- function(data,
     ncol = n_cols
   )
   
-  mean <- matrix(
-    data = rep(mean, each = n_rows),
-    nrow = n_rows,
-    ncol = n_cols
-  )
-  
   lower <- matrix(
     data = rep(lower, each = n_rows),
     nrow = n_rows,
@@ -532,8 +525,7 @@ rescale_data <- function(data,
   )
   
   # Inverse normalization to original interval
-  # data <- ((data - lower) * (max - min)) / (upper - lower) + min
-  data <- mean + (data * (max-min)) / (upper - lower)
+  data <- ((data - lower) * (max - min)) / (upper - lower) + min
   
   return(data)
 }
@@ -560,12 +552,9 @@ scale_data <- function(data,
   min <- colMins(data, na.rm = TRUE)
   max <- colMaxs(data, na.rm = TRUE)
   
-  # center (mean / median)
-  mean <- colMeans(data, na.rm = TRUE)
+  old_range <- rbind(min, max)
   
-  old_range <- rbind(min, max, mean)
-  
-  rownames(old_range) <- c("min", "max", "mean")
+  rownames(old_range) <- c("min", "max")
   colnames(old_range) <- colnames(data)
   
   # Extract the lower and upper bound from interval
@@ -585,12 +574,6 @@ scale_data <- function(data,
     ncol = n_cols
   )
   
-  mean <- matrix(
-    data = rep(mean, each = n_rows),
-    nrow = n_rows,
-    ncol = n_cols
-  )
-  
   lower <- matrix(
     data = rep(lower,each = n_rows),
     nrow = n_rows,
@@ -604,8 +587,7 @@ scale_data <- function(data,
   )
   
   # Scale matrix y column wise to new interval
-  # data <- lower + ((data - min) * (upper - lower) / (max - min))
-  data <- (data - mean) * (upper - lower) / (max - min)
+  data <- lower + ((data - min) * (upper - lower) / (max - min))
   
   result <- list(
     data = data,
