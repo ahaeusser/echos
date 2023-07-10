@@ -30,15 +30,9 @@ auto_esn(
 
 \item{specials}{Currently not is use.}
 
-\item{lags}{A \code{list} containing integer vectors with the lags associated with each input variable.}
-
-\item{fourier}{A \code{list} containing the periods and the number of fourier terms as integer vector.}
-
-\item{xreg}{A \code{tsibble} containing exogenous variables.}
+\item{lags}{Integer vectors with the lags associated with the input variable.}
 
 \item{dy}{Integer vector. The nth-differences of the response variable.}
-
-\item{dx}{Integer vector. The nth-differences of the exogenous variables.}
 
 \item{inf_crit}{Character value. The information criterion used for variable selection \code{inf_crit = c("aic", "aicc", "bic")}.}
 
