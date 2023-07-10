@@ -5,38 +5,29 @@
 \title{Train an Echo State Network}
 \usage{
 train_esn(
-  data,
-  lags,
-  fourier = NULL,
-  xreg = NULL,
+  y,
+  lags = 1,
   dy = 0,
-  dx = 0,
-  inf_crit = "aic",
-  n_states = 100,
-  n_models = 200,
-  n_initial = 10,
+  inf_crit = "bic",
+  n_states = NULL,
+  n_models = NULL,
+  n_initial = NULL,
   n_seed = 42,
   alpha = 1,
   rho = 1,
-  density = 0.1,
+  density = 0.5,
   lambda = c(1e-04, 2),
   scale_win = 0.5,
   scale_wres = 0.5,
-  scale_inputs = c(-1, 1)
+  scale_inputs = c(-0.5, 0.5)
 )
 }
 \arguments{
-\item{data}{A \code{tsibble} containing the response variable.}
+\item{y}{Numeric vector containing the response variable.}
 
-\item{lags}{A \code{list} containing integer vectors with the lags associated with each input variable.}
-
-\item{fourier}{A \code{list} containing the periods and the number of fourier terms as integer vector.}
-
-\item{xreg}{A \code{tsibble} containing exogenous variables.}
+\item{lags}{Integer vectors with the lags associated with the input variable.}
 
 \item{dy}{Integer vector. The nth-differences of the response variable.}
-
-\item{dx}{Integer vector. The nth-differences of the exogenous variables.}
 
 \item{inf_crit}{Character value. The information criterion used for variable selection \code{inf_crit = c("aic", "aicc", "bic")}.}
 

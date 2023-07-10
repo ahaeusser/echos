@@ -4,12 +4,9 @@
 #' @description This function trains an Echo State Network (ESN) to a
 #'   univariate time series.
 #' 
-#' @param data A \code{tsibble} containing the response variable.
-#' @param lags A \code{list} containing integer vectors with the lags associated with each input variable.
-#' @param fourier A \code{list} containing the periods and the number of fourier terms as integer vector.
-#' @param xreg A \code{tsibble} containing exogenous variables.
+#' @param y Numeric vector containing the response variable.
+#' @param lags Integer vectors with the lags associated with the input variable.
 #' @param dy Integer vector. The nth-differences of the response variable.
-#' @param dx Integer vector. The nth-differences of the exogenous variables.
 #' @param inf_crit Character value. The information criterion used for variable selection \code{inf_crit = c("aic", "aicc", "bic")}.
 #' @param n_models Integer value. The maximum number of (random) models to train for model selection.
 #' @param n_states Integer value. The number of internal states per reservoir.
@@ -33,113 +30,81 @@
 #'       }
 #' @export
 
-train_esn <- function(data,
-                      lags,
-                      fourier = NULL,
-                      xreg = NULL,
+train_esn <- function(y,
+                      lags = 1,
                       dy = 0,
-                      dx = 0,
-                      inf_crit = "aic",
-                      n_states = 100,
-                      n_models = 200,
-                      n_initial = 10,
+                      inf_crit = "bic",
+                      n_states = NULL,
+                      n_models = NULL,
+                      n_initial = NULL,
                       n_seed = 42,
                       alpha = 1,
                       rho = 1,
-                      density = 0.1,
+                      density = 0.5,
                       lambda = c(1e-4, 2),
                       scale_win = 0.5,
                       scale_wres = 0.5,
-                      scale_inputs = c(-1, 1)) {
+                      scale_inputs = c(-0.5, 0.5)) {
+  
+  
+  # Argument handling =========================================================
+  
+  # Check input data
+  if (is.vector(y) & is.numeric(y)) {
+    n_outputs <- 1
+  } else {
+    abort("train_esn() requires a numeric vector as input.")
+  }
+  
+  if(any(is.na(y))){
+    abort("train_esn() does not support missing values.")
+  }
+  
+  # Number of observations
+  n_total <- length(y)
+  
+  # if (is.null(lags)) {
+  #   lags <- c(1)
+  # }
+  
+  if (is.null(n_states)) {
+    n_states <- min(floor(n_total * 0.4), 100)
+  }
+  
+  if (is.null(n_models)) {
+    n_models <- n_states * 2
+  }
+  
+  # Number of initial observations to drop
+  n_initial <- floor(n_total * 0.05)
+  
+  if (is.null(dy)) {
+    dy <- ndiffs(ts(y, frequency = 12))
+    if (dy > 1) {
+      dy <- 1
+    }
+  }
+  
+  # Train model ===============================================================
   
   # Pre-processing ============================================================
   
-  # Prepare constants as integers
-  n_models <- as.integer(n_models)
-  n_states <- as.integer(n_states)
-  n_initial <- as.integer(n_initial)
-  n_seed <- as.integer(n_seed)
-  
-  # Prepare exogenous variables
-  if (is.null(xreg)) {
-    xx <- NULL
-  } else {
-    # Convert tsibble to numeric matrix
-    xreg <- invoke(cbind, unclass(xreg)[measured_vars(xreg)])
-    # Copy of original data for later usage
-    xx <- xreg
-    
-    # Calculate nth-differences
-    if (is.null(dx)) {dx <- 0}
-    
-    xreg <- diff_data(
-      data = xreg,
-      n_diff = dx
-    )
-    
-    # Scale data to specified interval
-    xreg <- scale_data(
-      data = xreg,
-      new_range = scale_inputs)$data
-  }
-  
-  # Prepare output variable
-  # Name of output variable
-  name_output <- measured_vars(data)
-  # Convert tsibble to numeric matrix
-  y <- invoke(cbind, unclass(data)[name_output])
-  # Number of outputs
-  n_outputs <- ncol(y)
-  # Number of total observations
-  n_total <- nrow(y)
   # Create copy of original data for later usage
   yy <- y
   
   # Calculate nth-difference of output variable
-  y <- diff_data(
-    data = y,
-    n_diff = dy
-  )
+  y <- diff_vec(y = y, n = dy) # rename n to dy
   
   # Scale data to specified interval
-  scaled <- scale_data(
-    data = y,
-    new_range = scale_inputs
-  )
-  
-  y <- scaled$data
+  scaled <- scale_vec(y = y, new_range = scale_inputs)
+  y <- scaled$ys
   old_range <- scaled$old_range
   
   # Create input layer ========================================================
+  ylag <- create_lags(y = y, lags = lags)
   
-  # Create lagged variables as matrix
-  if (is.null(lags)) {
-    y_lag <- NULL
-  } else {
-    y_lag <- create_lags(
-      data = y,
-      lags = lags
-    )
-  }
-  
-  # Create fourier terms as matrix
-  if (is.null(fourier)) {
-    y_fourier <- NULL
-  } else {
-    # Create numeric matrix of fourier terms
-    y_fourier <- create_fourier(
-      x = 1:n_total,
-      period = fourier[[1]],
-      k = fourier[[2]]
-    )
-  }
-  
-  # Concatenate input matrices
-  inputs <- cbind(
-    y_lag,
-    y_fourier,
-    xreg
-  )
+  y <- as.matrix(y)
+  inputs <- ylag
   
   # Drop NAs for training
   inputs <- inputs[complete.cases(inputs), , drop = FALSE]
@@ -190,7 +155,6 @@ train_esn <- function(data,
   
   colnames(states_train) <- names_states
   
-  
   # Create output layer (train model) =========================================
   
   # Intercept term as matrix
@@ -215,11 +179,6 @@ train_esn <- function(data,
     min = lambda[1],
     max = lambda[2]
   )
-  
-  # lambdas <- rexp(
-  #   n = n_models,
-  #   rate = 6
-  #   )
   
   # Estimate models
   model_object <- map(
@@ -250,7 +209,7 @@ train_esn <- function(data,
   model_metrics <- model_metrics %>%
     mutate(
       model = model_names,
-      .before = .data$loglik) %>%
+      .before = loglik) %>%
     arrange(!!sym(inf_crit))
   
   # Identify best model
@@ -265,20 +224,17 @@ train_esn <- function(data,
   wout <- model_object[["wout"]]
   
   # Extract fitted values
-  fitted <- model_object[["fitted"]]
+  fitted <- as.numeric(model_object[["fitted"]])
   
   # Adjust actual values for correct dimension
-  actual <- yy[index_train, , drop = FALSE]
+  actual <- yy[index_train]
   
   # Rescale fitted values
-  fitted <- rescale_data(
-    data = fitted,
+  fitted <- rescale_vec(
+    ys = fitted,
     old_range = old_range,
     new_range = scale_inputs
   )
-  
-  actual <- as.numeric(actual)
-  fitted <- as.numeric(fitted)
   
   # Inverse difference fitted values
   if (dy > 0) {fitted <- actual + fitted}
@@ -296,17 +252,15 @@ train_esn <- function(data,
   # Store model data for forecasting
   model_data <- list(
     yt = yt,
-    yy = yy,
-    xx = xx
+    yy = yy
   )
   
   # List with model inputs and settings
   model_inputs <- list(
     lags = lags,
-    fourier = fourier,
     dy = dy,
-    dx = dx,
-    old_range = old_range
+    old_range = old_range,
+    alpha = alpha
   )
   
   # List with number of inputs, internal states and outputs
@@ -351,5 +305,5 @@ train_esn <- function(data,
       states_train = states_train,
       method = method),
     class = "esn"
-    )
+  )
 }
