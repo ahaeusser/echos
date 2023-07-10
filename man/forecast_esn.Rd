@@ -4,14 +4,12 @@
 \alias{forecast_esn}
 \title{Forecast a trained Echo State Network}
 \usage{
-forecast_esn(object, n_ahead = 12, xreg = NULL)
+forecast_esn(object, n_ahead = 18)
 }
 \arguments{
-\item{object}{An object of class \code{ESN}. The result of a call to \code{train_esn()} or \code{auto_esn()}.}
+\item{object}{An object of class \code{esn}. The result of a call to \code{train_esn()}.}
 
-\item{n_ahead}{Integer value. The number of periods for forecasting (forecast horizon).}
-
-\item{xreg}{A \code{tsibble} containing exogenous variables.}
+\item{n_ahead}{Integer value. The number of periods for forecasting (i.e. forecast horizon).}
 }
 \value{
 A \code{list} containing:

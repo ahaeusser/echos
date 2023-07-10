@@ -3,9 +3,8 @@
 #' 
 #' @description Forecast an Echo State Network from a trained model.
 #' 
-#' @param object An object of class \code{ESN}. The result of a call to \code{train_esn()} or \code{auto_esn()}.
-#' @param n_ahead Integer value. The number of periods for forecasting (forecast horizon).
-#' @param xreg A \code{tsibble} containing exogenous variables.
+#' @param object An object of class \code{esn}. The result of a call to \code{train_esn()}.
+#' @param n_ahead Integer value. The number of periods for forecasting (i.e. forecast horizon).
 #' 
 #' @return A \code{list} containing:
 #'    \itemize{
@@ -16,8 +15,7 @@
 #' @export
 
 forecast_esn <- function(object,
-                         n_ahead = 12,
-                         xreg = NULL) {
+                         n_ahead = 18) {
   
   # Pre-processing ============================================================
   
@@ -25,9 +23,8 @@ forecast_esn <- function(object,
   
   # Prepared model data
   yt <- method$model_data$yt
-  xx <- method$model_data$xx
   yy <- method$model_data$yy
-  n_total <- nrow(yy)
+  n_total <- length(yy)
   
   # Number of inputs, internal states within the reservoir and outputs
   n_inputs <- method$model_layers$n_inputs
@@ -43,7 +40,7 @@ forecast_esn <- function(object,
   scale_inputs <- method$scale_inputs
   old_range <- method$model_inputs$old_range
   dy <- method$model_inputs$dy
-  dx <- method$model_inputs$dx
+  alpha <- method$model_inputs$alpha
   
   # Internal states and leakage rate
   states_train <- object$states_train
@@ -51,86 +48,22 @@ forecast_esn <- function(object,
   
   # Model inputs
   lags <- method$model_inputs$lags
-  fourier <- method$model_inputs$fourier
   
   
   # Create input layer ========================================================
   
-  if (!is.null(xreg)) {
-    # Convert tsibble to numeric matrix
-    xreg <- invoke(cbind, unclass(xreg)[measured_vars(xreg)])
-    xreg <- rbind(xx, xreg)
-    
-    if (is.null(dx)) {dx <- 0}
-    
-    # Calculate nth-differences of exogenous variables
-    xreg <- diff_data(
-      data = xreg,
-      n_diff = dx
-    )
-    
-    # Scale data to specified interval
-    scaled <- scale_data(
-      data = xreg,
-      new_range = scale_inputs
-    )
-    
-    xreg <- tail(
-      x = scaled$data,
-      n = n_ahead
-    )
-    
-    pad_na <- matrix(
-      data = NA_real_,
-      nrow = max(unlist(lags)),
-      ncol = ncol(xreg)
-    )
-    
-    xreg <- rbind(0, xreg, pad_na)
-    rownames(xreg) <- NULL
-  }
-  
   # Create lagged variables as matrix ("revolved style")
-  if (is.null(lags)) {
-    y_lag <- NULL
-  } else {
-    y_lag <- create_revolved(
-      data = yt,
-      lags = lags,
-      n_ahead = n_ahead
-    )
-  }
-  
-  # Create fourier terms as matrix
-  if (is.null(fourier)) {
-    y_fourier <- NULL
-  } else {
-    
-    # Create numeric matrix of fourier terms
-    y_fourier <- create_fourier(
-      x = (n_total + 1):(n_total + n_ahead),
-      period = fourier[[1]],
-      k = fourier[[2]]
-    )
-    
-    pad_na <- matrix(
-      data = NA_real_,
-      nrow = max(unlist(lags)),
-      ncol = ncol(y_fourier)
-    )
-    
-    y_fourier <- rbind(0, y_fourier, pad_na)
-  }
-  
-  # Concatenate input matrices
-  inputs <- cbind(
-    y_lag,
-    y_fourier,
-    xreg
+  ylag <- create_revolved(
+    y = as.numeric(yt),
+    lags = lags,
+    n_ahead = n_ahead
   )
   
+  # Concatenate input matrices
+  inputs <- ylag
+  
   # Predict trained model
-  model_fcst <- predict_esn(
+  point <- predict_esn(
     win = win,
     wres = wres,
     wout = wout,
@@ -142,21 +75,21 @@ forecast_esn <- function(object,
     states_train = states_train
   )
   
+  point <- as.numeric(point)
+  
   # Rescaling of point forecasts
-  model_fcst <- rescale_data(
-    data = model_fcst,
+  point <- rescale_vec(
+    ys = point,
     old_range = old_range,
     new_range = scale_inputs
   )
   
   # Integrate differences
-  model_fcst <- inv_diff_data(
-    data = yy,
-    data_diff = model_fcst,
+  point <- inv_diff_vec(
+    y = yy,
+    y_diff = point,
     n_diff = dy
   )
-  
-  point <- as.numeric(model_fcst)
   
   # Post-processing ===========================================================
   
@@ -164,7 +97,6 @@ forecast_esn <- function(object,
   structure(
     list(
       point = point,
-      model_fcst = model_fcst,
       method = method,
       n_ahead = n_ahead),
     class = "forecast_esn"
@@ -223,15 +155,7 @@ predict_esn <- function(win,
   states_fcst[1, ] <- states_train[nrow(states_train), , drop = FALSE]
   
   # Number of lags by output variable
-  n_lags <- lapply(lags, length)
-  
-  # Names of lagged variables as list
-  names_lags_list <- lapply(
-    seq_len(ncol(wout)),
-    function(n) {
-      paste(colnames(wout)[n], "(", lags[[n]], ")", sep = "")
-    }
-  )
+  n_lags <- length(lags)
   
   # Dynamic forecasting (iterative mode)
   for (t in 2:(n_ahead + 1)) {
@@ -248,15 +172,9 @@ predict_esn <- function(win,
     fcst[(t-1), ] <- Xf %*% wout
     
     # Update lagged variables in inputs
-    for (i in seq_len(ncol(wout))) {
-      # Column index for block-wise looping and updating (by variable)
-      index_col <- names_lags_list[[i]]
-      # Row index for block-wise looping and updating (by variable)
-      index_row <- inputs[, index_col, drop = FALSE]
-      index_row <- as.numeric(apply(index_row, MARGIN = 2, FUN = function(x) min(which(is.na(x)))))
-      for (ii in seq_len(n_lags[[i]])) {
-        inputs[index_row[ii], index_col[ii]] <- fcst[(t-1), i]
-      }
+    for (j in seq_len(n_lags)) {
+      i <- min(which(is.na(inputs[, j])))
+      inputs[i, j] <- fcst[(t-1), 1]
     }
   }
   
