@@ -7,8 +7,8 @@
 train_esn(
   y,
   lags = 1,
-  dy = 0,
   inf_crit = "bic",
+  n_diff = NULL,
   n_states = NULL,
   n_models = NULL,
   n_initial = NULL,
@@ -27,9 +27,9 @@ train_esn(
 
 \item{lags}{Integer vectors with the lags associated with the input variable.}
 
-\item{dy}{Integer vector. The nth-differences of the response variable.}
-
 \item{inf_crit}{Character value. The information criterion used for variable selection \code{inf_crit = c("aic", "aicc", "bic")}.}
+
+\item{n_diff}{Integer vector. The nth-differences of the response variable.}
 
 \item{n_states}{Integer value. The number of internal states per reservoir.}
 

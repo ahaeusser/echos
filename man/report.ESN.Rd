@@ -2,7 +2,7 @@
 % Please edit documentation in R/ESN.R
 \name{report.ESN}
 \alias{report.ESN}
-\title{Provide a detailed summary of a trained ESN}
+\title{Provide a detailed summary of the trained ESN model}
 \usage{
 \method{report}{ESN}(object)
 }
@@ -13,5 +13,5 @@
 Print detailed model summary.
 }
 \description{
-Provide a detailed summary of a trained ESN.
+Provide a detailed summary of the trained ESN model.
 }

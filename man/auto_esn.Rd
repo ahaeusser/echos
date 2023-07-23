@@ -4,57 +4,12 @@
 \alias{auto_esn}
 \title{Automatic train an Echo State Network}
 \usage{
-auto_esn(
-  .data,
-  specials,
-  lags = NULL,
-  fourier = NULL,
-  xreg = NULL,
-  dy = 0,
-  dx = 0,
-  inf_crit = "aic",
-  n_states = NULL,
-  n_models = NULL,
-  n_seed = 42,
-  alpha = 1,
-  rho = 1,
-  density = 0.05,
-  lambda = c(1e-04, 2),
-  scale_win = 0.5,
-  scale_wres = 0.5,
-  scale_inputs = c(-1, 1)
-)
+auto_esn(.data, specials, ...)
 }
 \arguments{
 \item{.data}{A \code{tsibble} containing the time series data.}
 
 \item{specials}{Currently not is use.}
-
-\item{lags}{Integer vectors with the lags associated with the input variable.}
-
-\item{dy}{Integer vector. The nth-differences of the response variable.}
-
-\item{inf_crit}{Character value. The information criterion used for variable selection \code{inf_crit = c("aic", "aicc", "bic")}.}
-
-\item{n_states}{Integer value. The number of internal states per reservoir.}
-
-\item{n_models}{Integer value. The maximum number of (random) models to train for model selection.}
-
-\item{n_seed}{Integer value. The seed for the random number generator (for reproducibility).}
-
-\item{alpha}{Numeric value. The leakage rate (smoothing parameter) applied to the reservoir.}
-
-\item{rho}{Numeric value. The spectral radius for scaling the reservoir weight matrix.}
-
-\item{density}{Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).}
-
-\item{lambda}{Numeric vector. Lower and upper bound of lambda sequence for ridge regression.}
-
-\item{scale_win}{Numeric value. The lower and upper bound of the uniform distribution for scaling the input weight matrix.}
-
-\item{scale_wres}{Numeric value. The lower and upper bound of the uniform distribution for scaling the reservoir weight matrix.}
-
-\item{scale_inputs}{Numeric vector. The lower and upper bound for scaling the time series data.}
 }
 \value{
 An object of class \code{ESN}.

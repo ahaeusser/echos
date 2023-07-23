@@ -6,8 +6,8 @@
 #' 
 #' @param y Numeric vector containing the response variable.
 #' @param lags Integer vectors with the lags associated with the input variable.
-#' @param dy Integer vector. The nth-differences of the response variable.
 #' @param inf_crit Character value. The information criterion used for variable selection \code{inf_crit = c("aic", "aicc", "bic")}.
+#' @param n_diff Integer vector. The nth-differences of the response variable.
 #' @param n_models Integer value. The maximum number of (random) models to train for model selection.
 #' @param n_states Integer value. The number of internal states per reservoir.
 #' @param n_initial Integer value. The number of observations of internal states for initial drop out (throw-off).
@@ -32,8 +32,8 @@
 
 train_esn <- function(y,
                       lags = 1,
-                      dy = 0,
                       inf_crit = "bic",
+                      n_diff = NULL,
                       n_states = NULL,
                       n_models = NULL,
                       n_initial = NULL,
@@ -63,10 +63,6 @@ train_esn <- function(y,
   # Number of observations
   n_total <- length(y)
   
-  # if (is.null(lags)) {
-  #   lags <- c(1)
-  # }
-  
   if (is.null(n_states)) {
     n_states <- min(floor(n_total * 0.4), 100)
   }
@@ -78,10 +74,10 @@ train_esn <- function(y,
   # Number of initial observations to drop
   n_initial <- floor(n_total * 0.05)
   
-  if (is.null(dy)) {
-    dy <- ndiffs(ts(y, frequency = 12))
-    if (dy > 1) {
-      dy <- 1
+  if (is.null(n_diff)) {
+    n_diff <- ndiffs(y)
+    if (n_diff > 1) {
+      n_diff <- 1
     }
   }
   
@@ -93,7 +89,7 @@ train_esn <- function(y,
   yy <- y
   
   # Calculate nth-difference of output variable
-  y <- diff_vec(y = y, n = dy) # rename n to dy
+  y <- diff_vec(y = y, n_diff = n_diff)
   
   # Scale data to specified interval
   scaled <- scale_vec(y = y, new_range = scale_inputs)
@@ -237,7 +233,7 @@ train_esn <- function(y,
   )
   
   # Inverse difference fitted values
-  if (dy > 0) {fitted <- actual + fitted}
+  if (n_diff > 0) {fitted <- actual + fitted}
   
   # Calculate residuals
   resid <- actual - fitted
@@ -256,11 +252,14 @@ train_esn <- function(y,
   )
   
   # List with model inputs and settings
-  model_inputs <- list(
+  model_meta <- list(
     lags = lags,
-    dy = dy,
+    n_diff = n_diff,
+    n_models = n_models,
     old_range = old_range,
-    alpha = alpha
+    alpha = alpha,
+    rho = rho,
+    density = density
   )
   
   # List with number of inputs, internal states and outputs
@@ -283,7 +282,7 @@ train_esn <- function(y,
   # Store results
   method <- list(
     model_data = model_data,
-    model_inputs = model_inputs,
+    model_meta = model_meta,
     model_metrics = model_metrics,
     model_spec = model_spec,
     model_layers = model_layers,

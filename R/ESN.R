@@ -13,76 +13,26 @@
 
 auto_esn <- function(.data,
                      specials,
-                     lags = NULL,
-                     fourier = NULL,
-                     xreg = NULL,
-                     dy = 0,
-                     dx = 0,
-                     inf_crit = "aic",
-                     n_states = NULL,
-                     n_models = NULL,
-                     n_seed = 42,
-                     alpha = 1,
-                     rho = 1,
-                     density = 0.05,
-                     lambda = c(1e-4, 2),
-                     scale_win = 0.5,
-                     scale_wres = 0.5,
-                     scale_inputs = c(-1, 1)) {
+                     ...) {
   
   # Number of response variables
   n_outputs <- length(tsibble::measured_vars(.data))
-  # Number of observations
-  n_obs <- nrow(.data)
-  
-  if (is.null(n_states)) {
-    n_states <- min(floor(n_obs * 0.4), 100)
-  }
-  
-  if (is.null(n_models)) {
-    n_models <- n_states * 2
-  }
-  
-  # Number of initial observations to drop
-  n_initial <- floor(n_obs * 0.05)
-  
-  if (is.null(dy)) {
-    dy <- ndiffs(as.ts(.data))
-    if (dy > 1) {
-      dy <- 1
-    }
-  }
-  
+
   if (n_outputs > 1) {
     abort("Only univariate responses are supported by ESN.")
   }
-  
+
   if(any(is.na(.data))){
     abort("ESN does not support missing values.")
   }
   
   # Train model ===============================================================
   
-  model_fit <- train_esn(
-    data = .data,
-    lags = lags,
-    fourier = fourier,
-    xreg = xreg,
-    dy = dy,
-    dx = dx,
-    inf_crit = inf_crit,
-    n_models = n_models,
-    n_states = n_states,
-    n_initial = n_initial,
-    n_seed = n_seed,
-    alpha = alpha,
-    rho = rho,
-    density = density,
-    lambda = lambda,
-    scale_win = scale_win,
-    scale_wres = scale_wres,
-    scale_inputs = scale_inputs
-  )
+  # Prepare data as numeric vector
+  y <- unclass(.data)[[measured_vars(.data)]]
+  
+  # Fit model
+  model_fit <- train_esn(y = y, ...)
   
   # Return model and components
   structure(
@@ -98,9 +48,8 @@ auto_esn <- function(.data,
 
 
 
-
-
 specials_esn <- new_specials()
+
 
 
 #' @title Automatic train an Echo State Network
@@ -125,8 +74,6 @@ ESN <- function(formula, ...){
     !!enquo(formula),
     ...)
 }
-
-
 
 
 
@@ -258,9 +205,9 @@ glance.ESN <- function(object) {
 
 
 
-#' @title Provide a detailed summary of a trained ESN
+#' @title Provide a detailed summary of the trained ESN model
 #' 
-#' @description Provide a detailed summary of a trained ESN.
+#' @description Provide a detailed summary of the trained ESN model.
 #'
 #' @param object An object of class \code{ESN}.
 #'
@@ -271,48 +218,20 @@ report.ESN <- function(object) {
   
   method <- object$model$method
   
-  # Layers
+  # Layers (number of inputs, internal states and outputs)
   n_inputs <- method$model_layer$n_inputs
-  n_res <- method$model_layer$n_res
   n_states <- method$model_layer$n_states
   n_outputs <- method$model_layer$n_outputs
   
-  # Ensemble
-  n_models <- method$model_ensemble$n_models
-  n_best <- method$model_ensemble$n_best
-  n_vars <- method$model_ensemble$n_vars
+  # Meta data (lags, differences and number of models)
+  lags <- method$model_meta$lags
+  n_diff <- method$model_meta$n_diff
+  n_models <- method$model_meta$n_models
   
-  # Inputs
-  lags <- unlist(method$model_inputs$lags)
-  fourier <- method$model_inputs$fourier
-  
-  if (is.null(fourier)) {
-    fourier <- NA
-  } else {
-    fourier <- paste(
-      "{",
-      paste("(", fourier[[1]], "-", fourier[[2]], ")",
-            collapse = ",",
-            sep = ""),
-      "}",
-      sep = "")
-  }
-  
-  # Differences
-  dy <- as.numeric(method$model_inputs$dy)
-  
-  if (is.null(method$model_data$xx)) {
-    xreg <- NA
-    dx <- NA
-  } else {
-    xreg <- colnames(method$model_data$xx)
-    dx <- as.numeric(method$model_inputs$dx)
-  }
-  
-  # Hyperparameters
-  alpha <- unique(method$model_pars$alpha)
-  rho <- unique(method$model_pars$rho)
-  density <- unique(method$model_pars$density)
+  # Hyperparameters (leakage rate, spectral radius and density)
+  alpha <- method$model_meta$alpha
+  rho <- method$model_meta$rho
+  density <- method$model_meta$density
   
   # Scaling
   scale_win <- method$scale_win
@@ -322,29 +241,15 @@ report.ESN <- function(object) {
   cat(
     "\n--- Layers -----------------------------------------------------", "\n",
     "n_inputs  = ", n_inputs, "\n",
-    "n_res     = ", n_res, "\n",
     "n_states  = ", n_states, "\n",
     "n_outputs = ", n_outputs, "\n"
   )
   
   cat(
-    "\n--- Ensemble ---------------------------------------------------", "\n",
-    "n_models = ", n_models, "\n",
-    "n_best   = ", n_best, "\n",
-    "n_vars   = ", n_vars, "\n"
-  )
-  
-  cat(
-    "\n--- Inputs -----------------------------------------------------", "\n",
-    "lags    = ", paste0("(", paste0(lags, collapse = ", "), ")"), "\n",
-    "fourier = ", fourier, "\n",
-    "xreg    = ", xreg, "\n"
-  )
-  
-  cat(
-    "\n--- Differences ------------------------------------------------", "\n",
-    "dy = ", dy, "\n",
-    "dx = ", dx, "\n"
+    "\n--- Meta ---------------------------------------------------", "\n",
+    "lags     = ", lags, "\n",
+    "n_diff   = ", n_diff, "\n",
+    "n_models = ", n_models, "\n"
   )
   
   cat(
@@ -357,9 +262,9 @@ report.ESN <- function(object) {
   
   cat(
     "\n--- Hyperparameters --------------------------------------------", "\n",
-    "alpha   = ", paste0("(", paste0(alpha, collapse = ", "), ")"), "\n",
-    "rho     = ", paste0("(", paste0(rho, collapse = ", "), ")"), "\n",
-    "density = ", paste0("(", paste0(density, collapse = ", "), ")"), "\n"
+    "alpha   = ", alpha, "\n",
+    "rho     = ", rho, "\n",
+    "density = ", density, "\n"
   )
   
 }
@@ -423,104 +328,3 @@ reservoir.mdl_df <- function(object) {
   
   return(object)
 }
-
-
-
-
-#' @title Extract and return values from a trained ESN as tibble
-#' 
-#' @description Extract and return values from a trained ESN
-#'   as tibble. The function works only if the
-#'   model within the \code{mdl_df} is of class \code{ESN}.
-#'   The extracted values are are stored in a tibble with
-#'   the following columns:
-#'   
-#'   \itemize{
-#'     \item{\code{spec}: Character value. Succinct summary of model specifications.}
-#'     \item{\code{n_inputs}: Integer value. The number of model inputs.}
-#'     \item{\code{n_res}: Integer value. The number of internal states within the reservoir (hidden layer).}
-#'     \item{\code{n_outputs}: Integer value. The number of model outputs.}
-#'     \item{\code{lags}: A \code{list} containing integer vectors with the lags associated with each input variable.}
-#'     \item{\code{fourier}: A \code{list} containing the fourier terms.}
-#'     \item{\code{dy}: Integer vector. The nth-differences of the response variable.}
-#'     \item{\code{dx}: Integer vector. The nth-differences of the exogenous variable.}
-#'     \item{\code{scale_win}: Numeric value. The lower and upper bound of the uniform distribution for scaling the input weight matrix.}
-#'     \item{\code{scale_wres}: Numeric value. The lower and upper bound of the uniform distribution for scaling the reservoir weight matrix.}
-#'     \item{\code{alpha}: Numeric value. The leakage rate (smoothing parameter) applied to the reservoir.}
-#'     \item{\code{rho}: Numeric value. The spectral radius for scaling the reservoir weight matrix.}
-#'     \item{\code{lambda}: Numeric value. The regularization (shrinkage) parameter for ridge regression.}
-#'     \item{\code{density}: Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).}
-#'     \item{\code{df}: Numeric value. The effective degree of freedom.}
-#'     \item{\code{aic}: Numeric value. The Akaike information criterion.}
-#'     \item{\code{bic}: Numeric value. The Bayesian information criterion.}
-#'     \item{\code{hqc}: Numeric value. The Hannan-Quinn criterion.}
-#'     }
-#'
-#' @param object An object of class \code{mdl_df}.
-#'
-#' @return A tibble containing the hyper-parameters.
-#' @export
-
-extract_esn <- function(object) {
-  UseMethod("extract_esn")
-}
-
-
-#' @export
-extract_esn.mdl_df <- function(object) {
-  
-  object <- object %>%
-    pivot_longer(
-      cols = mable_vars(object),
-      names_to = ".model",
-      values_to = ".spec"
-    )
-  
-  key_tbl <- object %>%
-    as_tibble() %>%
-    select(-c(.data$.spec))
-  
-  # Extract model details
-  mdl_tbl <- map(
-    .x = seq_len(nrow(key_tbl)),
-    .f = ~{
-      
-      lst_mdl <- object[[".spec"]][[.x]]$fit$model$method
-      
-      tibble(
-        spec       = lst_mdl[["model_spec"]],
-        n_inputs   = lst_mdl[["model_layers"]][["n_inputs"]],
-        n_res      = lst_mdl[["model_layers"]][["n_res"]],
-        n_states   = lst_mdl[["model_layers"]][["n_states"]],
-        n_outputs  = lst_mdl[["model_layers"]][["n_outputs"]],
-        n_models   = lst_mdl[["model_ensemble"]][["n_models"]],
-        n_best     = lst_mdl[["model_ensemble"]][["n_best"]],
-        n_vars     = lst_mdl[["model_ensemble"]][["n_vars"]],
-        lags       = list(lst_mdl[["model_inputs"]][["lags"]]),
-        fourier    = list(lst_mdl[["model_inputs"]][["fourier"]]),
-        dy         = lst_mdl[["model_inputs"]][["dy"]],
-        dx         = lst_mdl[["model_inputs"]][["dx"]],
-        scale_win  = lst_mdl[["scale_win"]],
-        scale_wres = lst_mdl[["scale_wres"]],
-        alpha      = list(unique(lst_mdl[["model_pars"]][["alpha"]])),
-        rho        = list(unique(lst_mdl[["model_pars"]][["rho"]])),
-        density    = list(unique(lst_mdl[["model_pars"]][["density"]]))
-      )
-    })
-  
-  # Add columns with key variables
-  object <- map(
-    .x = seq_len(nrow(key_tbl)),
-    .f = ~{
-      bind_cols(
-        key_tbl[.x, ],
-        mdl_tbl[[.x]]
-      )
-    })
-  
-  # Flatten list row-wise
-  object <- bind_rows(object)
-  
-  return(object)
-}
-

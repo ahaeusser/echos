@@ -36,19 +36,16 @@ forecast_esn <- function(object,
   wres <- method$model_weights$wres
   wout <- method$model_weights$wout
   
-  # Arguments for differencing and scaling the time series data
+  # Extract meta data
   scale_inputs <- method$scale_inputs
-  old_range <- method$model_inputs$old_range
-  dy <- method$model_inputs$dy
-  alpha <- method$model_inputs$alpha
+  old_range <- method$model_meta$old_range
+  lags <- method$model_meta$lags
+  n_diff <- method$model_meta$n_diff
+  alpha <- method$model_meta$alpha
   
   # Internal states and leakage rate
   states_train <- object$states_train
   model_object <- method$model_object
-  
-  # Model inputs
-  lags <- method$model_inputs$lags
-  
   
   # Create input layer ========================================================
   
@@ -87,8 +84,8 @@ forecast_esn <- function(object,
   # Integrate differences
   point <- inv_diff_vec(
     y = yy,
-    y_diff = point,
-    n_diff = dy
+    yd = point,
+    n_diff = n_diff
   )
   
   # Post-processing ===========================================================

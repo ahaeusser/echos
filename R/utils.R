@@ -1,11 +1,11 @@
 
 #' @title Create lagged variables of a numeric vector
 #' 
-#' @description Create lagged variables of a matrix, shifting each column
-#'   back by a given number of observations.
+#' @description Create lagged variables of a numeric vector, shifting each 
+#'   column back by a given number of observations.
 #' 
 #' @param y Numeric vector with input data.
-#' @param lags Integer vectors with the number of lags (in units of observations).
+#' @param lags Integer vector with the number of lags (in units of observations).
 #' 
 #' @return ylag Numeric matrix with lagged variables of the input vector.
 #' @noRd
@@ -42,8 +42,9 @@ create_lags <- function(y, lags) {
 
 #' @title Create lagged variables of a numeric vector for iterative forecasting
 #' 
-#' @description Create lagged variables of a matrix for iterative forecasting,
-#'   shifting each column back by a given number of observations and fill with NAs for the updates.
+#' @description Create lagged variables of a numeric vector for iterative 
+#'   forecasting, shifting each column back by a given number of observations 
+#'   and fill with NAs for the updates.
 #' 
 #' @param y Numeric vector with input data.
 #' @param lags Integer vector with the number of lags (in units of observations).
@@ -68,6 +69,7 @@ create_revolved <- function(y,
     ncol = n_lags
   )
   
+  # Lag variables
   for (i in seq_along(lags)) {
     lag <- c(0, y[c((length(y) - lags[i] + 1):length(y))])
     length(lag) <- n_rows
@@ -87,11 +89,10 @@ create_revolved <- function(y,
 
 #' @title Create model specification
 #' 
-#' @description This function creates the model specification (short summary) as a string.
+#' @description Create the model specification (i.e. short summary) as a string.
 #'
-#' @param model_layers List containing the number of inputs (n_inputs), 
-#'   internal states (n_states) and the number of 
-#'   outputs (n_outputs).
+#' @param model_layers List containing the number of inputs (n_inputs), internal
+#'   states (n_states) and the number of outputs (n_outputs).
 #'
 #' @return model_spec Character value. The model specification as string.
 #' @noRd
@@ -120,7 +121,7 @@ create_spec <- function(model_layers) {
 
 #' @title Create the input weight matrix
 #' 
-#' @description This function creates the random input weight matrices.
+#' @description Create the random input weight matrix.
 #' 
 #' @param n_inputs Integer value. The number of input features.
 #' @param n_states Integer value. The number of internal states within the reservoir (reservoir size).
@@ -149,8 +150,8 @@ create_win <- function(n_inputs,
 
 #' @title Create the reservoir weight matrix
 #' 
-#' @description This function creates the random reservoir weight matrix
-#'    (scaled to spectral radius rho).
+#' @description Create the random reservoir weight matrix (scaled to spectral 
+#'   radius rho).
 #' 
 #' @param n_states Integer value. The number of internal states within the reservoir (reservoir size).
 #' @param rho Numeric value. The spectral radius for scaling the weight matrix.
@@ -199,10 +200,10 @@ create_wres <- function(n_states,
 
 
 
-#' @title Helper function to concatenate a string and one number.
+#' @title Helper function to concatenate a string and sequential integers.
 #' 
-#' @description Helper function to concatenate a string and one number (e.g.
-#'   test(1), test(2), ..., test(n)).
+#' @description Concatenate a string \code{x} and sequential integers up 
+#'   to \code{n} (e.g. test(1), test(2), ..., test(n)).
 #'
 #' @param x Character value.
 #' @param n Integer value.
@@ -226,22 +227,22 @@ paste_names <- function(x, n) {
 
 #' @title Calculate the nth-difference of a numeric vector
 #'
-#' @description This function takes a numeric vector and calculates
+#' @description Takes a numeric vector as input and calculates
 #'    the nth-difference.
 #'
 #' @param y Numeric vector.
-#' @param n Integer value. The number of differences.
+#' @param n_diff Integer value. The number of differences.
 #'
 #' @return yd Numeric vector with the differenced data.
 #' @noRd
 
-diff_vec <- function(y, n) {
+diff_vec <- function(y, n_diff) {
   
   # Calculate n-th difference
-  if (n > 0) {
+  if (n_diff > 0) {
     yd <- diff(
       x = y,
-      differences = n,
+      differences = n_diff,
       lag = 1L
       )
   } else {
@@ -249,7 +250,7 @@ diff_vec <- function(y, n) {
   }
   
   # Pad vector with leading NAs
-  yd <- c(rep(NA_real_, n), yd)
+  yd <- c(rep(NA_real_, n_diff), yd)
   return(yd)
 }
 
@@ -257,25 +258,25 @@ diff_vec <- function(y, n) {
 
 #' @title Integrate differences of a numeric vector ("inverse difference")
 #'
-#' @description This function takes a numeric vector and integrates
+#' @description Takes a numeric vector as input and integrates
 #'    (non-seasonal) differences ("inverse difference").
 #'
 #' @param y Numeric vector containing the original data.
-#' @param y_diff Numeric vector containing the differenced data.
-#' @param n_diff Integer value. The number of non-seasonal differences.
+#' @param yd Numeric vector containing the differenced data.
+#' @param n_diff Integer value. The number of (non-seasonal) differences.
 #'
 #' @return y_int Numeric vector with the inverse differenced data.
 #' @noRd
 
 inv_diff_vec <- function(y,
-                         y_diff,
+                         yd,
                          n_diff) {
   
   y <- as.numeric(y)
-  y_diff <- as.numeric(na.omit(y_diff))
+  yd <- as.numeric(na.omit(yd))
   
   # Forecast horizon
-  n_ahead <- length(y_diff)
+  n_ahead <- length(yd)
   
   # Starting value for integration
   yi <- tail(y, n_diff)
@@ -283,14 +284,14 @@ inv_diff_vec <- function(y,
   if (n_diff > 0) {
     # Integrate differenced data
     y_int <- diffinv(
-      x = y_diff,
+      x = yd,
       lag = 1L,
       differences = n_diff,
       xi = yi
       )
   } else {
     # No differences
-    y_int <- y_diff
+    y_int <- yd
   }
   
   # Cut y_int to previous length
@@ -301,14 +302,14 @@ inv_diff_vec <- function(y,
 
 
 
-#' @title Scale a numeric matrix
+#' @title Scale a numeric vector
 #' 
-#' @description Scale the columns of a numeric matrix to a specific interval.
+#' @description Scale a numeric vector to a specific interval.
 #' 
-#' @param y Numeric matrix containing the values to be scaled. Each column is a variable and each row an observation.
+#' @param y Numeric vector containing the data to be scaled.
 #' @param new_range Numeric vector. The range for scaling (first value represents the replacement for the min value, the second is the substitute for the max value).
 #' 
-#' @return data Numeric matrix with scaled columns.
+#' @return result List with numeric vector (\code{ys}) scaled to the interval and the old range as reference.
 #' @noRd
 
 scale_vec <- function(y,
@@ -341,14 +342,14 @@ scale_vec <- function(y,
 
 #' @title Rescale (inverse scaling) a numeric vector
 #' 
-#' @description Rescale (inverse scaling) the columns of a numeric matrix
-#'    by applying the transformation backwards to original range.
+#' @description Rescale (inverse scaling) a numeric vector by applying the 
+#'   transformation backwards to original range.
 #' 
-#' @param ys Numeric matrix containing the values to be rescaled. Each column is a variable and each row an observation.
-#' @param old_range Numeric matrix with ranges (min and max) of original data.
+#' @param ys Numeric vector containing the values to be rescaled.
+#' @param old_range Numeric vector with ranges (min and max) of original data.
 #' @param new_range Numeric vector with new (scaled) interval.
 #' 
-#' @return y Numeric matrix with rescaled columns.
+#' @return y Numeric vector with rescaled values.
 #' @noRd
 
 rescale_vec <- function(ys,
@@ -356,7 +357,7 @@ rescale_vec <- function(ys,
                         new_range) {
   
   # Number of observations
-  n_obs <- length(y)
+  n_obs <- length(ys)
   
   # Extract maximum and minimum for inverse scaling
   min <- old_range[1]
