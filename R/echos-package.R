@@ -1,15 +1,12 @@
 
-#' @importFrom purrr map map_dfr invoke cross_df
-#' @importFrom tidyr pivot_longer expand_grid
-#' @importFrom strex str_nth_number
-#' @importFrom matrixStats colCumsums colDiffs colMins colMaxs rowSds rowMedians
+#' @importFrom purrr map map_dfr
+#' @importFrom tidyr pivot_longer
 #' @importFrom Matrix rsparsematrix
 #' @importFrom forecast ndiffs
 #' @importFrom rlang is_empty .data abort
-#' @importFrom stats complete.cases diffinv na.omit runif lm as.ts coef lm.fit predict
+#' @importFrom stats complete.cases diffinv na.omit runif
 #' @importFrom utils tail
 #' @importFrom distributional dist_normal
-#' @importFrom MASS rlm
 #' @import Rcpp
 #' @import RcppArmadillo
 #' @import tsibble
@@ -20,5 +17,4 @@
 .onUnload <- function (libpath) {
   library.dynam.unload("echos", libpath)
 }
-
 NULL
