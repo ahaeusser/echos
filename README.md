@@ -33,18 +33,18 @@ You can install the development version from
 devtools::install_github("ahaeusser/echos")
 ```
 
-## Usage
-
-### Load packages
-
-``` r
-library(echos)
-library(tidyverse)
-library(tsibble)
-library(fabletools)
-library(fable)
-```
-
+<!-- ## Usage -->
+<!-- ### Load packages -->
+<!-- ```{r packages, warning=FALSE, message=FALSE} -->
+<!-- library(echos) -->
+<!-- library(tidyverse) -->
+<!-- library(tsibble) -->
+<!-- library(fabletools) -->
+<!-- library(fable) -->
+<!-- ``` -->
+<!-- ```{r abbreviations, echo=FALSE, warning=FALSE, message=FALSE, results='hide'} -->
+<!-- Sys.setlocale("LC_TIME", "C") -->
+<!-- ``` -->
 <!-- ### Prepare data -->
 <!-- The dataset `m4_monthly` is a monthly `tsibble` contains the time series with the ID `"M10960"` from the M4 Forecasting Competition. The first 300 observations are used for model training and last 24 observations are used for testing (hold-out data). -->
 <!-- ```{r data} -->

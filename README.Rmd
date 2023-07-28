@@ -35,20 +35,20 @@ You can install the development version from [GitHub](https://github.com/) with:
 # install.packages("devtools")
 devtools::install_github("ahaeusser/echos")
 ```
-## Usage
+<!-- ## Usage -->
 
-### Load packages
-```{r packages, warning=FALSE, message=FALSE}
-library(echos)
-library(tidyverse)
-library(tsibble)
-library(fabletools)
-library(fable)
-```
+<!-- ### Load packages -->
+<!-- ```{r packages, warning=FALSE, message=FALSE} -->
+<!-- library(echos) -->
+<!-- library(tidyverse) -->
+<!-- library(tsibble) -->
+<!-- library(fabletools) -->
+<!-- library(fable) -->
+<!-- ``` -->
 
-```{r abbreviations, echo=FALSE, warning=FALSE, message=FALSE, results='hide'}
-Sys.setlocale("LC_TIME", "C")
-```
+<!-- ```{r abbreviations, echo=FALSE, warning=FALSE, message=FALSE, results='hide'} -->
+<!-- Sys.setlocale("LC_TIME", "C") -->
+<!-- ``` -->
 
 
 <!-- ### Prepare data -->
