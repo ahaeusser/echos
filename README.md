@@ -59,7 +59,7 @@ xfcst <- forecast_esn(xmodel, n_ahead = 24)
 
 # Plot result
 plot(xtest, type = "l")
-lines(xfcst$point, col = "red")
+lines(xfcst$point, col = "steelblue", lwd = 2)
 ```
 
 <img src="man/figures/README-base-1.svg" width="100%" />
