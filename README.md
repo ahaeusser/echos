@@ -33,6 +33,37 @@ You can install the development version from
 devtools::install_github("ahaeusser/echos")
 ```
 
+## Getting started
+
+``` r
+
+library(echos)
+#> Registered S3 method overwritten by 'quantmod':
+#>   method            from
+#>   as.zoo.data.frame zoo
+
+# Forecast horizon
+n_ahead <- 24 # forecast horizon
+# Number of observations
+n_obs <- length(AirPassengers)
+# Number of observations for training
+n_train <- n_obs - n_ahead
+
+# Prepare train and test data
+xtrain <- AirPassengers[(1:n_train)]
+xtest <- AirPassengers[((n_train+1):n_obs)]
+
+# Train and forecast ESN model
+xmodel <- train_esn(y = xtrain)
+xfcst <- forecast_esn(xmodel, n_ahead = 24)
+
+# Plot result
+plot(xtest, type = "l")
+lines(xfcst$point, col = "red")
+```
+
+<img src="man/figures/README-base-1.svg" width="100%" />
+
 <!-- ## Usage -->
 <!-- ### Load packages -->
 <!-- ```{r packages, warning=FALSE, message=FALSE} -->
@@ -47,15 +78,6 @@ devtools::install_github("ahaeusser/echos")
 <!-- ``` -->
 <!-- ### Prepare data -->
 <!-- The dataset `m4_monthly` is a monthly `tsibble` contains the time series with the ID `"M10960"` from the M4 Forecasting Competition. The first 300 observations are used for model training and last 24 observations are used for testing (hold-out data). -->
-<!-- ```{r data} -->
-<!-- # Split data into training and testing -->
-<!-- data_train <- m4_monthly %>% -->
-<!--   slice_head(n = 300) -->
-<!-- data_train -->
-<!-- data_test <- m4_monthly %>% -->
-<!--   slice_tail(n = 24) -->
-<!-- data_test -->
-<!-- ``` -->
 <!-- ### Model -->
 <!-- The function `fabletools::model()` is used to automatically train an ESN to the time series data. The object `mdl` is a `mable` containing the trained ESN. -->
 <!-- ```{r model} -->
