@@ -15,8 +15,10 @@ forecast_esn(object, n_ahead = 18)
 A \code{list} containing:
    \itemize{
       \item{\code{point}: Numeric vector containing the point forecasts.}
-      \item{\code{method}: A \code{list} containing several objects and meta information of the trained ESN (weight matrices, hyperparameters, model metrics, etc.).}
+      \item{\code{actual}: Numeric vector containing the actual values.}
+      \item{\code{fitted}: Numeric vector containing the fitted values.}
       \item{\code{n_ahead}: Integer value. The number of periods for forecasting (forecast horizon).}
+      \item{\code{model_spec}: Character value. The model specification as string.}
       }
 }
 \description{

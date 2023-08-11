@@ -9,8 +9,10 @@
 #' @return A \code{list} containing:
 #'    \itemize{
 #'       \item{\code{point}: Numeric vector containing the point forecasts.}
-#'       \item{\code{method}: A \code{list} containing several objects and meta information of the trained ESN (weight matrices, hyperparameters, model metrics, etc.).}
+#'       \item{\code{actual}: Numeric vector containing the actual values.}
+#'       \item{\code{fitted}: Numeric vector containing the fitted values.}
 #'       \item{\code{n_ahead}: Integer value. The number of periods for forecasting (forecast horizon).}
+#'       \item{\code{model_spec}: Character value. The model specification as string.}
 #'       }
 #' @export
 
@@ -42,6 +44,7 @@ forecast_esn <- function(object,
   lags <- method$model_meta$lags
   n_diff <- method$model_meta$n_diff
   alpha <- method$model_meta$alpha
+  model_spec <- method$model_spec
   
   # Internal states and leakage rate
   states_train <- object$states_train
@@ -88,14 +91,20 @@ forecast_esn <- function(object,
     n_diff = n_diff
   )
   
+  # Extract actual and fitted from object
+  actual <- object[["actual"]]
+  fitted <- object[["fitted"]]
+  
   # Post-processing ===========================================================
   
   # Output model
   structure(
     list(
       point = point,
-      method = method,
-      n_ahead = n_ahead),
+      actual = actual,
+      fitted = fitted,
+      n_ahead = n_ahead,
+      model_spec = model_spec),
     class = "forecast_esn"
     )
 }
