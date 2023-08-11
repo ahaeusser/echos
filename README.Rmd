@@ -43,7 +43,7 @@ devtools::install_github("ahaeusser/echos")
 library(echos)
 
 # Forecast horizon
-n_ahead <- 24 # forecast horizon
+n_ahead <- 18 # forecast horizon
 # Number of observations
 n_obs <- length(AirPassengers)
 # Number of observations for training
@@ -55,11 +55,10 @@ xtest <- AirPassengers[((n_train+1):n_obs)]
 
 # Train and forecast ESN model
 xmodel <- train_esn(y = xtrain)
-xfcst <- forecast_esn(xmodel, n_ahead = 24)
+xfcst <- forecast_esn(xmodel, n_ahead = n_ahead)
 
 # Plot result
-plot(xtest, type = "l")
-lines(xfcst$point, col = "steelblue", lwd = 2)
+plot(xfcst, test = xtest)
 
 ```
 
