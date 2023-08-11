@@ -11,6 +11,18 @@ is.esn <- function(object) {
 }
 
 
+#' @title Checks if object is of class "forecast_esn"
+#'
+#' @description Returns \code{TRUE} if the object is of class "forecast_esn".
+#'
+#' @param x object to be tested.
+#' @export
+
+is.forecast_esn <- function(object) {
+  inherits(object, "forecast_esn")
+}
+
+
 #' @title Provide a detailed summary of the trained ESN model
 #' 
 #' @description Provide a detailed summary of the trained ESN model.
@@ -93,16 +105,22 @@ plot.esn <- function(object) {
   resid <- object[["resid"]]
   model_spec <- object[["method"]][["model_spec"]]
   
-  par(mfrow = c(2, 2))
+  lower <- min(actual, fitted, na.rm = TRUE)
+  upper <- max(actual, fitted, na.rm = TRUE)
   
-  # Plot 1: Actual vs. Fitted -------------------------------------------------
+  def_par = par(no.readonly = TRUE)
+  
+  par(mfrow = c(3, 2))
+  
+  # Plot 1: Actual and Fitted -------------------------------------------------
   plot(
     x = actual, 
     col = "black", 
     type = "l", 
     main = "Actual and Fitted",
     xlab = "Index",
-    ylab = "Value"
+    ylab = "Value",
+    ylim = c(lower, upper)
   )
   
   lines(
@@ -121,7 +139,17 @@ plot.esn <- function(object) {
     cex = 0.8
   )
   
-  # Plot 2: Residuals vs. Fitted ----------------------------------------------
+  # Plot 2: Residuals ---------------------------------------------------------
+  plot(
+    x = resid, 
+    col = "black", 
+    type = "l", 
+    main = "Residuals",
+    xlab = "Index",
+    ylab = "Value"
+  )
+  
+  # Plot 3: Residuals vs. Fitted ----------------------------------------------
   plot(
     x = fitted,
     y = resid,
@@ -151,7 +179,7 @@ plot.esn <- function(object) {
     cex = 0.8
   )
   
-  # Plot 3: Histogram of Residuals --------------------------------------------
+  # Plot 4: Histogram of Residuals --------------------------------------------
   
   # x-axis grid
   x <- seq(
@@ -161,11 +189,13 @@ plot.esn <- function(object) {
   )
   
   # Normal curve
-  fun <- dnorm(
+  resid_norm <- dnorm(
     x = x,
     mean = mean(resid, na.rm = TRUE),
     sd = sd(resid, na.rm = TRUE)
   )
+  
+  resid_density <- density(na.omit(resid))
   
   # Basic histogram
   hist(
@@ -175,12 +205,13 @@ plot.esn <- function(object) {
     main = "Hisogram of Residuals",
     xlab = "Residuals",
     ylab = "Frequency",
-    ylim = c(0, max(fun)*1.1))
+    ylim = c(0, max(resid_density[["y"]]))
+    )
   
   # Add normal distribution
   lines(
     x = x,
-    y = fun,
+    y = resid_norm,
     col = "black",
     lty = 2,
     lwd = 1
@@ -188,7 +219,7 @@ plot.esn <- function(object) {
   
   # Add density estimate
   lines(
-    density(na.omit(resid)),
+    resid_density,
     col = "steelblue",
     lwd = 2
   )
@@ -203,11 +234,97 @@ plot.esn <- function(object) {
     cex = 0.8
   )
   
-  # Plot 4: Autocorrelation of Residuals --------------------------------------
+  # Plot 5: Autocorrelation of Residuals --------------------------------------
   acf(
     x = na.omit(resid),
     plot = TRUE,
-    main = "Autocorrelation of Residuals",
+    main = "Sample Autocorrelation of Residuals",
     ci.col = "steelblue"
   )
+  
+  # Plot 6: Partial Autocorrelation of Residuals ------------------------------
+  pacf(
+    x = na.omit(resid),
+    plot = TRUE,
+    main = "Sample Partial Autocorrelation of Residuals",
+    ci.col = "steelblue"
+  )
+  
+  par(def_par)
 }
+
+
+#' @title Plot point forecasts and actuals of a trained ESN model.
+#' 
+#' @description Plot point forecasts and actuals of a trained ESN model as line
+#'   chart. Optionally, fitted values and test data can be added to the plot.
+#'
+#' @param object An object of class \code{forecast_esn}.
+#'
+#' @return Line chart of point forecast and actual values.
+#' @export
+
+plot.forecast_esn <- function(object,
+                              fitted = FALSE,
+                              test = NULL) {
+  
+  # Extract actual, point forecast and model specification
+  actual <- object[["actual"]]
+  point <- object[["point"]]
+  model_spec <- object[["model_spec"]]
+  
+  # Pad vectors with leading and trailing NAs to same length
+  xactual <- c(actual, rep(NA_real_, length(point)))
+  xpoint <- c(rep(NA_real_, length(actual)), point)
+  
+
+  if (fitted) {
+    fitted <- object[["fitted"]]
+    xfitted <- c(fitted, rep(NA_real_, length(point)))
+  } else {
+    xfitted <- NULL
+  }
+  
+  if (!is.null(test)) {
+    if (length(point) == length(test)) {
+      xtest <- c(rep(NA_real_, length(actual)), test)
+    } else {
+      xtest <- NULL
+    }
+  }
+  
+  lower <- min(xactual, xpoint, xtest, na.rm = TRUE)
+  upper <- max(xactual, xpoint, xtest, na.rm = TRUE)
+  
+  def_par = par(no.readonly = TRUE)
+  
+  plot(
+    x = xactual,
+    type = "l",
+    main = paste0("Forecast from ", model_spec),
+    ylim = c(lower, upper),
+    xlab = "Index",
+    ylab = "Value"
+  )
+  
+  lines(
+    x = xfitted,
+    col = "steelblue",
+    lwd = 1
+    )
+  
+  lines(
+    x = xtest, 
+    col = "black",
+    lwd = 1
+  )
+  
+  lines(
+    x = xpoint, 
+    col = "steelblue",
+    lwd = 2
+    )
+  
+  par(def_par)
+}
+
