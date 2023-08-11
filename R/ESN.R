@@ -204,7 +204,6 @@ glance.ESN <- function(object) {
 
 
 
-
 #' @title Provide a detailed summary of the trained ESN model
 #' 
 #' @description Provide a detailed summary of the trained ESN model.
@@ -215,60 +214,8 @@ glance.ESN <- function(object) {
 #' @export
 
 report.ESN <- function(object) {
-  
-  method <- object$model$method
-  
-  # Layers (number of inputs, internal states and outputs)
-  n_inputs <- method$model_layer$n_inputs
-  n_states <- method$model_layer$n_states
-  n_outputs <- method$model_layer$n_outputs
-  
-  # Meta data (lags, differences and number of models)
-  lags <- method$model_meta$lags
-  n_diff <- method$model_meta$n_diff
-  n_models <- method$model_meta$n_models
-  
-  # Hyperparameters (leakage rate, spectral radius and density)
-  alpha <- method$model_meta$alpha
-  rho <- method$model_meta$rho
-  density <- method$model_meta$density
-  
-  # Scaling
-  scale_win <- method$scale_win
-  scale_wres <- method$scale_wres
-  scale_inputs <- method$scale_inputs
-  
-  cat(
-    "\n--- Layers -----------------------------------------------------", "\n",
-    "n_inputs  = ", n_inputs, "\n",
-    "n_states  = ", n_states, "\n",
-    "n_outputs = ", n_outputs, "\n"
-  )
-  
-  cat(
-    "\n--- Meta ---------------------------------------------------", "\n",
-    "lags     = ", lags, "\n",
-    "n_diff   = ", n_diff, "\n",
-    "n_models = ", n_models, "\n"
-  )
-  
-  cat(
-    "\n--- Scaling ----------------------------------------------------", "\n",
-    "scale_inputs = ", "[", scale_inputs[1], ", ", scale_inputs[2], "]", "\n",
-    "scale_win    = ", "[", -scale_win, ", ", scale_win, "]", "\n",
-    "scale_wres   = ", "[", -scale_wres, ", ", scale_wres, "]", "\n",
-    sep = ""
-  )
-  
-  cat(
-    "\n--- Hyperparameters --------------------------------------------", "\n",
-    "alpha   = ", alpha, "\n",
-    "rho     = ", rho, "\n",
-    "density = ", density, "\n"
-  )
-  
+  summary(object[["model"]])
 }
-
 
 
 
