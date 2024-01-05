@@ -205,7 +205,7 @@ train_esn <- function(y,
   model_metrics <- model_metrics %>%
     mutate(
       model = model_names,
-      .before = loglik) %>%
+      .before = .data$loglik) %>%
     arrange(!!sym(inf_crit))
   
   # Identify best model

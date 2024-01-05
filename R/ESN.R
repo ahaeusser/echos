@@ -6,7 +6,7 @@
 #'
 #' @param .data A \code{tsibble} containing the time series data.
 #' @param specials Currently not is use.
-#' @inheritParams train_esn
+#' @param ... Further arguments passed to \code{train_esn()}.
 #'
 #' @return An object of class \code{ESN}.
 #' @export
@@ -100,7 +100,7 @@ forecast.ESN <- function(object,
   # Forecast models
   model_fcst <- forecast_esn(
     object = object[["model"]],
-    n_ahead = n_ahead
+    n_ahead = NROW(new_data)
   )
   
   point <- model_fcst[["point"]]
@@ -150,13 +150,13 @@ residuals.ESN <- function(object, ...){
 #' 
 #' @description Provide a succinct summary of a trained ESN.
 #'
-#' @param object An object of class \code{ESN}.
+#' @param x An object of class \code{ESN}.
 #'
 #' @return Model summary extracted from the object.
 #' @export
 
-model_sum.ESN <- function(object){
-  object[["spec"]]
+model_sum.ESN <- function(x){
+  x[["spec"]]
 }
 
 
@@ -165,14 +165,15 @@ model_sum.ESN <- function(object){
 #' 
 #' @description Return the estimated coefficients from a trained ESN as tibble.
 #'
-#' @param object An object of class \code{ESN}.
+#' @param x An object of class \code{ESN}.
+#' @param ... Currently not in use.
 #'
 #' @return Coefficients extracted from the object.
 #' @export
 
-tidy.ESN <- function(object) {
+tidy.ESN <- function(x, ...) {
   
-  wout <- object$model$method$model_weights$wout
+  wout <- x$model$method$model_weights$wout
   
   tibble(
     term = rownames(wout),
@@ -193,13 +194,14 @@ tidy.ESN <- function(object) {
 #'    \item{\code{hqc}: Hannan-Quinn information criterion.}
 #'       }
 #'
-#' @param object An object of class \code{ESN}.
+#' @param x An object of class \code{ESN}.
+#' @param ... Currently not in use.
 #'
 #' @return Summary statistics extracted from the object.
 #' @export
 
-glance.ESN <- function(object) {
-  object$model$method$model_metrics
+glance.ESN <- function(x, ...) {
+  x$model$method$model_metrics
 }
 
 
@@ -209,11 +211,12 @@ glance.ESN <- function(object) {
 #' @description Provide a detailed summary of the trained ESN model.
 #'
 #' @param object An object of class \code{ESN}.
+#' @param ... Currently not in use.
 #'
 #' @return Print detailed model summary.
 #' @export
 
-report.ESN <- function(object) {
+report.ESN <- function(object, ...) {
   summary(object[["model"]])
 }
 

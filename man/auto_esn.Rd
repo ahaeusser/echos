@@ -10,6 +10,8 @@ auto_esn(.data, specials, ...)
 \item{.data}{A \code{tsibble} containing the time series data.}
 
 \item{specials}{Currently not is use.}
+
+\item{...}{Further arguments passed to \code{train_esn()}.}
 }
 \value{
 An object of class \code{ESN}.

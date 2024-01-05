@@ -4,10 +4,10 @@
 \alias{model_sum.ESN}
 \title{Provide a succinct summary of a trained ESN}
 \usage{
-\method{model_sum}{ESN}(object)
+\method{model_sum}{ESN}(x)
 }
 \arguments{
-\item{object}{An object of class \code{ESN}.}
+\item{x}{An object of class \code{ESN}.}
 }
 \value{
 Model summary extracted from the object.

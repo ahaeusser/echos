@@ -7,7 +7,7 @@
 is.esn(object)
 }
 \arguments{
-\item{x}{object to be tested.}
+\item{object}{object to be tested.}
 }
 \description{
 Returns \code{TRUE} if the object is of class "esn".

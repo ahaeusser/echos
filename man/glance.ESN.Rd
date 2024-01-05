@@ -4,10 +4,12 @@
 \alias{glance.ESN}
 \title{Summary of model fit}
 \usage{
-\method{glance}{ESN}(object)
+\method{glance}{ESN}(x, ...)
 }
 \arguments{
-\item{object}{An object of class \code{ESN}.}
+\item{x}{An object of class \code{ESN}.}
+
+\item{...}{Currently not in use.}
 }
 \value{
 Summary statistics extracted from the object.

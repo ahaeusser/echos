@@ -7,9 +7,11 @@
 fit_ridge(x, y, lambda)
 }
 \arguments{
+\item{x}{Numeric matrix. The design matrix containing the predictor variables.}
+
 \item{y}{Numeric matrix. The response variable(s).}
 
-\item{X}{Numeric matrix. The design matrix containing the predictor variables.}
+\item{lambda}{Numeric value. The regularization parameter.}
 }
 \value{
 A list containing the estimated coefficients, fitted values and some

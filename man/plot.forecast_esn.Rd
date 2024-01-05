@@ -4,15 +4,19 @@
 \alias{plot.forecast_esn}
 \title{Plot point forecasts and actuals of a trained ESN model.}
 \usage{
-\method{plot}{forecast_esn}(object, fitted = FALSE, test = NULL)
+\method{plot}{forecast_esn}(x, test = NULL, ...)
 }
 \arguments{
-\item{object}{An object of class \code{forecast_esn}.}
+\item{x}{An object of class \code{forecast_esn}.}
+
+\item{test}{Numeric vector. Test data, i.e., out-of-sample actual values.}
+
+\item{...}{Currently not in use.}
 }
 \value{
 Line chart of point forecast and actual values.
 }
 \description{
 Plot point forecasts and actuals of a trained ESN model as line
-  chart. Optionally, fitted values and test data can be added to the plot.
+  chart. Optionally, test data (out-of-sample) can be added to the plot.
 }

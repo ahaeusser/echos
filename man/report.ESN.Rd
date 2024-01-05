@@ -4,10 +4,12 @@
 \alias{report.ESN}
 \title{Provide a detailed summary of the trained ESN model}
 \usage{
-\method{report}{ESN}(object)
+\method{report}{ESN}(object, ...)
 }
 \arguments{
 \item{object}{An object of class \code{ESN}.}
+
+\item{...}{Currently not in use.}
 }
 \value{
 Print detailed model summary.

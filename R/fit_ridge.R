@@ -7,8 +7,9 @@
 #'   The function is slightly faster than \code{stats::lm()}, bit most 
 #'   importantly, the resulting object size is much smaller.
 #'
-#' @param X Numeric matrix. The design matrix containing the predictor variables.
+#' @param x Numeric matrix. The design matrix containing the predictor variables.
 #' @param y Numeric matrix. The response variable(s).
+#' @param lambda Numeric value. The regularization parameter.
 #'
 #' @return A list containing the estimated coefficients, fitted values and some
 #'   goodness-of-fit metrics.
