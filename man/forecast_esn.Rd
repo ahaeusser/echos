@@ -24,3 +24,9 @@ A \code{list} containing:
 \description{
 Forecast an Echo State Network from a trained model.
 }
+\examples{
+xdata <- as.numeric(AirPassengers)
+xmodel <- train_esn(y = xdata)
+xfcst <- forecast_esn(xmodel, n_ahead = 12)
+plot(xfcst)
+}

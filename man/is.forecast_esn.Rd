@@ -12,3 +12,9 @@ is.forecast_esn(object)
 \description{
 Returns \code{TRUE} if the object is of class "forecast_esn".
 }
+\examples{
+xdata <- as.numeric(AirPassengers)
+xmodel <- train_esn(y = xdata)
+xfcst <- forecast_esn(xmodel, n_ahead = 12)
+is.forecast_esn(xfcst)
+}

@@ -28,6 +28,10 @@
 #'       \item{\code{states_train}: Numeric matrix containing the internal states.}
 #'       \item{\code{method}: A \code{list} containing several objects and meta information of the trained ESN (weight matrices, hyperparameters, model metrics, etc.).}
 #'       }
+#' @examples
+#' xdata <- as.numeric(AirPassengers)
+#' xmodel <- train_esn(y = xdata)
+#' print(xmodel)
 #' @export
 
 train_esn <- function(y,

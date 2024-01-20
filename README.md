@@ -44,7 +44,7 @@ library(echos)
 #>   as.zoo.data.frame zoo
 
 # Forecast horizon
-n_ahead <- 18 # forecast horizon
+n_ahead <- 12 # forecast horizon
 # Number of observations
 n_obs <- length(AirPassengers)
 # Number of observations for training

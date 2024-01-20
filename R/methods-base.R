@@ -4,6 +4,10 @@
 #' @description Returns \code{TRUE} if the object is of class "esn".
 #'
 #' @param object object to be tested.
+#' @examples
+#' xdata <- as.numeric(AirPassengers)
+#' xmodel <- train_esn(y = xdata)
+#' is.esn(xmodel)
 #' @export
 
 is.esn <- function(object) {
@@ -16,6 +20,11 @@ is.esn <- function(object) {
 #' @description Returns \code{TRUE} if the object is of class "forecast_esn".
 #'
 #' @param object object to be tested.
+#' @examples
+#' xdata <- as.numeric(AirPassengers)
+#' xmodel <- train_esn(y = xdata)
+#' xfcst <- forecast_esn(xmodel, n_ahead = 12)
+#' is.forecast_esn(xfcst)
 #' @export
 
 is.forecast_esn <- function(object) {
@@ -31,6 +40,10 @@ is.forecast_esn <- function(object) {
 #' @param ... Currently not in use.
 #'
 #' @return Print detailed model summary.
+#' @examples
+#' xdata <- as.numeric(AirPassengers)
+#' xmodel <- train_esn(y = xdata)
+#' summary(xmodel)
 #' @export
 
 summary.esn <- function(object, ...) {
@@ -100,6 +113,11 @@ summary.esn <- function(object, ...) {
 #' @param ... Currently not in use.
 #'
 #' @return Line chart of point forecast and actual values.
+#' @examples
+#' xdata <- as.numeric(AirPassengers)
+#' xmodel <- train_esn(y = xdata)
+#' xfcst <- forecast_esn(xmodel, n_ahead = 12)
+#' plot(xfcst)
 #' @export
 
 plot.forecast_esn <- function(x,
@@ -118,9 +136,9 @@ plot.forecast_esn <- function(x,
   if (!is.null(test)) {
     if (length(point) == length(test)) {
       xtest <- c(rep(NA_real_, length(actual)), test)
-    } else {
-      xtest <- NULL
     }
+  } else {
+    xtest <- NULL
   }
   
   lower <- min(xactual, xpoint, xtest, na.rm = TRUE)

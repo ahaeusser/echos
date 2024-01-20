@@ -67,3 +67,8 @@ A \code{list} containing:
 This function trains an Echo State Network (ESN) to a
   univariate time series.
 }
+\examples{
+xdata <- as.numeric(AirPassengers)
+xmodel <- train_esn(y = xdata)
+print(xmodel)
+}

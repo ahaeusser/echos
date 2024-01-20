@@ -14,6 +14,11 @@
 #'       \item{\code{n_ahead}: Integer value. The number of periods for forecasting (forecast horizon).}
 #'       \item{\code{model_spec}: Character value. The model specification as string.}
 #'       }
+#' @examples
+#' xdata <- as.numeric(AirPassengers)
+#' xmodel <- train_esn(y = xdata)
+#' xfcst <- forecast_esn(xmodel, n_ahead = 12)
+#' plot(xfcst)
 #' @export
 
 forecast_esn <- function(object,

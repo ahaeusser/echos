@@ -20,3 +20,9 @@ Line chart of point forecast and actual values.
 Plot point forecasts and actuals of a trained ESN model as line
   chart. Optionally, test data (out-of-sample) can be added to the plot.
 }
+\examples{
+xdata <- as.numeric(AirPassengers)
+xmodel <- train_esn(y = xdata)
+xfcst <- forecast_esn(xmodel, n_ahead = 12)
+plot(xfcst)
+}

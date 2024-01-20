@@ -12,3 +12,8 @@ is.esn(object)
 \description{
 Returns \code{TRUE} if the object is of class "esn".
 }
+\examples{
+xdata <- as.numeric(AirPassengers)
+xmodel <- train_esn(y = xdata)
+is.esn(xmodel)
+}
