@@ -25,24 +25,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// train_ridge
-Rcpp::List train_ridge(const arma::mat& X, const arma::mat& y, double lambda, const arma::colvec& weights);
-RcppExport SEXP _echos_train_ridge(SEXP XSEXP, SEXP ySEXP, SEXP lambdaSEXP, SEXP weightsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type y(ySEXP);
-    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< const arma::colvec& >::type weights(weightsSEXP);
-    rcpp_result_gen = Rcpp::wrap(train_ridge(X, y, lambda, weights));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_echos_run_reservoir", (DL_FUNC) &_echos_run_reservoir, 4},
-    {"_echos_train_ridge", (DL_FUNC) &_echos_train_ridge, 4},
     {NULL, NULL, 0}
 };
 

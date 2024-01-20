@@ -18,20 +18,3 @@ run_reservoir <- function(inputs, win, wres, alpha) {
     .Call(`_echos_run_reservoir`, inputs, win, wres, alpha)
 }
 
-#' @name train_ridge
-#' @title Estimate ridge regression
-#' @description Estimate coefficients via ridge regression.
-#' 
-#' @param X Numeric matrix. The design matrix containing the predictor variables.
-#' @param y Numeric matrix. The response variable(s).
-#' @param lambda Numeric value. The regularization parameter.
-#' @param weights Numeric vector. Observation weights.
-#' 
-#' @return A list containing the estimated coefficients, fitted values, etc.
-#' @export
-NULL
-
-train_ridge <- function(X, y, lambda, weights) {
-    .Call(`_echos_train_ridge`, X, y, lambda, weights)
-}
-
