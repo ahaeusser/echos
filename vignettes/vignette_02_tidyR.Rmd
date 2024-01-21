@@ -1,0 +1,24 @@
+---
+title: "Tidy R"
+author: "Alexander Häußer"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Tidy R}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.height = 5,
+  fig.width = 7
+)
+```
+
+## Load package
+
+```{r packages}
+library(echos)
+```
