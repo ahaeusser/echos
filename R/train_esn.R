@@ -31,7 +31,7 @@
 #' @examples
 #' xdata <- as.numeric(AirPassengers)
 #' xmodel <- train_esn(y = xdata)
-#' print(xmodel)
+#' summary(xmodel)
 #' @export
 
 train_esn <- function(y,
