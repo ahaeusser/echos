@@ -32,7 +32,10 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/vignette_01_intro.html">Introduction</a>
+      <a href="../articles/vignette_01_baseR.html">Base R</a>
+    </li>
+    <li>
+      <a href="../articles/vignette_02_tidyR.html">Tidy R</a>
     </li>
   </ul></li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
@@ -54,8 +57,44 @@
     </div>
 
     <table class="ref-index"><colgroup><col class="alias"><col class="title"></colgroup><tbody><tr><th colspan="2">
-          <h2 id="all-functions">All functions <a href="#all-functions" class="anchor" aria-hidden="true"></a></h2>
-          <p class="section-desc"></p>
+          <h2 id="base-r">Base R <a href="#base-r" class="anchor" aria-hidden="true"></a></h2>
+          <p class="section-desc"></p><p>Functions and methods in base R</p>
+        </th>
+      </tr></tbody><tbody><tr><td>
+          <p><code><a href="train_esn.html">train_esn()</a></code> </p>
+        </td>
+        <td><p>Train an Echo State Network</p></td>
+      </tr><tr><td>
+          <p><code><a href="summary.esn.html">summary(<i>&lt;esn&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Provide a detailed summary of the trained ESN model</p></td>
+      </tr><tr><td>
+          <p><code><a href="is.esn.html">is.esn()</a></code> </p>
+        </td>
+        <td><p>Checks if object is of class "esn"</p></td>
+      </tr><tr><td>
+          <p><code><a href="forecast_esn.html">forecast_esn()</a></code> </p>
+        </td>
+        <td><p>Forecast a trained Echo State Network</p></td>
+      </tr><tr><td>
+          <p><code><a href="is.forecast_esn.html">is.forecast_esn()</a></code> </p>
+        </td>
+        <td><p>Checks if object is of class "forecast_esn"</p></td>
+      </tr><tr><td>
+          <p><code><a href="plot.forecast_esn.html">plot(<i>&lt;forecast_esn&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Plot point forecasts and actuals of a trained ESN model.</p></td>
+      </tr><tr><td>
+          <p><code><a href="fit_ridge.html">fit_ridge()</a></code> </p>
+        </td>
+        <td><p>Estimate a linear model via ridge regression</p></td>
+      </tr><tr><td>
+          <p><code><a href="run_reservoir.html">run_reservoir</a></code> </p>
+        </td>
+        <td><p>Run reservoir</p></td>
+      </tr></tbody><tbody><tr><th colspan="2">
+          <h2 id="tidy-r">Tidy R <a href="#tidy-r" class="anchor" aria-hidden="true"></a></h2>
+          <p class="section-desc"></p><p>Functions and methods in tidy R (“fable framework”)</p>
         </th>
       </tr></tbody><tbody><tr><td>
           <p><code><a href="auto_esn.html">auto_esn()</a></code> </p>
@@ -66,41 +105,29 @@
         </td>
         <td><p>Automatic train an Echo State Network</p></td>
       </tr><tr><td>
-          <p><code><a href="fitted.ESN.html">fitted(<i>&lt;ESN&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Extract fitted values from a trained ESN</p></td>
-      </tr><tr><td>
-          <p><code><a href="fit_ridge.html">fit_ridge()</a></code> </p>
-        </td>
-        <td><p>Estimate a linear model via ridge regression</p></td>
-      </tr><tr><td>
           <p><code><a href="forecast.ESN.html">forecast(<i>&lt;ESN&gt;</i>)</a></code> </p>
         </td>
         <td><p>Forecast a trained ESN</p></td>
       </tr><tr><td>
-          <p><code><a href="forecast_esn.html">forecast_esn()</a></code> </p>
+          <p><code><a href="fitted.ESN.html">fitted(<i>&lt;ESN&gt;</i>)</a></code> </p>
         </td>
-        <td><p>Forecast a trained Echo State Network</p></td>
+        <td><p>Extract fitted values from a trained ESN</p></td>
       </tr><tr><td>
-          <p><code><a href="glance.ESN.html">glance(<i>&lt;ESN&gt;</i>)</a></code> </p>
+          <p><code><a href="residuals.ESN.html">residuals(<i>&lt;ESN&gt;</i>)</a></code> </p>
         </td>
-        <td><p>Summary of model fit</p></td>
-      </tr><tr><td>
-          <p><code><a href="is.esn.html">is.esn()</a></code> </p>
-        </td>
-        <td><p>Checks if object is of class "esn"</p></td>
-      </tr><tr><td>
-          <p><code><a href="is.forecast_esn.html">is.forecast_esn()</a></code> </p>
-        </td>
-        <td><p>Checks if object is of class "forecast_esn"</p></td>
+        <td><p>Extract residuals from a trained ESN</p></td>
       </tr><tr><td>
           <p><code><a href="model_sum.ESN.html">model_sum(<i>&lt;ESN&gt;</i>)</a></code> </p>
         </td>
         <td><p>Provide a succinct summary of a trained ESN</p></td>
       </tr><tr><td>
-          <p><code><a href="plot.forecast_esn.html">plot(<i>&lt;forecast_esn&gt;</i>)</a></code> </p>
+          <p><code><a href="tidy.ESN.html">tidy(<i>&lt;ESN&gt;</i>)</a></code> </p>
         </td>
-        <td><p>Plot point forecasts and actuals of a trained ESN model.</p></td>
+        <td><p>Estimated coefficients</p></td>
+      </tr><tr><td>
+          <p><code><a href="glance.ESN.html">glance(<i>&lt;ESN&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Summary of model fit</p></td>
       </tr><tr><td>
           <p><code><a href="report.ESN.html">report(<i>&lt;ESN&gt;</i>)</a></code> </p>
         </td>
@@ -109,30 +136,14 @@
           <p><code><a href="reservoir.html">reservoir()</a></code> </p>
         </td>
         <td><p>Return the reservoir from a trained ESN as tibble</p></td>
-      </tr><tr><td>
-          <p><code><a href="residuals.ESN.html">residuals(<i>&lt;ESN&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Extract residuals from a trained ESN</p></td>
-      </tr><tr><td>
-          <p><code><a href="run_reservoir.html">run_reservoir</a></code> </p>
-        </td>
-        <td><p>Run reservoir</p></td>
-      </tr><tr><td>
+      </tr></tbody><tbody><tr><th colspan="2">
+          <h2 id="miscellaneous">Miscellaneous <a href="#miscellaneous" class="anchor" aria-hidden="true"></a></h2>
+          <p class="section-desc"></p><p>Miscellaneous</p>
+        </th>
+      </tr></tbody><tbody><tr><td>
           <p><code><a href="spot_price.html">spot_price</a></code> </p>
         </td>
         <td><p>Hourly day-ahead electricity spot prices</p></td>
-      </tr><tr><td>
-          <p><code><a href="summary.esn.html">summary(<i>&lt;esn&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Provide a detailed summary of the trained ESN model</p></td>
-      </tr><tr><td>
-          <p><code><a href="tidy.ESN.html">tidy(<i>&lt;ESN&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Estimated coefficients</p></td>
-      </tr><tr><td>
-          <p><code><a href="train_esn.html">train_esn()</a></code> </p>
-        </td>
-        <td><p>Train an Echo State Network</p></td>
       </tr></tbody></table></div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

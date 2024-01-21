@@ -7,7 +7,13 @@
     <loc>/articles/index.html</loc>
   </url>
   <url>
+    <loc>/articles/vignette_01_baseR.html</loc>
+  </url>
+  <url>
     <loc>/articles/vignette_01_intro.html</loc>
+  </url>
+  <url>
+    <loc>/articles/vignette_02_tidyR.html</loc>
   </url>
   <url>
     <loc>/authors.html</loc>

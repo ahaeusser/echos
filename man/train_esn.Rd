@@ -70,5 +70,5 @@ This function trains an Echo State Network (ESN) to a
 \examples{
 xdata <- as.numeric(AirPassengers)
 xmodel <- train_esn(y = xdata)
-print(xmodel)
+summary(xmodel)
 }

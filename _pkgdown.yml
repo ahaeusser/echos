@@ -2,3 +2,38 @@ template:
   params:
     bootswatch: flatly
     
+reference:
+
+- title: Base R
+  desc: >
+    Functions and methods in base R
+  contents:
+    - train_esn
+    - summary.esn
+    - is.esn
+    - forecast_esn
+    - is.forecast_esn
+    - plot.forecast_esn
+    - fit_ridge
+    - run_reservoir
+    
+- title: Tidy R
+  desc: >
+    Functions and methods in tidy R ("fable framework")
+  contents:
+    - auto_esn
+    - ESN
+    - forecast.ESN
+    - fitted.ESN
+    - residuals.ESN
+    - model_sum.ESN
+    - tidy.ESN
+    - glance.ESN
+    - report.ESN
+    - reservoir
+    
+- title: Miscellaneous
+  desc: >
+    Miscellaneous
+  contents:
+    - spot_price

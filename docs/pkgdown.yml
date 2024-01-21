@@ -2,6 +2,7 @@ pandoc: 3.1.1
 pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
-  vignette_01_intro: vignette_01_intro.html
-last_built: 2024-01-20T17:02Z
+  vignette_01_baseR: vignette_01_baseR.html
+  vignette_02_tidyR: vignette_02_tidyR.html
+last_built: 2024-01-21T12:45Z
 
