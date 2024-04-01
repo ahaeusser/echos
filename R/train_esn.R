@@ -237,7 +237,7 @@ train_esn <- function(y,
   )
   
   # Inverse difference fitted values
-  if (n_diff > 0) {fitted <- actual + fitted}
+  if (n_diff > 0) {fitted <- yy[(index_train-1)] + fitted}
   
   # Calculate residuals
   resid <- actual - fitted
