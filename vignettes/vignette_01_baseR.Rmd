@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 
 ## Load package
 
-```{r packages}
+```{r packages, message = FALSE, warning = FALSE}
 library(echos)
 ```
 

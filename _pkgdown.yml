@@ -36,4 +36,4 @@ reference:
   desc: >
     Miscellaneous
   contents:
-    - spot_price
+    - m4_data

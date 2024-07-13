@@ -19,6 +19,35 @@ knitr::opts_chunk$set(
 
 ## Load package
 
-```{r packages}
+```{r packages, message = FALSE, warning = FALSE}
 library(echos)
+library(tidyverse)
+library(tsibble)
+library(fable)
 ```
+
+
+```{r data}
+m4_data
+
+p <- ggplot()
+
+p <- p + geom_line(
+  data = m4_data,
+  aes(
+    x = index,
+    y = value),
+  linewidth = 0.5
+)
+
+p <- p + facet_wrap(
+  vars(series),
+  ncol = 2,
+  scales = "free")
+
+p <- p + labs(x = "Time")
+p <- p + labs(y = "Value")
+p
+
+```
+
