@@ -155,89 +155,59 @@ information on the trained model.</p>
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Summarize model</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">xmodel</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ESN({132, 52, 104}, {18.61, 0.008}) </span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; --- Layers ----------------------------------------------------- </span></span>
-<span><span class="co">#&gt;  n_inputs  =  1 </span></span>
-<span><span class="co">#&gt;  n_states  =  52 </span></span>
-<span><span class="co">#&gt;  n_outputs =  1 </span></span>
+<span><span class="co">#&gt; --- Inputs -----------------------------------------------------</span></span>
+<span><span class="co">#&gt; n_obs        = 132</span></span>
+<span><span class="co">#&gt; n_diff       = 1</span></span>
+<span><span class="co">#&gt; lags         = 1</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; --- Meta --------------------------------------------------- </span></span>
-<span><span class="co">#&gt;  lags     =  1 </span></span>
-<span><span class="co">#&gt;  n_diff   =  1 </span></span>
-<span><span class="co">#&gt;  n_models =  104 </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; --- Scaling ----------------------------------------------------</span></span>
+<span><span class="co">#&gt; --- Reservoir generation ---------------------------------------</span></span>
+<span><span class="co">#&gt; n_states     = 52</span></span>
+<span><span class="co">#&gt; alpha        = 1</span></span>
+<span><span class="co">#&gt; rho          = 1</span></span>
+<span><span class="co">#&gt; density      = 0.5</span></span>
 <span><span class="co">#&gt; scale_inputs = [-0.5, 0.5]</span></span>
 <span><span class="co">#&gt; scale_win    = [-0.5, 0.5]</span></span>
 <span><span class="co">#&gt; scale_wres   = [-0.5, 0.5]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; --- Hyperparameters -------------------------------------------- </span></span>
-<span><span class="co">#&gt;  alpha   =  1 </span></span>
-<span><span class="co">#&gt;  rho     =  1 </span></span>
-<span><span class="co">#&gt;  density =  0.5</span></span></code></pre></div>
+<span><span class="co">#&gt; --- Model selection --------------------------------------------</span></span>
+<span><span class="co">#&gt; n_models     = 104</span></span>
+<span><span class="co">#&gt; df           = 18.61</span></span>
+<span><span class="co">#&gt; lambda       = 0.008</span></span></code></pre></div>
 <p>From the output above, we get the following information about the
 trained model:</p>
-<ul>
-<li>Layers
-<ul>
-<li>
-<code>n_inputs</code>: Number of input variables</li>
-<li>
-<code>n_states</code>: Number of internal states (i.e., the
-reservoir size). The internal states are the actual predictor variables
-in the model.</li>
-<li>
-<code>n_outputs</code>: Number of output variables (i.e., response
-variables)</li>
-</ul>
-</li>
-<li>Meta
-<ul>
-<li>
-<code>lags</code>: Lags of the output variable, which are used as
-model input</li>
-<li>
-<code>n_diff</code>: Number of differences required to achieve
-(weak-) stationarity of the input training data</li>
-<li>
-<code>n_models</code>: Number of models evaluated during the random
-search optimization to find the regularization parameter
-<code>lambda</code>
-</li>
-</ul>
-</li>
-<li>Scaling
-<ul>
-<li>
-<code>scale_inputs</code>: Input training data are scaled to the
-interval <code>(-0.5, 0.5)</code>
-</li>
-<li>
-<code>scale_win</code>: Input weights matrix is drawn from a random
-uniform distribution with interval <code>(-0.5, 0.5)</code>
-</li>
-<li>
-<code>scale_wres</code>: Reservoir weight matrix is drawn from a
-random uniform distribution with interval <code>(-0.5, 0.5)</code>
-</li>
-</ul>
-</li>
-<li>Hyperparameters:
-<ul>
-<li>
-<code>alpha</code>: Leakage rate (smoothing parameter)</li>
-<li>
-<code>rho</code>: Spectral radius for scaling the reservoir weight
-matrix</li>
-<li>
-<code>lambda</code>: Regularization parameter for the ridge
-regression estimation</li>
-<li>
-<code>density</code>: The density of the reservoir weight
-matrix</li>
-</ul>
-</li>
-</ul>
+<table class="table">
+<colgroup>
+<col width="16%">
+<col width="83%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">Value</th>
+<th align="left">Description</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>n_obs</code></td>
+<td align="left">Number of observations</td>
+</tr>
+<tr class="even">
+<td align="left"><code>n_diff</code></td>
+<td align="left">Number of differences required to achieve (weak-)
+stationarity of the input training data</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>lags</code></td>
+<td align="left">Lags of the output variable (response), which are used
+as model input</td>
+</tr>
+<tr class="even">
+<td align="left"><code>...</code></td>
+<td align="left">…</td>
+</tr>
+</tbody>
+</table>
+<!-- * Layers --><!--   * `n_inputs`: Number of input variables --><!--   * `n_states`: Number of internal states (i.e., the reservoir size). The internal states are the actual predictor variables in the model. --><!--   * `n_outputs`: Number of output variables (i.e., response variables) --><!-- * Meta --><!--   * `lags`: Lags of the output variable, which are used as model input --><!--   * `n_diff`: Number of differences required to achieve (weak-) stationarity of the input training data --><!--   * `n_models`: Number of models evaluated during the random search optimization to find the regularization parameter `lambda` --><!-- * Scaling --><!--   * `scale_inputs`: Input training data are scaled to the interval `(-0.5, 0.5)` --><!--   * `scale_win`: Input weights matrix is drawn from a random uniform distribution with interval `(-0.5, 0.5)` --><!--   * `scale_wres`: Reservoir weight matrix is drawn from a random uniform distribution with interval `(-0.5, 0.5)` --><!-- * Hyperparameters: --><!--   * `alpha`: Leakage rate (smoothing parameter) --><!--   * `rho`: Spectral radius for scaling the reservoir weight matrix --><!--   * `lambda`: Regularization parameter for the ridge regression estimation --><!--   * `density`: The density of the reservoir weight matrix -->
 </div>
 <div class="section level2">
 <h2 id="forecast-esn-model">Forecast ESN model<a class="anchor" aria-label="anchor" href="#forecast-esn-model"></a>
@@ -292,7 +262,7 @@ the future. The output <code>xfcst</code> is a list of class
 <span><span class="co">#&gt; [1] 12</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $model_spec</span></span>
-<span><span class="co">#&gt; [1] "ESN(1,52,1)"</span></span>
+<span><span class="co">#&gt; [1] "ESN({132, 52, 104}, {18.61, 0.008})"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; attr(,"class")</span></span>
 <span><span class="co">#&gt; [1] "forecast_esn"</span></span>

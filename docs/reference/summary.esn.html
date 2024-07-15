@@ -89,26 +89,26 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">xdata</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">AirPassengers</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">xmodel</span> <span class="op">&lt;-</span> <span class="fu"><a href="train_esn.html">train_esn</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">xdata</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">xmodel</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ESN({144, 57, 114}, {19.17, 0.0159}) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> --- Layers ----------------------------------------------------- </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  n_inputs  =  1 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  n_states  =  57 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  n_outputs =  1 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> --- Inputs -----------------------------------------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> n_obs        = 144</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> n_diff       = 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> lags         = 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> --- Meta --------------------------------------------------- </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  lags     =  1 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  n_diff   =  1 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  n_models =  114 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> --- Scaling ----------------------------------------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> --- Reservoir generation ---------------------------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> n_states     = 57</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> alpha        = 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> rho          = 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> density      = 0.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> scale_inputs = [-0.5, 0.5]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> scale_win    = [-0.5, 0.5]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> scale_wres   = [-0.5, 0.5]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> --- Hyperparameters -------------------------------------------- </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  alpha   =  1 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  rho     =  1 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  density =  0.5 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> --- Model selection --------------------------------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> n_models     = 114</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> df           = 19.17</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> lambda       = 0.0159</span>
 </code></pre></div>
     </div>
   </div>
