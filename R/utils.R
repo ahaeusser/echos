@@ -87,38 +87,6 @@ create_revolved <- function(y,
 
 
 
-#' @title Create model specification
-#' 
-#' @description Create the model specification (i.e. short summary) as a string.
-#'
-#' @param model_layers List containing the number of inputs (n_inputs), internal
-#'   states (n_states) and the number of outputs (n_outputs).
-#'
-#' @return model_spec Character value. The model specification as string.
-#' @noRd
-
-create_spec <- function(model_layers) {
-  
-  # Number of input variables
-  n_inputs <- model_layers$n_inputs
-  # Number of internal states per reservoir
-  n_states <- model_layers$n_states
-  # Number of output variables
-  n_outputs <- model_layers$n_outputs
-  
-  # Model specification
-  model_spec <- paste0(
-    "ESN", "(", 
-    n_inputs, ",", 
-    n_states, ",", 
-    n_outputs, 
-    ")")
-  
-  return(model_spec)
-}
-
-
-
 #' @title Create the input weight matrix
 #' 
 #' @description Create the random input weight matrix.

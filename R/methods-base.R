@@ -51,15 +51,13 @@ summary.esn <- function(object, ...) {
   # Extract method from object
   method <- object[["method"]]
   
-  # Layers (number of inputs, internal states and outputs)
-  n_inputs <- method$model_layer$n_inputs
-  n_states <- method$model_layer$n_states
-  n_outputs <- method$model_layer$n_outputs
-  
-  # Meta data (lags, differences and number of models)
-  lags <- method$model_meta$lags
+  # Inputs (number of observations, number of differences, lags)
+  n_obs <- length(method$model_data$yy)
   n_diff <- method$model_meta$n_diff
-  n_models <- method$model_meta$n_models
+  lags <- method$model_meta$lags
+  
+  # Number of internal states
+  n_states <- method$model_layer$n_states
   
   # Hyperparameters (leakage rate, spectral radius and density)
   alpha <- method$model_meta$alpha
@@ -71,22 +69,29 @@ summary.esn <- function(object, ...) {
   scale_wres <- method$scale_wres
   scale_inputs <- method$scale_inputs
   
+  # Model selection
+  n_models <- method$model_meta$n_models
+  df <- round(method$model_meta$df, 2)
+  lambda <- round(method$model_meta$lambda, 4)
+  
+  # Print output
+  
+  cat(method$model_spec, "\n")
+  
   cat(
-    "\n--- Layers -----------------------------------------------------", "\n",
-    "n_inputs  = ", n_inputs, "\n",
-    "n_states  = ", n_states, "\n",
-    "n_outputs = ", n_outputs, "\n"
+    "\n--- Inputs -----------------------------------------------------", "\n",
+    "n_obs        = ", n_obs, "\n",
+    "n_diff       = ", n_diff, "\n",
+    "lags         = ", lags, "\n",
+    sep = ""
   )
   
   cat(
-    "\n--- Meta ---------------------------------------------------", "\n",
-    "lags     = ", lags, "\n",
-    "n_diff   = ", n_diff, "\n",
-    "n_models = ", n_models, "\n"
-  )
-  
-  cat(
-    "\n--- Scaling ----------------------------------------------------", "\n",
+    "\n--- Reservoir generation ---------------------------------------", "\n",
+    "n_states     = ", n_states, "\n",
+    "alpha        = ", alpha, "\n",
+    "rho          = ", rho, "\n",
+    "density      = ", density, "\n",
     "scale_inputs = ", "[", scale_inputs[1], ", ", scale_inputs[2], "]", "\n",
     "scale_win    = ", "[", -scale_win, ", ", scale_win, "]", "\n",
     "scale_wres   = ", "[", -scale_wres, ", ", scale_wres, "]", "\n",
@@ -94,10 +99,11 @@ summary.esn <- function(object, ...) {
   )
   
   cat(
-    "\n--- Hyperparameters --------------------------------------------", "\n",
-    "alpha   = ", alpha, "\n",
-    "rho     = ", rho, "\n",
-    "density = ", density, "\n"
+    "\n--- Model selection --------------------------------------------", "\n",
+    "n_models     = ", n_models, "\n",
+    "df           = ", df, "\n",
+    "lambda       = ", lambda, "\n",
+    sep = ""
   )
 }
 

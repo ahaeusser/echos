@@ -212,10 +212,10 @@ train_esn <- function(y,
       .before = .data$loglik) %>%
     arrange(!!sym(inf_crit))
   
-  # Identify best model
-  model_best <- model_metrics %>%
-    slice_head(n = 1) %>%
-    pull(model)
+  # Identify best model, lambda and degrees of freedom (extract first row)
+  model_best <- model_metrics[["model"]][1]
+  lambda <- model_metrics[["lambda"]][1]
+  df <- model_metrics[["df"]][1]
   
   # Reduce to best model
   model_object <- model_object[[model_best]]
@@ -263,7 +263,9 @@ train_esn <- function(y,
     old_range = old_range,
     alpha = alpha,
     rho = rho,
-    density = density
+    density = density,
+    lambda = lambda,
+    df = df
   )
   
   # List with number of inputs, internal states and outputs
@@ -281,7 +283,18 @@ train_esn <- function(y,
   )
   
   # Create model specification (short summary)
-  model_spec <- create_spec(model_layers = model_layers)
+  model_spec <- paste0(
+    "ESN", "(",
+      "{",
+        n_total, ", ", 
+        n_states, ", ", 
+        n_models, 
+      "}, ",
+      "{",
+        round(df, 2), ", ",
+        round(lambda, 4),
+      "}",
+    ")")
   
   # Store results
   method <- list(

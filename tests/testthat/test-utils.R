@@ -56,6 +56,7 @@ test_that("create_lags returns correct lagged variables", {
 })
 
 
+
 # Define the test cases
 test_that("create_revolved returns correct revolved variables", {
   
@@ -118,36 +119,6 @@ test_that("create_revolved returns correct revolved variables", {
 
 
 # Define the test cases
-test_that("create_spec returns correct model specification", {
-  
-  # Test case 1: Basic test with small numbers --------------------------------
-  model_layers1 <- list(n_inputs = 2, n_states = 5, n_outputs = 3)
-  expected_output1 <- "ESN(2,5,3)"
-  expect_equal(create_spec(model_layers1), expected_output1)
-  
-  # Test case 2: Large numbers ------------------------------------------------
-  model_layers2 <- list(n_inputs = 10, n_states = 100, n_outputs = 50)
-  expected_output2 <- "ESN(10,100,50)"
-  expect_equal(create_spec(model_layers2), expected_output2)
-  
-  # Test case 3: Zero inputs and states ---------------------------------------
-  model_layers3 <- list(n_inputs = 0, n_states = 0, n_outputs = 1)
-  expected_output3 <- "ESN(0,0,1)"
-  expect_equal(create_spec(model_layers3), expected_output3)
-  
-  # Test case 4: Negative numbers ---------------------------------------------
-  model_layers4 <- list(n_inputs = -5, n_states = -10, n_outputs = -2)
-  expected_output4 <- "ESN(-5,-10,-2)"
-  expect_equal(create_spec(model_layers4), expected_output4)
-  
-  # Test case 5: Non-integer values -------------------------------------------
-  model_layers5 <- list(n_inputs = 3.5, n_states = 2.25, n_outputs = 1.75)
-  expected_output5 <- "ESN(3.5,2.25,1.75)"
-  expect_equal(create_spec(model_layers5), expected_output5)
-})
-
-
-# Define the test cases
 test_that("create_win returns matrix with correct dimensions", {
   # Set a random seed for reproducibility
   set.seed(123)
@@ -201,6 +172,7 @@ test_that("create_wres returns correct reservoir weight matrix", {
   # Check the dimensions of the output matrix
   expect_equal(dim(output2), c(n_states2, n_states2))
 })
+
 
 
 # Define the test cases
@@ -262,6 +234,7 @@ test_that("diff_vec returns correct vector with differences", {
 })
 
 
+
 # Define the test cases
 test_that("inv_diff_vec returns correct inverse differenced vector", {
   
@@ -291,6 +264,7 @@ test_that("inv_diff_vec returns correct inverse differenced vector", {
 })
 
 
+
 # Define the test cases
 test_that("scale_vec returns correct scaled vector and old range", {
   
@@ -312,6 +286,7 @@ test_that("scale_vec returns correct scaled vector and old range", {
   )
   expect_equal(scale_vec(y2, new_range2), expected_output2)
 })
+
 
 
 # Define the test cases
