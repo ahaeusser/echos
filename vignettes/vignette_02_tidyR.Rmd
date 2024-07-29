@@ -28,12 +28,16 @@ library(fable)
 
 
 ```{r data}
-m4_data
+
+train_frame <- m4_data %>%
+  filter(series %in% c("M21655", "M2717"))
+
+train_frame
 
 p <- ggplot()
 
 p <- p + geom_line(
-  data = m4_data,
+  data = train_frame,
   aes(
     x = index,
     y = value),
@@ -42,12 +46,35 @@ p <- p + geom_line(
 
 p <- p + facet_wrap(
   vars(series),
-  ncol = 2,
+  ncol = 1,
   scales = "free")
 
-p <- p + labs(x = "Time")
-p <- p + labs(y = "Value")
 p
 
 ```
+
+
+
+```{r mable_frame}
+mable_frame <- train_frame %>%
+  model(ESN(value))
+
+mable_frame
+
+```
+
+
+```{r fable_frame}
+fable_frame <- mable_frame %>%
+  forecast(h = 18)
+
+fable_frame
+
+fable_frame %>%
+  autoplot(train_frame, level = NULL)
+
+```
+
+
+
 

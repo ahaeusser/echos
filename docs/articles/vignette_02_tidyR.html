@@ -99,9 +99,13 @@ Häußer</h4>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tsibble.tidyverts.org" class="external-link">tsibble</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://fable.tidyverts.org" class="external-link">fable</a></span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">m4_data</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tsibble: 1,152 x 4 [1M]</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># Key:       series [6]</span></span></span>
+<code class="sourceCode R"><span></span>
+<span><span class="va">train_frame</span> <span class="op">&lt;-</span> <span class="va">m4_data</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">series</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"M21655"</span>, <span class="st">"M2717"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">train_frame</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tsibble: 494 x 4 [1M]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># Key:       series [2]</span></span></span>
 <span><span class="co">#&gt;    series category       index value</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;mth&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> M21655 Demographic 1995 Jan  <span style="text-decoration: underline;">4</span>970</span></span>
@@ -114,12 +118,12 @@ Häußer</h4>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> M21655 Demographic 1995 Aug  <span style="text-decoration: underline;">6</span>370</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> M21655 Demographic 1995 Sep  <span style="text-decoration: underline;">5</span>190</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> M21655 Demographic 1995 Okt  <span style="text-decoration: underline;">5</span>250</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1,142 more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 484 more rows</span></span></span>
 <span></span>
 <span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">p</span> <span class="op">&lt;-</span> <span class="va">p</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span></span>
-<span>  data <span class="op">=</span> <span class="va">m4_data</span>,</span>
+<span>  data <span class="op">=</span> <span class="va">train_frame</span>,</span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span></span>
 <span>    x <span class="op">=</span> <span class="va">index</span>,</span>
 <span>    y <span class="op">=</span> <span class="va">value</span><span class="op">)</span>,</span>
@@ -128,13 +132,46 @@ Häußer</h4>
 <span></span>
 <span><span class="va">p</span> <span class="op">&lt;-</span> <span class="va">p</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/vars.html" class="external-link">vars</a></span><span class="op">(</span><span class="va">series</span><span class="op">)</span>,</span>
-<span>  ncol <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  ncol <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  scales <span class="op">=</span> <span class="st">"free"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">p</span> <span class="op">&lt;-</span> <span class="va">p</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Time"</span><span class="op">)</span></span>
-<span><span class="va">p</span> <span class="op">&lt;-</span> <span class="va">p</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">"Value"</span><span class="op">)</span></span>
 <span><span class="va">p</span></span></code></pre></div>
 <p><img src="vignette_02_tidyR_files/figure-html/data-1.png" width="672"></p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mable_frame</span> <span class="op">&lt;-</span> <span class="va">train_frame</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://fabletools.tidyverts.org/reference/model.html" class="external-link">model</a></span><span class="op">(</span><span class="fu"><a href="../reference/ESN.html">ESN</a></span><span class="op">(</span><span class="va">value</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">mable_frame</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A mable: 2 x 2</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># Key:     series [2]</span></span></span>
+<span><span class="co">#&gt;   series                            `ESN(value)`</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                  <span style="color: #949494; font-style: italic;">&lt;model&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> M21655  &lt;ESN({243, 97, 194}, {36.57, 0.0046})&gt;</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> M2717  &lt;ESN({251, 100, 200}, {31.91, 0.0046})&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fable_frame</span> <span class="op">&lt;-</span> <span class="va">mable_frame</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://generics.r-lib.org/reference/forecast.html" class="external-link">forecast</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">18</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fable_frame</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A fable: 36 x 5 [1M]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># Key:     series, .model [2]</span></span></span>
+<span><span class="co">#&gt;    series .model        index       value .mean</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;mth&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dist&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> M21655 ESN(value) 2015 Apr N(5032, NA) <span style="text-decoration: underline;">5</span>032.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> M21655 ESN(value) 2015 Mai N(5558, NA) <span style="text-decoration: underline;">5</span>558.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> M21655 ESN(value) 2015 Jun N(5820, NA) <span style="text-decoration: underline;">5</span>820.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> M21655 ESN(value) 2015 Jul N(6273, NA) <span style="text-decoration: underline;">6</span>273.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> M21655 ESN(value) 2015 Aug N(6157, NA) <span style="text-decoration: underline;">6</span>157.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> M21655 ESN(value) 2015 Sep N(5369, NA) <span style="text-decoration: underline;">5</span>369.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> M21655 ESN(value) 2015 Okt N(5389, NA) <span style="text-decoration: underline;">5</span>389.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> M21655 ESN(value) 2015 Nov N(5293, NA) <span style="text-decoration: underline;">5</span>293.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> M21655 ESN(value) 2015 Dez N(5224, NA) <span style="text-decoration: underline;">5</span>224.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> M21655 ESN(value) 2016 Jan N(5055, NA) <span style="text-decoration: underline;">5</span>055.</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 26 more rows</span></span></span>
+<span></span>
+<span><span class="va">fable_frame</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot</a></span><span class="op">(</span><span class="va">train_frame</span>, level <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+<p><img src="vignette_02_tidyR_files/figure-html/fable_frame-1.png" width="672"></p>
 </div>
   </div>
 

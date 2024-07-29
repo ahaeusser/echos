@@ -176,11 +176,11 @@ information on the trained model.</p>
 <span><span class="co">#&gt; df           = 18.61</span></span>
 <span><span class="co">#&gt; lambda       = 0.008</span></span></code></pre></div>
 <p>From the output above, we get the following information about the
-trained model:</p>
+trained ESN model:</p>
 <table class="table">
 <colgroup>
-<col width="16%">
-<col width="83%">
+<col width="13%">
+<col width="86%">
 </colgroup>
 <thead><tr class="header">
 <th align="left">Value</th>
@@ -189,7 +189,8 @@ trained model:</p>
 <tbody>
 <tr class="odd">
 <td align="left"><code>n_obs</code></td>
-<td align="left">Number of observations</td>
+<td align="left">Number of observations (i.e., length of the input time
+series)</td>
 </tr>
 <tr class="even">
 <td align="left"><code>n_diff</code></td>
@@ -202,8 +203,56 @@ stationarity of the input training data</td>
 as model input</td>
 </tr>
 <tr class="even">
-<td align="left"><code>...</code></td>
-<td align="left">…</td>
+<td align="left"><code>n_states</code></td>
+<td align="left">Number of internal states (i.e., predictor variables or
+reservoir size).</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>alpha</code></td>
+<td align="left">Leakage rate (smoothing parameter)</td>
+</tr>
+<tr class="even">
+<td align="left"><code>rho</code></td>
+<td align="left">Spectral radius for scaling the reservoir weight
+matrix</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>density</code></td>
+<td align="left">Density of the reservoir weight matrix</td>
+</tr>
+<tr class="even">
+<td align="left"><code>scale_inputs</code></td>
+<td align="left">Input training data are scaled to the interval
+<code>(-0.5, 0.5)</code>
+</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>scale_win</code></td>
+<td align="left">Input weights matrix is drawn from a random uniform
+distribution with interval <code>(-0.5, 0.5)</code>
+</td>
+</tr>
+<tr class="even">
+<td align="left"><code>scale_wres</code></td>
+<td align="left">Reservoir weight matrix is drawn from a random uniform
+distribution with interval <code>(-0.5, 0.5)</code>
+</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>n_models</code></td>
+<td align="left">Number of models evaluated during the random search
+optimization to find the regularization parameter
+<code>lambda</code>
+</td>
+</tr>
+<tr class="even">
+<td align="left"><code>df</code></td>
+<td align="left">Effective degrees of freedom in the model</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>lambda</code></td>
+<td align="left">Regularization parameter for the ridge regression
+estimation</td>
 </tr>
 </tbody>
 </table>
