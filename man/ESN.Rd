@@ -9,7 +9,7 @@ ESN(formula, ...)
 \arguments{
 \item{formula}{Model specification (currently not in use).}
 
-\item{...}{Further arguments passed to \code{auto_esn()}.}
+\item{...}{Further arguments passed to \code{train_esn()}.}
 }
 \value{
 An object of class \code{ESN}.
@@ -17,4 +17,12 @@ An object of class \code{ESN}.
 \description{
 This function trains an Echo State Network (ESN)
   to a univariate time series.
+}
+\examples{
+library(tsibble)
+library(fable)
+AirPassengers \%>\%
+as_tsibble() \%>\%
+model("ESN" = ESN(value))
+
 }

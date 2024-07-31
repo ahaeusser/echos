@@ -4,11 +4,12 @@ template:
     
 reference:
 
-- title: Base R
+- title: Base functions
   desc: >
-    Functions and methods in base R
+    Functions and methods for basic time series forecasting
   contents:
     - train_esn
+    - print.esn
     - summary.esn
     - is.esn
     - forecast_esn
@@ -17,11 +18,10 @@ reference:
     - fit_ridge
     - run_reservoir
     
-- title: Tidy R
+- title: Tidy functions
   desc: >
-    Functions and methods in tidy R ("fable framework")
+    Functions and methods in tidy time series forecasting ("fable framework")
   contents:
-    - auto_esn
     - ESN
     - forecast.ESN
     - fitted.ESN

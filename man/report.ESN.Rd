@@ -17,3 +17,12 @@ Print detailed model summary.
 \description{
 Provide a detailed summary of the trained ESN model.
 }
+\examples{
+library(tsibble)
+library(fable)
+AirPassengers \%>\%
+as_tsibble() \%>\%
+model("ESN" = ESN(value)) \%>\%
+report()
+
+}

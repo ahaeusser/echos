@@ -2,7 +2,7 @@
 % Please edit documentation in R/ESN.R
 \name{glance.ESN}
 \alias{glance.ESN}
-\title{Summary of model fit}
+\title{Summary of trained models during random search}
 \usage{
 \method{glance}{ESN}(x, ...)
 }
@@ -15,11 +15,28 @@
 Summary statistics extracted from the object.
 }
 \description{
-Return summary statistics from a trained ESN as tibble.
+Return summary statistics from trained ESN models during random 
+  search as tibble.
  \itemize{
+   \item{\code{model}: Model identifier.}
+   \item{\code{loglik}: Log-likelihood.}
+   \item{\code{nobs}: Number of observations.}
    \item{\code{df}: Effective degrees of freedom.}
-   \item{\code{aic}: Akaike information criterion.}
-   \item{\code{bic}: Bayesian information criterion.}
-   \item{\code{hqc}: Hannan-Quinn information criterion.}
+   \item{\code{lambda}: Regularization parameter.}
+   \item{\code{aic}: Akaike Information Criterion.}
+   \item{\code{aicc}: Corrected Akaike Information Criterion.}
+   \item{\code{bic}: Bayesian Information Criterion.}
+   \item{\code{hqc}: Hannan-Quinn Information Criterion.}
+   \item{\code{mse}: Mean Squared Error.}
+   \item{\code{mae}: Mean Absolute Error.}
       }
+}
+\examples{
+library(tsibble)
+library(fable)
+AirPassengers \%>\%
+as_tsibble() \%>\%
+model("ESN" = ESN(value)) \%>\%
+glance()
+
 }

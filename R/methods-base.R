@@ -4,10 +4,12 @@
 #' @description Returns \code{TRUE} if the object is of class "esn".
 #'
 #' @param object object to be tested.
+#' 
 #' @examples
 #' xdata <- as.numeric(AirPassengers)
 #' xmodel <- train_esn(y = xdata)
 #' is.esn(xmodel)
+#' 
 #' @export
 
 is.esn <- function(object) {
@@ -15,20 +17,46 @@ is.esn <- function(object) {
 }
 
 
+
 #' @title Checks if object is of class "forecast_esn"
 #'
 #' @description Returns \code{TRUE} if the object is of class "forecast_esn".
 #'
 #' @param object object to be tested.
+#' 
 #' @examples
 #' xdata <- as.numeric(AirPassengers)
 #' xmodel <- train_esn(y = xdata)
 #' xfcst <- forecast_esn(xmodel, n_ahead = 12)
 #' is.forecast_esn(xfcst)
+#' 
 #' @export
 
 is.forecast_esn <- function(object) {
   inherits(object, "forecast_esn")
+}
+
+
+
+#' @title Print specification of the trained ESN model
+#' 
+#' @description Print specification of the trained ESN model.
+#'
+#' @param x An object of class \code{esn}.
+#' @param ... Currently not in use.
+#'
+#' @return Print specification of the trained ESN model.
+#' 
+#' @examples
+#' xdata <- as.numeric(AirPassengers)
+#' xmodel <- train_esn(y = xdata)
+#' print(xmodel)
+#' 
+#' @export
+
+print.esn <- function(x, ...) {
+  # Print model specification
+  cat(x$method$model_spec)
 }
 
 
@@ -40,10 +68,12 @@ is.forecast_esn <- function(object) {
 #' @param ... Currently not in use.
 #'
 #' @return Print detailed model summary.
+#' 
 #' @examples
 #' xdata <- as.numeric(AirPassengers)
 #' xmodel <- train_esn(y = xdata)
 #' summary(xmodel)
+#' 
 #' @export
 
 summary.esn <- function(object, ...) {
@@ -75,8 +105,6 @@ summary.esn <- function(object, ...) {
   lambda <- round(method$model_meta$lambda, 4)
   
   # Print output
-  
-  cat(method$model_spec, "\n")
   
   cat(
     "\n--- Inputs -----------------------------------------------------", "\n",
@@ -119,11 +147,13 @@ summary.esn <- function(object, ...) {
 #' @param ... Currently not in use.
 #'
 #' @return Line chart of point forecast and actual values.
+#' 
 #' @examples
 #' xdata <- as.numeric(AirPassengers)
 #' xmodel <- train_esn(y = xdata)
 #' xfcst <- forecast_esn(xmodel, n_ahead = 12)
 #' plot(xfcst)
+#' 
 #' @export
 
 plot.forecast_esn <- function(x,

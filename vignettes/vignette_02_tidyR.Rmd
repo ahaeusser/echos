@@ -1,9 +1,9 @@
 ---
-title: "Tidy R"
+title: "Tidy functions"
 author: "Alexander Häußer"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Tidy R}
+  %\VignetteIndexEntry{Tidy functions}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -57,7 +57,7 @@ p
 
 ```{r mable_frame}
 mable_frame <- train_frame %>%
-  model(ESN(value))
+  model("ESN" = ESN(value))
 
 mable_frame
 

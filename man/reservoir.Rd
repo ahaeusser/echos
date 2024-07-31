@@ -7,13 +7,22 @@
 reservoir(object)
 }
 \arguments{
-\item{object}{An object of class \code{mdl_df}.}
+\item{object}{An object of class \code{ESN}.}
 }
 \value{
 A tibble containing the reservoir (internal states).
 }
 \description{
 Return the reservoir (internal states) from a
-  trained ESN as tibble. The function works only if the
-  model within the \code{mdl_df} is of class \code{ESN}.
+  trained ESN as tibble. The function works only for models
+  of class \code{ESN}.
+}
+\examples{
+library(tsibble)
+library(fable)
+AirPassengers \%>\%
+as_tsibble() \%>\%
+model("ESN" = ESN(value)) \%>\%
+reservoir()
+
 }

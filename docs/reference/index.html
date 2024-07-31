@@ -32,10 +32,10 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/vignette_01_baseR.html">Base R</a>
+      <a href="../articles/vignette_01_baseR.html">Base functions</a>
     </li>
     <li>
-      <a href="../articles/vignette_02_tidyR.html">Tidy R</a>
+      <a href="../articles/vignette_02_tidyR.html">Tidy functions</a>
     </li>
   </ul></li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
@@ -57,13 +57,17 @@
     </div>
 
     <table class="ref-index"><colgroup><col class="alias"><col class="title"></colgroup><tbody><tr><th colspan="2">
-          <h2 id="base-r">Base R <a href="#base-r" class="anchor" aria-hidden="true"></a></h2>
-          <p class="section-desc"></p><p>Functions and methods in base R</p>
+          <h2 id="base-functions">Base functions <a href="#base-functions" class="anchor" aria-hidden="true"></a></h2>
+          <p class="section-desc"></p><p>Functions and methods for basic time series forecasting</p>
         </th>
       </tr></tbody><tbody><tr><td>
           <p><code><a href="train_esn.html">train_esn()</a></code> </p>
         </td>
         <td><p>Train an Echo State Network</p></td>
+      </tr><tr><td>
+          <p><code><a href="print.esn.html">print(<i>&lt;esn&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Print specification of the trained ESN model</p></td>
       </tr><tr><td>
           <p><code><a href="summary.esn.html">summary(<i>&lt;esn&gt;</i>)</a></code> </p>
         </td>
@@ -93,14 +97,10 @@
         </td>
         <td><p>Run reservoir</p></td>
       </tr></tbody><tbody><tr><th colspan="2">
-          <h2 id="tidy-r">Tidy R <a href="#tidy-r" class="anchor" aria-hidden="true"></a></h2>
-          <p class="section-desc"></p><p>Functions and methods in tidy R (“fable framework”)</p>
+          <h2 id="tidy-functions">Tidy functions <a href="#tidy-functions" class="anchor" aria-hidden="true"></a></h2>
+          <p class="section-desc"></p><p>Functions and methods in tidy time series forecasting (“fable framework”)</p>
         </th>
       </tr></tbody><tbody><tr><td>
-          <p><code><a href="auto_esn.html">auto_esn()</a></code> </p>
-        </td>
-        <td><p>Automatic train an Echo State Network</p></td>
-      </tr><tr><td>
           <p><code><a href="ESN.html">ESN()</a></code> </p>
         </td>
         <td><p>Automatic train an Echo State Network</p></td>
@@ -127,7 +127,7 @@
       </tr><tr><td>
           <p><code><a href="glance.ESN.html">glance(<i>&lt;ESN&gt;</i>)</a></code> </p>
         </td>
-        <td><p>Summary of model fit</p></td>
+        <td><p>Summary of trained models during random search</p></td>
       </tr><tr><td>
           <p><code><a href="report.ESN.html">report(<i>&lt;ESN&gt;</i>)</a></code> </p>
         </td>

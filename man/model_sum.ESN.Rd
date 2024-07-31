@@ -15,3 +15,11 @@ Model summary extracted from the object.
 \description{
 Provide a succinct summary of a trained ESN.
 }
+\examples{
+library(tsibble)
+library(fable)
+AirPassengers \%>\%
+as_tsibble() \%>\%
+model("ESN" = ESN(value))
+
+}

@@ -21,4 +21,5 @@ Provide a detailed summary of the trained ESN model.
 xdata <- as.numeric(AirPassengers)
 xmodel <- train_esn(y = xdata)
 summary(xmodel)
+
 }

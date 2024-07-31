@@ -17,3 +17,12 @@ Fitted values extracted from the object.
 \description{
 Extract fitted values from a trained ESN.
 }
+\examples{
+library(tsibble)
+library(fable)
+AirPassengers \%>\%
+as_tsibble() \%>\%
+model("ESN" = ESN(value)) \%>\%
+fitted()
+
+}

@@ -17,3 +17,12 @@ Residuals extracted from the object.
 \description{
 Extract residuals from a trained ESN.
 }
+\examples{
+library(tsibble)
+library(fable)
+AirPassengers \%>\%
+as_tsibble() \%>\%
+model("ESN" = ESN(value)) \%>\%
+residuals()
+
+}

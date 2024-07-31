@@ -17,3 +17,12 @@ Coefficients extracted from the object.
 \description{
 Return the estimated coefficients from a trained ESN as tibble.
 }
+\examples{
+library(tsibble)
+library(fable)
+AirPassengers \%>\%
+as_tsibble() \%>\%
+model("ESN" = ESN(value)) \%>\%
+tidy()
+
+}

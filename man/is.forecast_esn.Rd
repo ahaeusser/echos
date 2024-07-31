@@ -17,4 +17,5 @@ xdata <- as.numeric(AirPassengers)
 xmodel <- train_esn(y = xdata)
 xfcst <- forecast_esn(xmodel, n_ahead = 12)
 is.forecast_esn(xfcst)
+
 }

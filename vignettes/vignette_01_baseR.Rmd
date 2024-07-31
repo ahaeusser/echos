@@ -1,9 +1,9 @@
 ---
-title: "Base R"
+title: "Base functions"
 author: "Alexander Häußer"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Base R}
+  %\VignetteIndexEntry{Base functions}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

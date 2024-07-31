@@ -16,4 +16,5 @@ Returns \code{TRUE} if the object is of class "esn".
 xdata <- as.numeric(AirPassengers)
 xmodel <- train_esn(y = xdata)
 is.esn(xmodel)
+
 }

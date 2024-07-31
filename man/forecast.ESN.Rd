@@ -23,3 +23,12 @@ An object of class \code{fable}.
 \description{
 Forecast a trained ESN.
 }
+\examples{
+library(tsibble)
+library(fable)
+AirPassengers \%>\%
+as_tsibble() \%>\%
+model("ESN" = ESN(value)) \%>\%
+forecast(h = 18)
+
+}

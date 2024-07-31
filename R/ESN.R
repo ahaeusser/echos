@@ -9,7 +9,7 @@
 #' @param ... Further arguments passed to \code{train_esn()}.
 #'
 #' @return An object of class \code{ESN}.
-#' @export
+#' @noRd
 
 auto_esn <- function(.data,
                      specials,
@@ -58,9 +58,17 @@ specials_esn <- new_specials()
 #'   to a univariate time series.
 #'
 #' @param formula Model specification (currently not in use).
-#' @param ... Further arguments passed to \code{auto_esn()}.
+#' @param ... Further arguments passed to \code{train_esn()}.
 #'
 #' @return An object of class \code{ESN}.
+#' 
+#' @examples
+#' library(tsibble)
+#' library(fable)
+#' AirPassengers %>%
+#' as_tsibble() %>%
+#' model("ESN" = ESN(value))
+#' 
 #' @export
 
 ESN <- function(formula, ...){
@@ -77,6 +85,29 @@ ESN <- function(formula, ...){
 
 
 
+#' @title Provide a succinct summary of a trained ESN
+#' 
+#' @description Provide a succinct summary of a trained ESN.
+#'
+#' @param x An object of class \code{ESN}.
+#'
+#' @return Model summary extracted from the object.
+#' 
+#' @examples
+#' library(tsibble)
+#' library(fable)
+#' AirPassengers %>%
+#' as_tsibble() %>%
+#' model("ESN" = ESN(value))
+#' 
+#' @export
+
+model_sum.ESN <- function(x){
+  x[["spec"]]
+}
+
+
+
 #' @title Forecast a trained ESN
 #' 
 #' @description Forecast a trained ESN.
@@ -88,6 +119,15 @@ ESN <- function(formula, ...){
 #' @param ... Currently not in use.
 #' 
 #' @return An object of class \code{fable}.
+#' 
+#' @examples
+#' library(tsibble)
+#' library(fable)
+#' AirPassengers %>%
+#' as_tsibble() %>%
+#' model("ESN" = ESN(value)) %>%
+#' forecast(h = 18)
+#' 
 #' @export
 
 forecast.ESN <- function(object,
@@ -122,6 +162,15 @@ forecast.ESN <- function(object,
 #' @param ... Currently not in use.
 #'
 #' @return Fitted values extracted from the object.
+#' 
+#' @examples
+#' library(tsibble)
+#' library(fable)
+#' AirPassengers %>%
+#' as_tsibble() %>%
+#' model("ESN" = ESN(value)) %>%
+#' fitted()
+#' 
 #' @export
 
 fitted.ESN <- function(object, ...){
@@ -138,25 +187,19 @@ fitted.ESN <- function(object, ...){
 #' @param ... Currently not in use.
 #'
 #' @return Residuals extracted from the object.
+#' 
+#' @examples
+#' library(tsibble)
+#' library(fable)
+#' AirPassengers %>%
+#' as_tsibble() %>%
+#' model("ESN" = ESN(value)) %>%
+#' residuals()
+#' 
 #' @export
 
 residuals.ESN <- function(object, ...){
   object$est[[".resid"]]
-}
-
-
-
-#' @title Provide a succinct summary of a trained ESN
-#' 
-#' @description Provide a succinct summary of a trained ESN.
-#'
-#' @param x An object of class \code{ESN}.
-#'
-#' @return Model summary extracted from the object.
-#' @export
-
-model_sum.ESN <- function(x){
-  x[["spec"]]
 }
 
 
@@ -169,6 +212,15 @@ model_sum.ESN <- function(x){
 #' @param ... Currently not in use.
 #'
 #' @return Coefficients extracted from the object.
+#' 
+#' @examples
+#' library(tsibble)
+#' library(fable)
+#' AirPassengers %>%
+#' as_tsibble() %>%
+#' model("ESN" = ESN(value)) %>%
+#' tidy()
+#' 
 #' @export
 
 tidy.ESN <- function(x, ...) {
@@ -184,20 +236,37 @@ tidy.ESN <- function(x, ...) {
 
 
 
-#' @title Summary of model fit
+#' @title Summary of trained models during random search
 #' 
-#' @description Return summary statistics from a trained ESN as tibble.
+#' @description Return summary statistics from trained ESN models during random 
+#'   search as tibble.
 #'  \itemize{
+#'    \item{\code{model}: Model identifier.}
+#'    \item{\code{loglik}: Log-likelihood.}
+#'    \item{\code{nobs}: Number of observations.}
 #'    \item{\code{df}: Effective degrees of freedom.}
-#'    \item{\code{aic}: Akaike information criterion.}
-#'    \item{\code{bic}: Bayesian information criterion.}
-#'    \item{\code{hqc}: Hannan-Quinn information criterion.}
+#'    \item{\code{lambda}: Regularization parameter.}
+#'    \item{\code{aic}: Akaike Information Criterion.}
+#'    \item{\code{aicc}: Corrected Akaike Information Criterion.}
+#'    \item{\code{bic}: Bayesian Information Criterion.}
+#'    \item{\code{hqc}: Hannan-Quinn Information Criterion.}
+#'    \item{\code{mse}: Mean Squared Error.}
+#'    \item{\code{mae}: Mean Absolute Error.}
 #'       }
 #'
 #' @param x An object of class \code{ESN}.
 #' @param ... Currently not in use.
 #'
 #' @return Summary statistics extracted from the object.
+#' 
+#' @examples
+#' library(tsibble)
+#' library(fable)
+#' AirPassengers %>%
+#' as_tsibble() %>%
+#' model("ESN" = ESN(value)) %>%
+#' glance()
+#' 
 #' @export
 
 glance.ESN <- function(x, ...) {
@@ -214,6 +283,15 @@ glance.ESN <- function(x, ...) {
 #' @param ... Currently not in use.
 #'
 #' @return Print detailed model summary.
+#' 
+#' @examples
+#' library(tsibble)
+#' library(fable)
+#' AirPassengers %>%
+#' as_tsibble() %>%
+#' model("ESN" = ESN(value)) %>%
+#' report()
+#' 
 #' @export
 
 report.ESN <- function(object, ...) {
@@ -225,12 +303,21 @@ report.ESN <- function(object, ...) {
 #' @title Return the reservoir from a trained ESN as tibble
 #' 
 #' @description Return the reservoir (internal states) from a
-#'   trained ESN as tibble. The function works only if the
-#'   model within the \code{mdl_df} is of class \code{ESN}.
+#'   trained ESN as tibble. The function works only for models
+#'   of class \code{ESN}.
 #'
-#' @param object An object of class \code{mdl_df}.
+#' @param object An object of class \code{ESN}.
 #'
 #' @return A tibble containing the reservoir (internal states).
+#' 
+#' @examples
+#' library(tsibble)
+#' library(fable)
+#' AirPassengers %>%
+#' as_tsibble() %>%
+#' model("ESN" = ESN(value)) %>%
+#' reservoir()
+#' 
 #' @export
 
 reservoir <- function(object) {
@@ -244,7 +331,7 @@ reservoir.mdl_df <- function(object) {
   object <- object %>%
     pivot_longer(
       cols = mable_vars(object),
-      names_to = ".model",
+      names_to = "model",
       values_to = ".spec"
     )
   
@@ -256,22 +343,28 @@ reservoir.mdl_df <- function(object) {
   object <- map(
     .x = seq_len(nrow(key_tbl)),
     .f = ~{
-      lst_to_df(
-        x = object[[".spec"]][[.x]]$fit$model$states_train,
-        lst_name = "reservoir",
-        col_name = "state"
-      )
+      
+      # Extract model object
+      xmodel <- object[[".spec"]][[.x]]$fit$model
+      
+      # Check if model is of class "esn"
+      # Extract internal states and prepare as tibble
+      if (is.esn(xmodel)) {
+        xstates <- xmodel[["states_train"]] %>%
+          as_tibble() %>%
+          mutate(index = row_number()) %>%
+          pivot_longer(
+            cols = -index,
+            names_to = "state",
+            values_to = "value") %>%
+          arrange(state, index)
+        
+        xstates <- bind_cols(key_tbl[.x, ], xstates)
+      } else {
+        xstates <- NULL
+      }
     }
   )
-  
-  # Add columns with key variables
-  object <- map(
-    .x = seq_len(nrow(key_tbl)),
-    .f = ~{
-      bind_cols(
-        key_tbl[.x, ],
-        object[[.x]])
-    })
   
   # Flatten list row-wise
   object <- bind_rows(object)
