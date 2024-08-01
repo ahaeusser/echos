@@ -26,6 +26,9 @@ library(tsibble)
 library(fable)
 ```
 
+## Prepare dataset
+
+In this example, we will use the `m4_data`. The dataset is a monthly `tsibble`, which is filtered to include only the time series `"M21655"` and `"M2717"`. The resulting object `train_frame` contains the training data and is visualized below.
 
 ```{r data}
 
@@ -54,6 +57,9 @@ p
 ```
 
 
+## Train ESN model
+
+The function `ESN()` is used in combination with `model()` from the `fabletools` package to train an Echo State Network for the variable `value`. The trained models are stored as a `mable` (i.e., *model table*).
 
 ```{r mable_frame}
 mable_frame <- train_frame %>%
@@ -63,6 +69,9 @@ mable_frame
 
 ```
 
+## Forecast ESN model
+
+Forecasts are generated via the function `forecast()`, where the forecast horizon is set to `h = 18` (i.e., 18-month ahead forecasts). The forecasts are stored as `fable` (i.e., *forecast table*) and visualized along the historic training data.
 
 ```{r fable_frame}
 fable_frame <- mable_frame %>%
