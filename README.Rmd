@@ -23,9 +23,13 @@ knitr::opts_chunk$set(
 [![R-CMD-check](https://github.com/ahaeusser/echos/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ahaeusser/echos/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The package provides a tidy interface for modeling and forecasting univariate time series using Echo State Networks (ESNs). The model works within the `fable` framework provided by the `fabletools` package, which provides the tools to evaluate, visualize, and combine models in a workflow consistent with the tidyverse.
 
-***Disclaimer:*** The `echos` package is highly experimental and it is very likely that there will be (substantial) changes in the near future. These changes will probably affect the interface (e.g. arguments within `ESN()`) and the underlying modeling procedure itself.
+The `echos` package provides a comprehensive set of **functions and methods** for modeling and forecasting univariate time series using **Echo State Networks (ESNs)**. It offers two alternative approaches:
+
+* **Base R interface:** Functions for modeling and forecasting time series using `numeric` vectors, allowing for straightforward integration with existing R workflows.
+* **Tidy interface:** A seamless integration with the [`fable`](https://github.com/tidyverts/fable) framework based on [`tsibble`](https://github.com/tidyverts/tsibble), enabling tidy time series forecasting and model evaluation. This interface leverages the [`fabletools`](https://github.com/tidyverts/fabletools) package, providing a consistent and streamlined workflow for model development, evaluation, and visualization.
+
+The package features a **lightweight implementation** that enables **fast and fully automatic** model training and forecasting using ESNs. You can quickly and easily build accurate ESN models without requiring extensive hyperparameter tuning or manual configuration.
 
 
 ## Installation
