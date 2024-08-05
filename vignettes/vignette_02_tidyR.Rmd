@@ -31,7 +31,6 @@ library(fable)
 In this example, we will use the `m4_data`. The dataset is a monthly `tsibble`, which is filtered to include only the time series `"M21655"` and `"M2717"`. The resulting object `train_frame` contains the training data and is visualized below.
 
 ```{r data}
-
 train_frame <- m4_data %>%
   filter(series %in% c("M21655", "M2717"))
 
@@ -53,7 +52,6 @@ p <- p + facet_wrap(
   scales = "free")
 
 p
-
 ```
 
 
@@ -66,7 +64,6 @@ mable_frame <- train_frame %>%
   model("ESN" = ESN(value))
 
 mable_frame
-
 ```
 
 ## Forecast ESN model
@@ -81,7 +78,6 @@ fable_frame
 
 fable_frame %>%
   autoplot(train_frame, level = NULL)
-
 ```
 
 

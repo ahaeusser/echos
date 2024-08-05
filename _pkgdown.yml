@@ -1,6 +1,9 @@
 template:
-  params:
-    bootswatch: flatly
+  bootstrap: 5
+  bslib:
+    bg: "white"
+    fg: "#202123"
+    primary: "steelblue"
     
 reference:
 

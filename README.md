@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# echos
+# echos <img src="man/figures/logo.png" align="right" height="139" alt="" />
 
 <!-- badges: start -->
 
@@ -43,14 +43,10 @@ You can install the development version from
 devtools::install_github("ahaeusser/echos")
 ```
 
-## Getting started
+## Base R
 
 ``` r
-
 library(echos)
-#> Registered S3 method overwritten by 'quantmod':
-#>   method            from
-#>   as.zoo.data.frame zoo
 
 # Forecast horizon
 n_ahead <- 12 # forecast horizon
@@ -72,3 +68,24 @@ plot(xfcst, test = xtest)
 ```
 
 <img src="man/figures/README-base-1.svg" width="100%" />
+
+## Tidy R
+
+``` r
+library(echos)
+library(tidyverse)
+library(tsibble)
+library(fable)
+
+# Prepare train data
+train_frame <- m4_data %>%
+  filter(series %in% c("M21655", "M2717"))
+
+# Train and forecast ESN model
+train_frame %>%
+  model("ESN" = ESN(value)) %>%
+  forecast(h = 18) %>%
+  autoplot(train_frame, level = NULL)
+```
+
+<img src="man/figures/README-tidy-1.svg" width="100%" />

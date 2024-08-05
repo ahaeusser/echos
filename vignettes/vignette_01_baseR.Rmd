@@ -41,7 +41,6 @@ xtest <- AirPassengers[((n_train+1):n_obs)]
 
 xtrain
 xtest
-
 ```
 
 
@@ -59,7 +58,6 @@ lines(xmodel$fitted, col = "steelblue", lwd = 2)
 
 # Summarize model
 summary(xmodel)
-
 ```
 
 From the output above, we get the following information about the trained ESN model:
@@ -93,6 +91,5 @@ xfcst
 
 # Plot forecast and test data
 plot(xfcst, test = xtest)
-
 ```
 

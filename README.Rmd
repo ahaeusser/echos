@@ -14,7 +14,8 @@ knitr::opts_chunk$set(
 )
 ```
 
-# echos
+
+# echos <img src="man/figures/logo.png" align="right" height="139" alt="" />
 
 <!-- badges: start -->
 [![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
@@ -41,10 +42,9 @@ You can install the development version from [GitHub](https://github.com/) with:
 devtools::install_github("ahaeusser/echos")
 ```
 
-## Getting started
+## Base R
 
-```{r base}
-
+```{r base, message = FALSE, warning = FALSE}
 library(echos)
 
 # Forecast horizon
@@ -64,5 +64,24 @@ xfcst <- forecast_esn(xmodel, n_ahead = n_ahead)
 
 # Plot result
 plot(xfcst, test = xtest)
+```
 
+
+## Tidy R
+
+```{r tidy, message = FALSE, warning = FALSE}
+library(echos)
+library(tidyverse)
+library(tsibble)
+library(fable)
+
+# Prepare train data
+train_frame <- m4_data %>%
+  filter(series %in% c("M21655", "M2717"))
+
+# Train and forecast ESN model
+train_frame %>%
+  model("ESN" = ESN(value)) %>%
+  forecast(h = 18) %>%
+  autoplot(train_frame, level = NULL)
 ```
