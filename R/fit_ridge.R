@@ -13,7 +13,7 @@
 #'
 #' @return A list containing the estimated coefficients, fitted values and some
 #'   goodness-of-fit metrics.
-#' @export
+#' @noRd
 
 fit_ridge <- function(x, y, lambda) {
   
