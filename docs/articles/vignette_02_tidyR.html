@@ -152,19 +152,22 @@ is visualized below.</p>
 <p>The function <code><a href="../reference/ESN.html">ESN()</a></code> is used in combination with
 <code><a href="https://fabletools.tidyverts.org/reference/model.html" class="external-link">model()</a></code> from the <code>fabletools</code> package to train
 an Echo State Network for the variable <code>value</code>. The trained
-models are stored as a <code>mable</code> (i.e., <em>model
-table</em>).</p>
+models are stored as a <code>mable</code> (i.e., <em>model table</em>).
+Additionally, an <code><a href="https://fable.tidyverts.org/reference/ARIMA.html" class="external-link">ARIMA()</a></code> model is trained as benchmark.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mable_frame</span> <span class="op">&lt;-</span> <span class="va">train_frame</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://fabletools.tidyverts.org/reference/model.html" class="external-link">model</a></span><span class="op">(</span><span class="st">"ESN"</span> <span class="op">=</span> <span class="fu"><a href="../reference/ESN.html">ESN</a></span><span class="op">(</span><span class="va">value</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://fabletools.tidyverts.org/reference/model.html" class="external-link">model</a></span><span class="op">(</span></span>
+<span>    <span class="st">"ESN"</span> <span class="op">=</span> <span class="fu"><a href="../reference/ESN.html">ESN</a></span><span class="op">(</span><span class="va">value</span><span class="op">)</span>,</span>
+<span>    <span class="st">"ARIMA"</span> <span class="op">=</span> <span class="fu"><a href="https://fable.tidyverts.org/reference/ARIMA.html" class="external-link">ARIMA</a></span><span class="op">(</span><span class="va">value</span><span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
 <span></span>
 <span><span class="va">mable_frame</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A mable: 2 x 2</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A mable: 2 x 3</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># Key:     series [2]</span></span></span>
-<span><span class="co">#&gt;   series                                     ESN</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                  <span style="color: #949494; font-style: italic;">&lt;model&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> M21655  &lt;ESN({243, 97, 194}, {36.57, 0.0046})&gt;</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> M2717  &lt;ESN({251, 100, 200}, {31.91, 0.0046})&gt;</span></span></code></pre></div>
+<span><span class="co">#&gt;   series                                     ESN                     ARIMA</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                  <span style="color: #949494; font-style: italic;">&lt;model&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;model&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> M21655  &lt;ESN({243, 97, 194}, {36.57, 0.0046})&gt; &lt;ARIMA(1,0,0)(1,1,2)[12]&gt;</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> M2717  &lt;ESN({251, 100, 200}, {31.91, 0.0046})&gt; &lt;ARIMA(2,1,4)(0,1,0)[12]&gt;</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="forecast-esn-model">Forecast ESN model<a class="anchor" aria-label="anchor" href="#forecast-esn-model"></a>
@@ -179,8 +182,8 @@ data.</p>
 <span>  <span class="fu"><a href="https://generics.r-lib.org/reference/forecast.html" class="external-link">forecast</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">18</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">fable_frame</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A fable: 36 x 5 [1M]</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># Key:     series, .model [2]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A fable: 72 x 5 [1M]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># Key:     series, .model [4]</span></span></span>
 <span><span class="co">#&gt;    series .model    index       value .mean</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;mth&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dist&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> M21655 ESN    2015 Apr N(5032, NA) <span style="text-decoration: underline;">5</span>032.</span></span>
@@ -193,7 +196,7 @@ data.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> M21655 ESN    2015 Nov N(5293, NA) <span style="text-decoration: underline;">5</span>293.</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> M21655 ESN    2015 Dez N(5224, NA) <span style="text-decoration: underline;">5</span>224.</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> M21655 ESN    2016 Jan N(5055, NA) <span style="text-decoration: underline;">5</span>055.</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 26 more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 62 more rows</span></span></span>
 <span></span>
 <span><span class="va">fable_frame</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot</a></span><span class="op">(</span><span class="va">train_frame</span>, level <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>

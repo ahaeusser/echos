@@ -18,7 +18,6 @@ reference:
     - forecast_esn
     - is.forecast_esn
     - plot.forecast_esn
-    - fit_ridge
     - run_reservoir
     
 - title: Tidy functions
