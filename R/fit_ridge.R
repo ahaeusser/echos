@@ -1,11 +1,10 @@
 
 #' @title Estimate a linear model via ridge regression
 #' 
-#' @description Estimate a linear model via Ordinary Least Squares (OLS). 
-#'   \code{fit_lm()} is a wrapper function for \code{stats::lm.fit()} with some
-#'   additional output like goodness-of-fit metrics (e.g. information criteria). 
-#'   The function is slightly faster than \code{stats::lm()}, bit most 
-#'   importantly, the resulting object size is much smaller.
+#' @description Estimate a linear model via ridge regression. For 
+#'   \code{lambda = 0}, the estimate is equivalent to Ordinary Least Squares 
+#'   (OLS). For \code{lambda} values larger then zero, regularization is 
+#'   applied.
 #'
 #' @param x Numeric matrix. The design matrix containing the predictor variables.
 #' @param y Numeric matrix. The response variable(s).
