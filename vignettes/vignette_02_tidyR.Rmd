@@ -57,11 +57,14 @@ p
 
 ## Train ESN model
 
-The function `ESN()` is used in combination with `model()` from the `fabletools` package to train an Echo State Network for the variable `value`. The trained models are stored as a `mable` (i.e., *model table*).
+The function `ESN()` is used in combination with `model()` from the `fabletools` package to train an Echo State Network for the variable `value`. The trained models are stored as a `mable` (i.e., *model table*). Additionally, an `ARIMA()` model is trained as benchmark.
 
 ```{r mable_frame}
 mable_frame <- train_frame %>%
-  model("ESN" = ESN(value))
+  model(
+    "ESN" = ESN(value),
+    "ARIMA" = ARIMA(value)
+    )
 
 mable_frame
 ```

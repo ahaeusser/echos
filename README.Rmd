@@ -81,7 +81,10 @@ train_frame <- m4_data %>%
 
 # Train and forecast ESN model
 train_frame %>%
-  model("ESN" = ESN(value)) %>%
+  model(
+    "ESN" = ESN(value),
+    "ARIMA" = ARIMA(value)
+    ) %>%
   forecast(h = 18) %>%
   autoplot(train_frame, level = NULL)
 ```
