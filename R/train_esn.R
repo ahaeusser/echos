@@ -68,7 +68,7 @@ train_esn <- function(y,
   n_total <- length(y)
   
   if (is.null(n_states)) {
-    n_states <- min(floor(n_total * 0.4), 100)
+    n_states <- min(floor(n_total * 0.4), 200)
   }
   
   if (is.null(n_models)) {
