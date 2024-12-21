@@ -44,7 +44,7 @@ devtools::install_github("ahaeusser/echos")
 
 ## Base R
 
-```{r base, message = FALSE, warning = FALSE}
+```{r base, message = FALSE, warning = FALSE, fig.alt = "Plot forecast and test data"}
 library(echos)
 
 # Forecast horizon
@@ -69,7 +69,7 @@ plot(xfcst, test = xtest)
 
 ## Tidy R
 
-```{r tidy, message = FALSE, warning = FALSE}
+```{r tidy, message = FALSE, warning = FALSE, fig.alt = "Plot forecast and train data"}
 library(echos)
 library(tidyverse)
 library(tsibble)

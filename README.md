@@ -67,7 +67,7 @@ xfcst <- forecast_esn(xmodel, n_ahead = n_ahead)
 plot(xfcst, test = xtest)
 ```
 
-<img src="man/figures/README-base-1.svg" width="100%" />
+<img src="man/figures/README-base-1.svg" alt="Plot forecast and test data" width="100%" />
 
 ## Tidy R
 
@@ -91,4 +91,4 @@ train_frame %>%
   autoplot(train_frame, level = NULL)
 ```
 
-<img src="man/figures/README-tidy-1.svg" width="100%" />
+<img src="man/figures/README-tidy-1.svg" alt="Plot forecast and train data" width="100%" />

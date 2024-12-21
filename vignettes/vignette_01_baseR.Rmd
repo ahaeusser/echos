@@ -48,7 +48,7 @@ xtest
 
 The function `train_esn()` is used to automatically train an ESN to the input data `xtrain`, where the output `xmodel` is an object of class `esn`. The object `xmodel` is a list containing the `actual` and `fitted` values, `residuals`, the internal states `states_train`, estimated coefficients from the ridge regression estimation, hyperparameters, etc. We can summarize the model by using the generic S3 method `summary()` to get detailed information on the trained model.
 
-```{r model}
+```{r model, fig.alt = "Plot actual and fitted values"}
 # Train ESN model
 xmodel <- train_esn(y = xtrain)
 
@@ -84,7 +84,7 @@ From the output above, we get the following information about the trained ESN mo
 
 The function `forecast_esn()` is used to forecast the trained model `xmodel` for `n_ahead` steps into the future. The output `xfcst` is a list of class `forecast_esn` containing the `point` forecasts, `actual` and `fitted` values, the forecast horizon `n_ahead` and the model specification `model_spec`. We can use the generic S3 method `plot()` to visualize the point forecast within `xfcst` and add the holdout test data `xtest`.
 
-```{r forecast}
+```{r forecast, fig.alt = "Plot forecast and test data"}
 # Forecast ESN model
 xfcst <- forecast_esn(xmodel, n_ahead = n_ahead)
 xfcst
@@ -92,4 +92,3 @@ xfcst
 # Plot forecast and test data
 plot(xfcst, test = xtest)
 ```
-

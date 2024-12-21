@@ -1,168 +1,58 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>/404.html</loc>
-  </url>
-  <url>
-    <loc>/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>/articles/vignette_01_baseR.html</loc>
-  </url>
-  <url>
-    <loc>/articles/vignette_01_intro.html</loc>
-  </url>
-  <url>
-    <loc>/articles/vignette_02_tidyR.html</loc>
-  </url>
-  <url>
-    <loc>/authors.html</loc>
-  </url>
-  <url>
-    <loc>/index.html</loc>
-  </url>
-  <url>
-    <loc>/news/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/auto_esn.html</loc>
-  </url>
-  <url>
-    <loc>/reference/check_unitroots.html</loc>
-  </url>
-  <url>
-    <loc>/reference/create_const.html</loc>
-  </url>
-  <url>
-    <loc>/reference/create_fourier.html</loc>
-  </url>
-  <url>
-    <loc>/reference/create_grid_fourier.html</loc>
-  </url>
-  <url>
-    <loc>/reference/create_lags.html</loc>
-  </url>
-  <url>
-    <loc>/reference/create_revolved.html</loc>
-  </url>
-  <url>
-    <loc>/reference/create_spec.html</loc>
-  </url>
-  <url>
-    <loc>/reference/create_win.html</loc>
-  </url>
-  <url>
-    <loc>/reference/create_wres.html</loc>
-  </url>
-  <url>
-    <loc>/reference/diff_data.html</loc>
-  </url>
-  <url>
-    <loc>/reference/diff_vec.html</loc>
-  </url>
-  <url>
-    <loc>/reference/ESN.html</loc>
-  </url>
-  <url>
-    <loc>/reference/fitted.ESN.html</loc>
-  </url>
-  <url>
-    <loc>/reference/fit_ridge.html</loc>
-  </url>
-  <url>
-    <loc>/reference/forecast.ESN.html</loc>
-  </url>
-  <url>
-    <loc>/reference/forecast_esn.html</loc>
-  </url>
-  <url>
-    <loc>/reference/glance.ESN.html</loc>
-  </url>
-  <url>
-    <loc>/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/inv_diff_data.html</loc>
-  </url>
-  <url>
-    <loc>/reference/inv_diff_vec.html</loc>
-  </url>
-  <url>
-    <loc>/reference/is.esn.html</loc>
-  </url>
-  <url>
-    <loc>/reference/is.forecast_esn.html</loc>
-  </url>
-  <url>
-    <loc>/reference/m4_data.html</loc>
-  </url>
-  <url>
-    <loc>/reference/m4_monthly.html</loc>
-  </url>
-  <url>
-    <loc>/reference/model_sum.ESN.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plot.forecast_esn.html</loc>
-  </url>
-  <url>
-    <loc>/reference/predict_esn.html</loc>
-  </url>
-  <url>
-    <loc>/reference/print.esn.html</loc>
-  </url>
-  <url>
-    <loc>/reference/random_const.html</loc>
-  </url>
-  <url>
-    <loc>/reference/random_fourier.html</loc>
-  </url>
-  <url>
-    <loc>/reference/random_lags.html</loc>
-  </url>
-  <url>
-    <loc>/reference/report.ESN.html</loc>
-  </url>
-  <url>
-    <loc>/reference/rescale_data.html</loc>
-  </url>
-  <url>
-    <loc>/reference/reservoir.html</loc>
-  </url>
-  <url>
-    <loc>/reference/residuals.ESN.html</loc>
-  </url>
-  <url>
-    <loc>/reference/rotate.html</loc>
-  </url>
-  <url>
-    <loc>/reference/run_reservoir.html</loc>
-  </url>
-  <url>
-    <loc>/reference/scale_data.html</loc>
-  </url>
-  <url>
-    <loc>/reference/simulate_esn.html</loc>
-  </url>
-  <url>
-    <loc>/reference/spot_price.html</loc>
-  </url>
-  <url>
-    <loc>/reference/summary.esn.html</loc>
-  </url>
-  <url>
-    <loc>/reference/tidy.ESN.html</loc>
-  </url>
-  <url>
-    <loc>/reference/train_esn.html</loc>
-  </url>
-  <url>
-    <loc>/reference/train_ridge.html</loc>
-  </url>
-  <url>
-    <loc>/reference/tune_inputs.html</loc>
-  </url>
-  <url>
-    <loc>/reference/tune_pars.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://ahaeusser.github.io/echos/404.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/articles/index.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/articles/vignette_01_baseR.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/articles/vignette_01_intro.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/articles/vignette_02_tidyR.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/authors.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/index.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/news/index.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/auto_esn.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/check_unitroots.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/create_const.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/create_fourier.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/create_grid_fourier.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/create_lags.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/create_revolved.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/create_spec.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/create_win.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/create_wres.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/diff_data.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/diff_vec.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/ESN.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/fitted.ESN.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/fit_ridge.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/forecast.ESN.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/forecast_esn.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/glance.ESN.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/index.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/inv_diff_data.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/inv_diff_vec.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/is.esn.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/is.forecast_esn.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/m4_data.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/m4_monthly.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/model_sum.ESN.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/plot.forecast_esn.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/predict_esn.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/print.esn.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/random_const.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/random_fourier.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/random_lags.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/report.ESN.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/rescale_data.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/reservoir.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/residuals.ESN.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/rotate.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/run_reservoir.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/scale_data.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/simulate_esn.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/spot_price.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/summary.esn.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/tidy.ESN.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/train_esn.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/train_ridge.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/tune_inputs.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/tune_pars.html</loc></url>
 </urlset>
+

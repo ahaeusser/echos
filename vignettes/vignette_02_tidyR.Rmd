@@ -30,7 +30,7 @@ library(fable)
 
 In this example, we will use the `m4_data`. The dataset is a monthly `tsibble`, which is filtered to include only the time series `"M21655"` and `"M2717"`. The resulting object `train_frame` contains the training data and is visualized below.
 
-```{r data}
+```{r data , fig.alt = "Plot actual values"}
 train_frame <- m4_data %>%
   filter(series %in% c("M21655", "M2717"))
 
@@ -73,7 +73,7 @@ mable_frame
 
 Forecasts are generated via the function `forecast()`, where the forecast horizon is set to `h = 18` (i.e., 18-month ahead forecasts). The forecasts are stored as `fable` (i.e., *forecast table*) and visualized along the historic training data.
 
-```{r fable_frame}
+```{r fable_frame, fig.alt = "Plot forecast and train data"}
 fable_frame <- mable_frame %>%
   forecast(h = 18)
 
