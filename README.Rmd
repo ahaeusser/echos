@@ -35,7 +35,13 @@ The package features a **lightweight implementation** that enables **fast and fu
 
 ## Installation
 
-You can install the development version from [GitHub](https://github.com/) with:
+You can install the **stable** version from [CRAN](https://cran.r-project.org/package=echos):
+
+``` r
+install.packages("echos")
+```
+
+You can install the **development** version from [GitHub](https://github.com/):
 
 ``` r
 # install.packages("devtools")
@@ -88,3 +94,4 @@ train_frame %>%
   forecast(h = 18) %>%
   autoplot(train_frame, level = NULL)
 ```
+

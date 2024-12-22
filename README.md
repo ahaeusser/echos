@@ -35,8 +35,15 @@ extensive hyperparameter tuning or manual configuration.
 
 ## Installation
 
-You can install the development version from
-[GitHub](https://github.com/) with:
+You can install the **stable** version from
+[CRAN](https://cran.r-project.org/package=echos):
+
+``` r
+install.packages("echos")
+```
+
+You can install the **development** version from
+[GitHub](https://github.com/):
 
 ``` r
 # install.packages("devtools")
