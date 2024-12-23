@@ -9,6 +9,9 @@ is.esn(object)
 \arguments{
 \item{object}{object to be tested.}
 }
+\value{
+Logical value. If \code{TRUE}, the object is of class "esn".
+}
 \description{
 Returns \code{TRUE} if the object is of class "esn".
 }

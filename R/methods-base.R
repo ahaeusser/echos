@@ -5,6 +5,8 @@
 #'
 #' @param object object to be tested.
 #' 
+#' @return Logical value. If \code{TRUE}, the object is of class "esn".
+#' 
 #' @examples
 #' xdata <- as.numeric(AirPassengers)
 #' xmodel <- train_esn(y = xdata)
@@ -23,6 +25,8 @@ is.esn <- function(object) {
 #' @description Returns \code{TRUE} if the object is of class "forecast_esn".
 #'
 #' @param object object to be tested.
+#' 
+#' @return Logical value. If \code{TRUE}, the object is of class "forecast_esn".
 #' 
 #' @examples
 #' xdata <- as.numeric(AirPassengers)
@@ -180,7 +184,9 @@ plot.forecast_esn <- function(x,
   lower <- min(xactual, xpoint, xtest, na.rm = TRUE)
   upper <- max(xactual, xpoint, xtest, na.rm = TRUE)
   
-  def_par = par(no.readonly = TRUE)
+  # Save the current par settings, then immediately ensure they get restored
+  old_par <- par(no.readonly = TRUE)
+  on.exit(par(old_par))
   
   plot(
     x = xactual,
@@ -202,7 +208,4 @@ plot.forecast_esn <- function(x,
     col = "steelblue",
     lwd = 2
     )
-  
-  par(def_par)
 }
-

@@ -1,3 +1,5 @@
-# echos 1.0.0
+# echos 1.0.1
+* Updates due to CRAN comments
 
-* Initial CRAN submission.
+# echos 1.0.0
+* Initial CRAN submission
