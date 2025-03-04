@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods-base.R
 \name{print.esn}
 \alias{print.esn}
-\title{Print specification of the trained ESN model}
+\title{Print model specification of the trained ESN model}
 \usage{
 \method{print}{esn}(x, ...)
 }
@@ -15,7 +15,7 @@
 Print specification of the trained ESN model.
 }
 \description{
-Print specification of the trained ESN model.
+Print model specification of the trained ESN model.
 }
 \examples{
 xdata <- as.numeric(AirPassengers)

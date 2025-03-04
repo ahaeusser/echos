@@ -42,9 +42,9 @@ is.forecast_esn <- function(object) {
 
 
 
-#' @title Print specification of the trained ESN model
+#' @title Print model specification of the trained ESN model
 #' 
-#' @description Print specification of the trained ESN model.
+#' @description Print model specification of the trained ESN model.
 #'
 #' @param x An object of class \code{esn}.
 #' @param ... Currently not in use.
