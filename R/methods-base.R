@@ -141,13 +141,15 @@ summary.esn <- function(object, ...) {
 
 
 
-#' @title Plot point forecasts and actuals of a trained ESN model.
+#' @title Plot point forecasts and actual values of a trained ESN model.
 #' 
-#' @description Plot point forecasts and actuals of a trained ESN model as line
-#'   chart. Optionally, test data (out-of-sample) can be added to the plot.
+#' @description Plot point forecasts, actual and fitted values of a trained ESN 
+#'   model as line chart. Optionally, test data (out-of-sample) can be added to 
+#'   the plot.
 #'
 #' @param x An object of class \code{forecast_esn}.
 #' @param test Numeric vector. Test data, i.e., out-of-sample actual values.
+#' @param fitted Logical value. If \code{TRUE}, fitted values are added.
 #' @param ... Currently not in use.
 #'
 #' @return Line chart of point forecast and actual values.
@@ -162,6 +164,7 @@ summary.esn <- function(object, ...) {
 
 plot.forecast_esn <- function(x,
                               test = NULL,
+                              fitted = TRUE,
                               ...) {
   
   # Extract actual, point forecast and model specification
@@ -181,6 +184,14 @@ plot.forecast_esn <- function(x,
     xtest <- NULL
   }
   
+  # Extract fitted and pad vectors with leading and trailing NAs to same length
+  if (fitted == TRUE) {
+    xfitted <- x[["fitted"]]
+    xfitted <- c(xfitted, rep(NA_real_, length(point)))
+  } else {
+    xfitted <- NULL
+  }
+  
   lower <- min(xactual, xpoint, xtest, na.rm = TRUE)
   upper <- max(xactual, xpoint, xtest, na.rm = TRUE)
   
@@ -197,12 +208,30 @@ plot.forecast_esn <- function(x,
     ylab = "Value"
   )
   
+  # Add vertical dashed line for split into training and testing
+  if (!is.null(test)) {
+    abline(
+      v = length(actual),
+      lty = 2,
+      lwd = 1
+    )
+  }
+  
+  # Add line for test data (if required)
   lines(
     x = xtest, 
     col = "black",
     lwd = 1
   )
   
+  # Add line for fitted values (if required)
+  lines(
+    x = xfitted, 
+    col = "steelblue",
+    lwd = 1
+  )
+  
+  # Add line for point forecasts
   lines(
     x = xpoint, 
     col = "steelblue",
