@@ -209,7 +209,7 @@ train_esn <- function(y,
   model_metrics <- model_metrics %>%
     mutate(
       model = model_names,
-      .before = .data$loglik) %>%
+      .before = "loglik") %>%
     arrange(!!sym(inf_crit))
   
   # Identify best model, lambda and degrees of freedom (extract first row)
