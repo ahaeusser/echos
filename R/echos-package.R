@@ -5,7 +5,7 @@
 #' @importFrom forecast ndiffs
 #' @importFrom rlang is_empty .data abort
 #' @importFrom stats complete.cases diffinv na.omit runif
-#' @importFrom graphics lines par abline
+#' @importFrom graphics lines par abline matplot
 #' @importFrom utils tail
 #' @importFrom distributional dist_normal
 #' @import Rcpp
