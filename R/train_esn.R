@@ -1,11 +1,12 @@
 
 #' @title Train an Echo State Network
 #' 
-#' @description This function trains an Echo State Network (ESN) to a
-#'   univariate time series.
+#' @description Train an Echo State Network (ESN) to a univariate time series.
+#'    The function automatically manages data pre-processing, reservoir
+#'    generation (i.e., internal states) and model estimation and selection.
 #' 
 #' @param y Numeric vector containing the response variable.
-#' @param lags Integer vectors with the lags associated with the input variable.
+#' @param lags Integer vector with the lag(s) associated with the input variable.
 #' @param inf_crit Character value. The information criterion used for variable selection \code{inf_crit = c("aic", "aicc", "bic")}.
 #' @param n_diff Integer vector. The nth-differences of the response variable.
 #' @param n_models Integer value. The maximum number of (random) models to train for model selection.
@@ -43,7 +44,7 @@ train_esn <- function(y,
                       n_initial = NULL,
                       n_seed = 42,
                       alpha = 1,
-                      rho = 1,
+                      rho = 0.95,
                       density = 0.5,
                       lambda = c(1e-4, 2),
                       scale_win = 0.5,
@@ -285,15 +286,15 @@ train_esn <- function(y,
   # Create model specification (short summary)
   model_spec <- paste0(
     "ESN", "(",
-      "{",
-        n_total, ", ", 
-        n_states, ", ", 
-        n_models, 
-      "}, ",
-      "{",
-        round(df, 2), ", ",
-        round(lambda, 4),
-      "}",
+    "{",
+    n_states, ", ",
+    round(alpha, 2), ", ", 
+    round(rho, 2), 
+    "}, ",
+    "{",
+    n_models, ", ",
+    round(df, 2),
+    "}",
     ")")
   
   # Store results
