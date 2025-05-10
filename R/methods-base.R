@@ -164,9 +164,9 @@ plot.esn <- function(x,
   states_train <- x[["states_train"]]
   model_spec <- x[["method"]][["model_spec"]]
   
-  # Save the current par settings, then immediately ensure they get restored
-  old_par <- par(no.readonly = TRUE)
-  on.exit(par(old_par))
+  # # Save the current par settings, then immediately ensure they get restored
+  # old_par <- par(no.readonly = TRUE)
+  # on.exit(par(old_par))
   
   # Plot internal states as line chart
   matplot(
@@ -236,9 +236,9 @@ plot.forecast_esn <- function(x,
   lower <- min(xactual, xpoint, xtest, na.rm = TRUE)
   upper <- max(xactual, xpoint, xtest, na.rm = TRUE)
   
-  # Save the current par settings, then immediately ensure they get restored
-  old_par <- par(no.readonly = TRUE)
-  on.exit(par(old_par))
+  # # Save the current par settings, then immediately ensure they get restored
+  # old_par <- par(no.readonly = TRUE)
+  # on.exit(par(old_par))
   
   plot(
     x = xactual,
