@@ -17,6 +17,7 @@ reference:
     - print.esn
     - summary.esn
     - is.esn
+    - plot.esn
     - forecast_esn
     - is.forecast_esn
     - plot.forecast_esn

@@ -149,7 +149,7 @@ information on the trained model.</p>
 <span><span class="co">#&gt; --- Reservoir generation ---------------------------------------</span></span>
 <span><span class="co">#&gt; n_states     = 52</span></span>
 <span><span class="co">#&gt; alpha        = 1</span></span>
-<span><span class="co">#&gt; rho          = 1</span></span>
+<span><span class="co">#&gt; rho          = 0.95</span></span>
 <span><span class="co">#&gt; density      = 0.5</span></span>
 <span><span class="co">#&gt; scale_inputs = [-0.5, 0.5]</span></span>
 <span><span class="co">#&gt; scale_win    = [-0.5, 0.5]</span></span>
@@ -157,8 +157,8 @@ information on the trained model.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; --- Model selection --------------------------------------------</span></span>
 <span><span class="co">#&gt; n_models     = 104</span></span>
-<span><span class="co">#&gt; df           = 18.61</span></span>
-<span><span class="co">#&gt; lambda       = 0.008</span></span></code></pre></div>
+<span><span class="co">#&gt; df           = 17.33</span></span>
+<span><span class="co">#&gt; lambda       = 0.0032</span></span></code></pre></div>
 <p>From the output above, we get the following information about the
 trained ESN model:</p>
 <table class="table">
@@ -258,8 +258,8 @@ the future. The output <code>xfcst</code> is a list of class
 <span><span class="va">xfcst</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/forecast_esn.html">forecast_esn</a></span><span class="op">(</span><span class="va">xmodel</span>, n_ahead <span class="op">=</span> <span class="va">n_ahead</span><span class="op">)</span></span>
 <span><span class="va">xfcst</span></span>
 <span><span class="co">#&gt; $point</span></span>
-<span><span class="co">#&gt;  [1] 417.1882 394.6582 442.8875 432.9793 466.5263 522.0339 594.8509 601.8089</span></span>
-<span><span class="co">#&gt;  [9] 501.4787 445.6808 400.5648 438.0486</span></span>
+<span><span class="co">#&gt;  [1] 420.1502 401.4111 450.4424 440.6994 467.7241 516.4456 591.9815 601.8765</span></span>
+<span><span class="co">#&gt;  [9] 504.3060 450.0242 403.1496 440.3876</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $actual</span></span>
 <span><span class="co">#&gt;   [1]  NA  NA  NA  NA  NA  NA  NA  NA 136 119 104 118 115 126 141 135 125 149</span></span>
@@ -273,28 +273,28 @@ the future. The output <code>xfcst</code> is a list of class
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $fitted</span></span>
 <span><span class="co">#&gt;   [1]       NA       NA       NA       NA       NA       NA       NA       NA</span></span>
-<span><span class="co">#&gt;   [9] 145.7164 127.3081 112.9902 107.0054 118.1469 115.5302 142.5219 138.9433</span></span>
-<span><span class="co">#&gt;  [17] 129.7828 137.3497 172.5977 173.7693 155.8541 132.5665 124.1381 129.5666</span></span>
-<span><span class="co">#&gt;  [25] 144.8099 155.8602 170.5424 162.8141 155.4332 191.6271 204.9483 197.0546</span></span>
-<span><span class="co">#&gt;  [33] 182.6689 163.4202 140.9553 175.9001 168.9458 179.7858 208.1735 184.3650</span></span>
-<span><span class="co">#&gt;  [41] 183.8114 198.8734 241.8025 230.0927 218.7145 180.2839 176.2637 195.8239</span></span>
-<span><span class="co">#&gt;  [49] 203.9867 197.7465 221.0399 216.4082 246.2847 254.5426 258.8691 268.9379</span></span>
-<span><span class="co">#&gt;  [57] 247.7433 210.3665 194.9113 205.2524 212.9219 207.5823 242.1780 234.1873</span></span>
-<span><span class="co">#&gt;  [65] 237.4439 253.0441 290.5464 315.0828 254.9987 224.3264 200.0762 234.5009</span></span>
-<span><span class="co">#&gt;  [73] 226.7226 228.5192 275.3030 262.7540 269.5059 305.0020 350.6129 352.7342</span></span>
-<span><span class="co">#&gt;  [81] 297.1616 273.0064 244.0305 269.6008 281.1636 279.6552 310.1817 313.0442</span></span>
-<span><span class="co">#&gt;  [89] 313.4519 359.4934 425.4337 400.7056 354.8856 310.7771 271.7869 307.7336</span></span>
-<span><span class="co">#&gt;  [97] 318.1456 306.4374 342.0817 352.6253 356.3302 406.1027 462.7193 455.0442</span></span>
-<span><span class="co">#&gt; [105] 408.8471 348.9001 308.4295 338.2909 349.0748 325.6744 374.0811 357.6986</span></span>
-<span><span class="co">#&gt; [113] 367.5063 435.6384 494.8804 493.7509 438.1065 346.7945 317.9420 343.7900</span></span>
-<span><span class="co">#&gt; [121] 351.9400 328.7802 394.5666 387.2260 417.2922 480.4603 531.8839 554.0935</span></span>
-<span><span class="co">#&gt; [129] 465.7218 409.5529 355.9789 386.6106</span></span>
+<span><span class="co">#&gt;   [9] 146.9816 130.4251 115.2509 106.4015 113.9974 112.5610 142.7890 140.6653</span></span>
+<span><span class="co">#&gt;  [17] 133.3988 141.2633 171.0034 169.8233 154.6211 131.7167 124.7118 132.2487</span></span>
+<span><span class="co">#&gt;  [25] 145.4968 156.1379 169.4113 161.7540 155.3824 192.2825 205.0914 200.0951</span></span>
+<span><span class="co">#&gt;  [33] 183.1431 159.1954 137.8381 175.2709 170.2357 182.7745 208.9514 184.6984</span></span>
+<span><span class="co">#&gt;  [41] 183.9124 195.9409 239.0134 232.6934 221.4077 182.6306 178.3072 193.2479</span></span>
+<span><span class="co">#&gt;  [49] 203.0377 197.7014 218.4362 215.9644 246.6104 255.9783 261.0848 270.9694</span></span>
+<span><span class="co">#&gt;  [57] 243.8682 206.4721 193.1341 206.2135 214.0910 209.8160 242.3400 233.8699</span></span>
+<span><span class="co">#&gt;  [65] 232.6356 250.2745 290.4984 315.9170 256.9259 227.8865 199.4572 231.2831</span></span>
+<span><span class="co">#&gt;  [73] 223.9210 228.0987 276.2045 265.3127 271.5839 306.1690 349.7491 351.2003</span></span>
+<span><span class="co">#&gt;  [81] 298.6940 272.4535 244.8644 271.6241 284.0540 277.0195 307.0108 312.7092</span></span>
+<span><span class="co">#&gt;  [89] 314.6767 361.8291 425.2601 397.3839 356.3534 308.4159 269.4947 308.7790</span></span>
+<span><span class="co">#&gt;  [97] 318.3926 306.9866 344.2847 351.1118 357.1520 406.8810 464.5870 457.2393</span></span>
+<span><span class="co">#&gt; [105] 408.0141 348.1398 309.4448 338.0822 348.2789 326.2401 373.0930 356.8166</span></span>
+<span><span class="co">#&gt; [113] 367.5198 433.1142 492.1188 495.2549 439.6658 349.3117 319.1499 343.4011</span></span>
+<span><span class="co">#&gt; [121] 353.3759 331.1060 392.1569 388.8980 418.5426 479.8462 535.4396 553.2547</span></span>
+<span><span class="co">#&gt; [129] 459.6384 409.4199 354.3172 385.6255</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $n_ahead</span></span>
 <span><span class="co">#&gt; [1] 12</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $model_spec</span></span>
-<span><span class="co">#&gt; [1] "ESN({132, 52, 104}, {18.61, 0.008})"</span></span>
+<span><span class="co">#&gt; [1] "ESN({52, 1, 0.95}, {104, 17.33})"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; attr(,"class")</span></span>
 <span><span class="co">#&gt; [1] "forecast_esn"</span></span>

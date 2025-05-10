@@ -2,7 +2,7 @@
 % Please edit documentation in R/forecast_esn.R
 \name{forecast_esn}
 \alias{forecast_esn}
-\title{Forecast a trained Echo State Network}
+\title{Forecast an Echo State Network}
 \usage{
 forecast_esn(object, n_ahead = 18)
 }
@@ -22,7 +22,8 @@ A \code{list} containing:
       }
 }
 \description{
-Forecast an Echo State Network from a trained model.
+Forecast an Echo State Network (ESN) from a trained model via
+   recursive forecasting.
 }
 \examples{
 xdata <- as.numeric(AirPassengers)
