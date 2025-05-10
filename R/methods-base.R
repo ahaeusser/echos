@@ -140,6 +140,47 @@ summary.esn <- function(object, ...) {
 }
 
 
+#' @title Plot internal states of a trained ESN model.
+#' 
+#' @description Plot internal states (i.e., the reservoir) of a trained ESN 
+#'   model as line chart.
+#'
+#' @param x An object of class \code{esn}.
+#' @param ... Currently not in use.
+#'
+#' @return Line chart of internal states.
+#' 
+#' @examples
+#' xdata <- as.numeric(AirPassengers)
+#' xmodel <- train_esn(y = xdata)
+#' plot(xmodel)
+#' 
+#' @export
+
+plot.esn <- function(x,
+                     ...) {
+  
+  # Extract reservoir and model specification from object
+  states_train <- x[["states_train"]]
+  model_spec <- x[["method"]][["model_spec"]]
+  
+  # Save the current par settings, then immediately ensure they get restored
+  old_par <- par(no.readonly = TRUE)
+  on.exit(par(old_par))
+  
+  # Plot internal states as line chart
+  matplot(
+    states_train, 
+    type = "l",
+    col = "lightgrey",
+    lty = 1,
+    main = model_spec,
+    xlab = "Index",
+    ylab = "Value",
+    ...
+  )
+}
+
 
 #' @title Plot point forecasts and actual values of a trained ESN model.
 #' 
@@ -202,7 +243,7 @@ plot.forecast_esn <- function(x,
   plot(
     x = xactual,
     type = "l",
-    main = paste0("Forecast from ", model_spec),
+    main = model_spec,
     ylim = c(lower, upper),
     xlab = "Index",
     ylab = "Value"
