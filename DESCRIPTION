@@ -9,7 +9,8 @@ Authors@R:
     person(given = "Alexander",
            family = "Häußer",
            email = "alexander-haeusser@gmx.de",
-           role = c("aut", "cre", "cph"))
+           role = c("aut", "cre", "cph"),
+           comment = c(ORCID = "0009-0000-5419-8479"))
 License: GPL-3
 URL: https://github.com/ahaeusser/echos, https://ahaeusser.github.io/echos/
 BugReports: https://github.com/ahaeusser/echos/issues
