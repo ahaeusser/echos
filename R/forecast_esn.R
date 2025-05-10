@@ -1,7 +1,8 @@
 
-#' @title Forecast a trained Echo State Network
+#' @title Forecast an Echo State Network
 #' 
-#' @description Forecast an Echo State Network from a trained model.
+#' @description Forecast an Echo State Network (ESN) from a trained model via
+#'    recursive forecasting.
 #' 
 #' @param object An object of class \code{esn}. The result of a call to \code{train_esn()}.
 #' @param n_ahead Integer value. The number of periods for forecasting (i.e. forecast horizon).
