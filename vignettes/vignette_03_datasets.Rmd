@@ -1,0 +1,125 @@
+---
+title: "Datasets"
+author: "Alexander Häußer"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Datasets}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.height = 5,
+  fig.width = 7
+)
+```
+
+## Introduction
+
+This vignette gives you a quick tour of the **time series datasets** embedded in `echos`:
+
+* `m4_data`: Six monthly time series drawn from the well‑known M4 Forecasting Competition.
+* `synthetic_data`: Ten synthetic time series, useful for teaching, prototyping and testing.
+
+
+## Load packages
+
+```{r packages, message = FALSE, warning = FALSE}
+library(echos)
+library(tidyverse)
+library(tsibble)
+```
+
+
+## M4 data
+
+The dataset `m4_data` is a `tsibble` with six monthly time series from the M4 Forecasting Competition. The datasets contains the following time series:
+
+* M21655 (Demographic), 1995 Jan - 2015 Mar
+* M21683 (Demographic), 2000 Jan - 2023 Apr
+* M2717 (Macro), 1996 Jan - 2016 Nov
+* M28597 (Industry), 1996 Jan - 2016 Dec
+* M42529 (Finance), 2001 Jan - 2009 Apr
+* M4813 (Macro), 1994 Apr - 2006 May
+
+```{r m4-data}
+m4_data
+```
+
+```{r m4-plot, fig.width = 7, fig.height = 7, echo = FALSE, fig.alt = "M4 Dataset"}
+p <- ggplot()
+
+p <- p + geom_line(
+  data = m4_data,
+  aes(
+    x = index,
+    y = value
+  )
+)
+
+p <- p + facet_wrap(
+  ~series,
+  ncol = 2,
+  scales = "free")
+
+p <- p + labs(x = "Time")
+p <- p + labs(y = "Value")
+p
+```
+
+
+## Synthetic data
+
+The dataset `synthetic_data` is a `tibble` with ten synthetic time series. The dataset contains the following time series:
+
+* Square Wave
+* Sawtooth Wave
+* Harmonic Wave
+* Harmonic Wave w/ Trend
+* Amplitude Modulated Wave
+* Frequency Modulated Wave
+* AR(1) Process
+* MA(2) Process
+* White Noise Process
+* Random Walk Process
+
+```{r synthetic-data}
+synthetic_data
+```
+
+```{r synthetic-plot, fig.width = 7, fig.height = 9, echo = FALSE, fig.alt = "Synthetic Dataset"}
+p <- ggplot()
+
+p <- p + geom_line(
+  data = synthetic_data,
+  aes(
+    x = index,
+    y = value
+  )
+)
+
+p <- p + facet_wrap(
+  ~factor(
+    variable, 
+    levels = c(
+      "Square Wave",
+      "Sawtooth Wave",
+      "Harmonic Wave",
+      "Harmonic Wave w/ Trend",
+      "Amplitude Modulated Wave",
+      "Frequency Modulated Wave",
+      "AR(1) Process",
+      "MA(2) Process",
+      "White Noise Process",
+      "Random Walk Process"
+    )),
+  ncol = 2,
+  scales = "free")
+
+p <- p + labs(x = "Time")
+p <- p + labs(y = "Value")
+p
+```
