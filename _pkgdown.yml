@@ -37,8 +37,9 @@ reference:
     - report.ESN
     - reservoir
     
-- title: Miscellaneous
+- title: Datasets
   desc: >
-    Miscellaneous
+    Datasets
   contents:
     - m4_data
+    - synthetic_data

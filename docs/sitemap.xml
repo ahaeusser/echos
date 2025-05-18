@@ -4,6 +4,7 @@
 <url><loc>https://ahaeusser.github.io/echos/articles/vignette_01_baseR.html</loc></url>
 <url><loc>https://ahaeusser.github.io/echos/articles/vignette_01_intro.html</loc></url>
 <url><loc>https://ahaeusser.github.io/echos/articles/vignette_02_tidyR.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/articles/vignette_03_datasets.html</loc></url>
 <url><loc>https://ahaeusser.github.io/echos/authors.html</loc></url>
 <url><loc>https://ahaeusser.github.io/echos/index.html</loc></url>
 <url><loc>https://ahaeusser.github.io/echos/news/index.html</loc></url>
@@ -50,6 +51,7 @@
 <url><loc>https://ahaeusser.github.io/echos/reference/simulate_esn.html</loc></url>
 <url><loc>https://ahaeusser.github.io/echos/reference/spot_price.html</loc></url>
 <url><loc>https://ahaeusser.github.io/echos/reference/summary.esn.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/synthetic_data.html</loc></url>
 <url><loc>https://ahaeusser.github.io/echos/reference/tidy.ESN.html</loc></url>
 <url><loc>https://ahaeusser.github.io/echos/reference/train_esn.html</loc></url>
 <url><loc>https://ahaeusser.github.io/echos/reference/train_ridge.html</loc></url>
