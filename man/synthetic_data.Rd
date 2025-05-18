@@ -8,7 +8,7 @@
 An object of class \code{tibble} with 2.000 rows and 3 columns:
    \itemize{
       \item{\code{variable}: Unique identifier as \code{character} (key variable).}
-      \item{\code{index}: Index as \code{inteher} (index variable).}
+      \item{\code{index}: Index as \code{integer} (index variable).}
       \item{\code{value}: Value as \code{numeric} (measurement variable).}
       }
 }
@@ -16,10 +16,20 @@ An object of class \code{tibble} with 2.000 rows and 3 columns:
 data(synthetic_data)
 }
 \description{
-\code{tibble} with ten synthetic time series, i.e., Square Wave,
-  Sawtooth Wave, Harmonic Wave, Harmonic Wave w/ Trend, Amplitude Modulated
-  Wave, Frequency Modulated Wave, AR(1) Process, MA(2) Process, White Noise
-  Process and Random Walk Process
+\code{tibble} with ten synthetic time series. The dataset 
+  contains the following time series:
+  \itemize{
+     \item{Square Wave}
+     \item{Sawtooth Wave}
+     \item{Harmonic Wave}
+     \item{Harmonic Wave w/ Trend}
+     \item{Amplitude Modulated Wave}
+     \item{Frequency Modulated Wave}
+     \item{AR(1) Process}
+     \item{MA(2) Process}
+     \item{White Noise Process}
+     \item{Random Walk Process}
+  }
 }
 \examples{
 data(synthetic_data)
