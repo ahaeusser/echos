@@ -20,7 +20,7 @@ A time series object of class \code{tsibble} with 1.152 rows and 4 columns:
 data(m4_data)
 }
 \description{
-Monthly tsibble with six exemplary time series from the M4 
+\code{tsibble} with six monthly time series from the M4 
   Forecasting Competition.
 }
 \examples{

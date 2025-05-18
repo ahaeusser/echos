@@ -1,7 +1,7 @@
 
 #' @title M4 dataset
 #'
-#' @description Monthly tsibble with six exemplary time series from the M4 
+#' @description \code{tsibble} with six monthly time series from the M4 
 #'   Forecasting Competition.
 #'
 #' @docType data
@@ -23,3 +23,27 @@
 #' @examples
 #' data(m4_data)
 "m4_data"
+
+#' @title Synthetic data
+#'
+#' @description \code{tibble} with ten synthetic time series, i.e., Square Wave,
+#'   Sawtooth Wave, Harmonic Wave, Harmonic Wave w/ Trend, Amplitude Modulated
+#'   Wave, Frequency Modulated Wave, AR(1) Process, MA(2) Process, White Noise
+#'   Process and Random Walk Process
+#'
+#' @docType data
+#'
+#' @usage data(synthetic_data)
+#'
+#' @format An object of class \code{tibble} with 2.000 rows and 3 columns:
+#'    \itemize{
+#'       \item{\code{variable}: Unique identifier as \code{character} (key variable).}
+#'       \item{\code{index}: Index as \code{inteher} (index variable).}
+#'       \item{\code{value}: Value as \code{numeric} (measurement variable).}
+#'       }
+#'
+#' @keywords datasets
+#'
+#' @examples
+#' data(synthetic_data)
+"synthetic_data"
