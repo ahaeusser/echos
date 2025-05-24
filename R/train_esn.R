@@ -127,7 +127,7 @@ train_esn <- function(y,
   
   # Create hidden layer (reservoir) ===========================================
   
-  # Set seed for random draws
+  # Set seed for reproducibility
   set.seed(n_seed)
   
   # Create random weight matrices for the input variables
@@ -230,6 +230,9 @@ train_esn <- function(y,
   # Adjust actual values for correct dimension
   actual <- yy[index_train]
   
+  # Calculate differenced and scaled residuals
+  yr <- yt - fitted
+  
   # Rescale fitted values
   fitted <- rescale_vec(
     ys = fitted,
@@ -240,7 +243,7 @@ train_esn <- function(y,
   # Inverse difference fitted values
   if (n_diff > 0) {fitted <- yy[(index_train-1)] + fitted}
   
-  # Calculate residuals
+  # Calculate final residuals (rescaled and inverse differenced)
   resid <- actual - fitted
   
   # Fill NAs in front of vectors (adjust to length of original data)
@@ -253,7 +256,8 @@ train_esn <- function(y,
   # Store model data for forecasting
   model_data <- list(
     yt = yt,
-    yy = yy
+    yy = yy,
+    yr = yr
   )
   
   # List with model inputs and settings
