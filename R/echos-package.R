@@ -2,6 +2,7 @@
 #' @importFrom purrr map map_dfr
 #' @importFrom tidyr pivot_longer
 #' @importFrom Matrix rsparsematrix
+#' @importFrom matrixStats rowQuantiles
 #' @importFrom forecast ndiffs
 #' @importFrom rlang is_empty .data abort
 #' @importFrom stats complete.cases diffinv na.omit runif
