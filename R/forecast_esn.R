@@ -6,10 +6,14 @@
 #' 
 #' @param object An object of class \code{esn}. The result of a call to \code{train_esn()}.
 #' @param n_ahead Integer value. The number of periods for forecasting (i.e. forecast horizon).
+#' @param levels Integer vector. The levels of the forecast intervals, e.g., 80\% and 95\%.
+#' @param n_sim Integer value. The number of future sample path generated during simulation.
+#' @param n_seed Integer value. The seed for the random number generator (for reproducibility).
 #' 
 #' @return A \code{list} containing:
 #'    \itemize{
 #'       \item{\code{point}: Numeric vector containing the point forecasts.}
+#'       \item{\code{interval}: Numeric matrix containing the forecast intervals.}
 #'       \item{\code{actual}: Numeric vector containing the actual values.}
 #'       \item{\code{fitted}: Numeric vector containing the fitted values.}
 #'       \item{\code{n_ahead}: Integer value. The number of periods for forecasting (forecast horizon).}
@@ -23,7 +27,10 @@
 #' @export
 
 forecast_esn <- function(object,
-                         n_ahead = 18) {
+                         n_ahead = 18,
+                         levels = c(80, 95),
+                         n_sim = 100,
+                         n_seed = 42) {
   
   # Pre-processing ============================================================
   
@@ -32,6 +39,7 @@ forecast_esn <- function(object,
   # Prepared model data
   yt <- method$model_data$yt
   yy <- method$model_data$yy
+  yr <- method$model_data$yr
   n_total <- length(yy)
   
   # Number of inputs, internal states within the reservoir and outputs
@@ -68,7 +76,10 @@ forecast_esn <- function(object,
   # Concatenate input matrices
   inputs <- ylag
   
-  # Predict trained model
+  # Set seed for reproducibility
+  set.seed(n_seed)
+  
+  # Point forecasts -----------------------------------------------------------
   point <- predict_esn(
     win = win,
     wres = wres,
@@ -78,12 +89,13 @@ forecast_esn <- function(object,
     n_ahead = n_ahead,
     lags = lags,
     inputs = inputs,
-    states_train = states_train
+    states_train = states_train,
+    innov = NULL
   )
-  
+  # Convert matrix to numeric
   point <- as.numeric(point)
   
-  # Rescaling of point forecasts
+  # Rescaling point forecasts
   point <- rescale_vec(
     ys = point,
     old_range = old_range,
@@ -97,6 +109,64 @@ forecast_esn <- function(object,
     n_diff = n_diff
   )
   
+  # Forecast intervals --------------------------------------------------------
+  if (is.null(n_sim)) {
+    interval <- NULL
+  } else {
+    # Preallocate empty matrix to store future sample paths
+    sim <- matrix(
+      data = NA_real_,
+      nrow = n_ahead,
+      ncol = n_sim
+    )
+    
+    for(s in seq_len(n_sim)){
+      # Bootstrap residuals
+      innov <- sample(yr, n_ahead, replace = TRUE)
+      
+      # Predict trained model
+      path <- predict_esn(
+        win = win,
+        wres = wres,
+        wout = wout,
+        alpha = alpha,
+        n_states = n_states,
+        n_ahead = n_ahead,
+        lags = lags,
+        inputs = inputs,
+        states_train = states_train,
+        innov = innov
+      )
+      # Convert matrix to numeric
+      path  <- as.numeric(path)
+      
+      # Rescaling point forecasts
+      path <- rescale_vec(
+        ys = path,
+        old_range = old_range,
+        new_range = scale_inputs
+      )
+      
+      # Integrate differences
+      path <- inv_diff_vec(
+        y = yy,
+        yd = path,
+        n_diff = n_diff
+      )
+      sim[, s] <- path
+    }
+    
+    # Convert central levels to lower/upper quantile probabilities
+    probs <- sort(unique(c(0.5 - levels/200, 0.5 + levels/200)))
+    # Estimate quantiles row-wise and adjust column names
+    interval <- rowQuantiles(x = sim, probs = probs)
+    
+    colnames(interval) <- c(
+      sprintf("lower(%02d)", levels), 
+      sprintf("upper(%02d)", levels)
+    )
+  }
+  
   # Extract actual and fitted from object
   actual <- object[["actual"]]
   fitted <- object[["fitted"]]
@@ -107,12 +177,13 @@ forecast_esn <- function(object,
   structure(
     list(
       point = point,
+      interval = interval,
       actual = actual,
       fitted = fitted,
       n_ahead = n_ahead,
       model_spec = model_spec),
     class = "forecast_esn"
-    )
+  )
 }
 
 
@@ -130,6 +201,7 @@ forecast_esn <- function(object,
 #' @param lags List containing integer vectors with the lags associated with each output variable.
 #' @param inputs Numeric matrix. Initialized input features (gets updated during forecasting process).
 #' @param states_train Numeric matrix. Internal states from training (necessary due to last values).
+#' @param innov Numeric vector. The innovations (i.e., residuals) used for bootstrapping and simulation.
 #' 
 #' @return Numeric matrix containing the forecasts.
 #' @noRd
@@ -142,7 +214,8 @@ predict_esn <- function(win,
                         n_ahead,
                         lags,
                         inputs,
-                        states_train) {
+                        states_train,
+                        innov = NULL) {
   
   # names of predictor variables (excluding intercept term)
   states <- rownames(wout)[-1]
@@ -180,14 +253,20 @@ predict_esn <- function(win,
     Xf <- states_fcst[t, states, drop = FALSE]
     Xf <- cbind(1, Xf)
     
-    # Calculate point forecast
-    fcst[(t-1), ] <- Xf %*% wout
+    # Calculate point forecast (1-step-ahead prediction)
+    mu <- Xf %*% wout
     
-    # Update lagged variables in inputs
+    # add bootstrapped innovation if supplied
+    if(!is.null(innov)) mu <- mu + innov[t-1]
+    
+    fcst[t-1, ] <- mu
+    
+    # propagate WITH shock
     for (j in seq_len(n_lags)) {
       i <- min(which(is.na(inputs[, j])))
-      inputs[i, j] <- fcst[(t-1), 1]
+      inputs[i, j] <- mu
     }
+    
   }
   
   return(fcst)
