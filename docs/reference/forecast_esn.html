@@ -9,7 +9,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">echos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,7 +47,13 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">forecast_esn</span><span class="op">(</span><span class="va">object</span>, n_ahead <span class="op">=</span> <span class="fl">18</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">forecast_esn</span><span class="op">(</span></span>
+<span>  <span class="va">object</span>,</span>
+<span>  n_ahead <span class="op">=</span> <span class="fl">18</span>,</span>
+<span>  levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">80</span>, <span class="fl">95</span><span class="op">)</span>,</span>
+<span>  n_sim <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  n_seed <span class="op">=</span> <span class="fl">42</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -61,10 +67,24 @@
 <dt id="arg-n-ahead">n_ahead<a class="anchor" aria-label="anchor" href="#arg-n-ahead"></a></dt>
 <dd><p>Integer value. The number of periods for forecasting (i.e. forecast horizon).</p></dd>
 
+
+<dt id="arg-levels">levels<a class="anchor" aria-label="anchor" href="#arg-levels"></a></dt>
+<dd><p>Integer vector. The levels of the forecast intervals, e.g., 80% and 95%.</p></dd>
+
+
+<dt id="arg-n-sim">n_sim<a class="anchor" aria-label="anchor" href="#arg-n-sim"></a></dt>
+<dd><p>Integer value. The number of future sample path generated during simulation.</p></dd>
+
+
+<dt id="arg-n-seed">n_seed<a class="anchor" aria-label="anchor" href="#arg-n-seed"></a></dt>
+<dd><p>Integer value. The seed for the random number generator (for reproducibility).</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A <code>list</code> containing:</p><ul><li><p><code>point</code>: Numeric vector containing the point forecasts.</p></li>
+<li><p><code>interval</code>: Numeric matrix containing the forecast intervals.</p></li>
+<li><p><code>levels</code>: Integer vector. The levels of the forecast intervals.</p></li>
 <li><p><code>actual</code>: Numeric vector containing the actual values.</p></li>
 <li><p><code>fitted</code>: Numeric vector containing the fitted values.</p></li>
 <li><p><code>n_ahead</code>: Integer value. The number of periods for forecasting (forecast horizon).</p></li>

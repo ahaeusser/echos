@@ -11,7 +11,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">echos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,7 +51,7 @@
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for class 'forecast_esn'</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">x</span>, test <span class="op">=</span> <span class="cn">NULL</span>, fitted <span class="op">=</span> <span class="cn">TRUE</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">x</span>, test <span class="op">=</span> <span class="cn">NULL</span>, fitted <span class="op">=</span> <span class="cn">TRUE</span>, interval <span class="op">=</span> <span class="cn">TRUE</span>, n_obs <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -68,6 +68,14 @@
 
 <dt id="arg-fitted">fitted<a class="anchor" aria-label="anchor" href="#arg-fitted"></a></dt>
 <dd><p>Logical value. If <code>TRUE</code>, fitted values are added.</p></dd>
+
+
+<dt id="arg-interval">interval<a class="anchor" aria-label="anchor" href="#arg-interval"></a></dt>
+<dd><p>Logical value. If <code>TRUE</code>, forecast intervals are added.</p></dd>
+
+
+<dt id="arg-n-obs">n_obs<a class="anchor" aria-label="anchor" href="#arg-n-obs"></a></dt>
+<dd><p>Integer value. If <code>NULL</code>, all in-sample values are shown, otherwise only the last <code>n_obs</code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
