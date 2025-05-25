@@ -6,7 +6,8 @@
 #' @importFrom forecast ndiffs
 #' @importFrom rlang is_empty .data abort
 #' @importFrom stats complete.cases diffinv na.omit runif
-#' @importFrom graphics lines par abline matplot
+#' @importFrom graphics lines par abline matplot polygon
+#' @importFrom grDevices adjustcolor colorRampPalette
 #' @importFrom utils tail
 #' @importFrom distributional dist_normal
 #' @import Rcpp

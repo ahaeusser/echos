@@ -294,30 +294,34 @@ plot.forecast_esn <- function(x,
     ylab = "Value"
   )
   
-  # Add vertical dashed line for split into training and testing
+  # Add test data
   if (!is.null(test)) {
+    # Add vertical dashed line for split into training and testing
     abline(
       v = index[n_train],
       lty = 2,
       lwd = 1
     )
+    
+    # Add line for test data
+    lines(
+      x = index,
+      y = xtest, 
+      col = "black",
+      lwd = 1
+    )
   }
   
-  # Add line for test data (if required)
-  lines(
-    x = index,
-    y = xtest, 
-    col = "black",
-    lwd = 1
-  )
-  
-  # Add line for fitted values (if required)
-  lines(
-    x = index,
-    y = xfitted, 
-    col = "steelblue",
-    lwd = 1
-  )
+  # Add fitted values
+  if (fitted == TRUE) {
+    # Add line for fitted values
+    lines(
+      x = index,
+      y = xfitted, 
+      col = "steelblue",
+      lwd = 1
+    )
+  }
   
   # Add polygon for interval forecasts (if required/available)
   if (!is.null(xinterval)) {
