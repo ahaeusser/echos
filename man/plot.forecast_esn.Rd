@@ -4,7 +4,7 @@
 \alias{plot.forecast_esn}
 \title{Plot point forecasts and actual values of a trained ESN model.}
 \usage{
-\method{plot}{forecast_esn}(x, test = NULL, fitted = TRUE, ...)
+\method{plot}{forecast_esn}(x, test = NULL, fitted = TRUE, interval = TRUE, n_obs = NULL, ...)
 }
 \arguments{
 \item{x}{An object of class \code{forecast_esn}.}
@@ -12,6 +12,10 @@
 \item{test}{Numeric vector. Test data, i.e., out-of-sample actual values.}
 
 \item{fitted}{Logical value. If \code{TRUE}, fitted values are added.}
+
+\item{interval}{Logical value. If \code{TRUE}, forecast intervals are added.}
+
+\item{n_obs}{Integer value. If \code{NULL}, all in-sample values are shown, otherwise only the last \code{n_obs}.}
 
 \item{...}{Currently not in use.}
 }
