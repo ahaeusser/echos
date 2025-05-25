@@ -14,6 +14,7 @@
 #'    \itemize{
 #'       \item{\code{point}: Numeric vector containing the point forecasts.}
 #'       \item{\code{interval}: Numeric matrix containing the forecast intervals.}
+#'       \item{\code{levels}: Integer vector. The levels of the forecast intervals.}
 #'       \item{\code{actual}: Numeric vector containing the actual values.}
 #'       \item{\code{fitted}: Numeric vector containing the fitted values.}
 #'       \item{\code{n_ahead}: Integer value. The number of periods for forecasting (forecast horizon).}
@@ -178,6 +179,7 @@ forecast_esn <- function(object,
     list(
       point = point,
       interval = interval,
+      levels = levels,
       actual = actual,
       fitted = fitted,
       n_ahead = n_ahead,
