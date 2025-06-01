@@ -113,8 +113,9 @@ model_sum.ESN <- function(x){
 #' @description Forecast a trained ESN.
 #' 
 #' @param object An object of class \code{ESN}.
-#' @param new_data Forecast horizon (n-step ahead forecast)
-#' @param specials Currently not in use
+#' @param new_data Forecast horizon (n-step ahead forecast).
+#' @param times Number of simulated future sample paths.
+#' @param specials Currently not in use.
 #' @param xreg A \code{tsibble} containing exogenous variables.
 #' @param ... Currently not in use.
 #' 
@@ -132,24 +133,33 @@ model_sum.ESN <- function(x){
 
 forecast.ESN <- function(object,
                          new_data,
+                         times,
                          specials = NULL,
                          xreg = NULL,
                          ...) {
   
-
   # Forecast models
   model_fcst <- forecast_esn(
     object = object[["model"]],
-    n_ahead = NROW(new_data)
+    n_ahead = NROW(new_data),
+    n_sim = times
   )
   
-  point <- model_fcst[["point"]]
+  # point <- model_fcst[["point"]]
+  # std <- model_fcst[["std"]]
+  # 
+  # # Return forecast
+  # dist_normal(
+  #   mu = point,
+  #   sigma = std
+  # )
   
-  # Return forecast
-  dist_normal(
-    mu = point,
-    sigma = NA_real_
-    )
+  # Extract simulated future sample path
+  sim <- model_fcst[["sim"]]
+  # Split matrix row-wise into list
+  sim <- split(sim, row(sim))
+  # Create sample distribution
+  dist_sample(x = sim)
 }
 
 

@@ -4,14 +4,16 @@
 \alias{forecast.ESN}
 \title{Forecast a trained ESN}
 \usage{
-\method{forecast}{ESN}(object, new_data, specials = NULL, xreg = NULL, ...)
+\method{forecast}{ESN}(object, new_data, times, specials = NULL, xreg = NULL, ...)
 }
 \arguments{
 \item{object}{An object of class \code{ESN}.}
 
-\item{new_data}{Forecast horizon (n-step ahead forecast)}
+\item{new_data}{Forecast horizon (n-step ahead forecast).}
 
-\item{specials}{Currently not in use}
+\item{times}{Number of simulated future sample paths.}
+
+\item{specials}{Currently not in use.}
 
 \item{xreg}{A \code{tsibble} containing exogenous variables.}
 

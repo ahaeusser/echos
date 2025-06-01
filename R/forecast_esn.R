@@ -14,6 +14,7 @@
 #'    \itemize{
 #'       \item{\code{point}: Numeric vector containing the point forecasts.}
 #'       \item{\code{interval}: Numeric matrix containing the forecast intervals.}
+#'       \item{\code{sim}: Numeric matrix containing the simulated future sample path.}
 #'       \item{\code{levels}: Integer vector. The levels of the forecast intervals.}
 #'       \item{\code{actual}: Numeric vector containing the actual values.}
 #'       \item{\code{fitted}: Numeric vector containing the fitted values.}
@@ -113,6 +114,7 @@ forecast_esn <- function(object,
   # Forecast intervals --------------------------------------------------------
   if (is.null(n_sim)) {
     interval <- NULL
+    sim <- NULL
   } else {
     # Preallocate empty matrix to store future sample paths
     sim <- matrix(
@@ -121,9 +123,20 @@ forecast_esn <- function(object,
       ncol = n_sim
     )
     
+    # Demean residuals to remove bias
+    yr <- yr - mean(yr, na.rm = TRUE)
+    # Determine block size
+    n_size <- floor(length(yr)^(1/3))
+    
+    # Preallocate innovations via moving block bootstrap
+    innov <- moving_block(
+      x = yr, 
+      n_ahead = n_ahead, 
+      n_sim = n_sim, 
+      n_size = n_size
+    )
+    
     for(s in seq_len(n_sim)){
-      # Bootstrap residuals
-      innov <- sample(yr, n_ahead, replace = TRUE)
       
       # Predict trained model
       path <- predict_esn(
@@ -136,7 +149,7 @@ forecast_esn <- function(object,
         lags = lags,
         inputs = inputs,
         states_train = states_train,
-        innov = innov
+        innov = innov[s, ]
       )
       # Convert matrix to numeric
       path  <- as.numeric(path)
@@ -179,6 +192,7 @@ forecast_esn <- function(object,
     list(
       point = point,
       interval = interval,
+      sim = sim,
       levels = levels,
       actual = actual,
       fitted = fitted,
