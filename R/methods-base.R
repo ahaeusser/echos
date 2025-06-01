@@ -265,9 +265,9 @@ plot.forecast_esn <- function(x,
           nrow = n_train,
           ncol = ncol(xinterval)),
         xinterval)
+    } else {
+      xinterval <- NULL
     }
-  } else {
-    xinterval <- NULL
   }
   
   # Prepare test data ---------------------------------------------------------
