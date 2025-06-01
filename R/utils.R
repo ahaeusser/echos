@@ -340,3 +340,48 @@ rescale_vec <- function(ys,
   
   return(y)
 }
+
+
+#' @title Moving block bootstrap
+#' 
+#' @description Creates a moving block bootstrap of a numeric vector.
+#' 
+#' @param yr Numeric vector containing the values to be bootstrapped.
+#' @param n_ahead Integer value. The number of periods for forecasting (i.e. forecast horizon).
+#' @param n_sim Integer value. The number of future sample path generated during simulation.
+#' @param n_size Integer value. The size of each block.
+#' 
+#' @return boot_matrix Numeric matrix with n_sim rows and n_ahead columns.
+#' @noRd
+
+moving_block <- function(x, n_ahead, n_sim, n_size) {
+  
+  if (!is.numeric(x)) stop("Input 'x' must be a numeric vector.")
+  if (n_size > length(x)) stop("Block size cannot be larger than the input vector.")
+  
+  # Number of overlapping blocks available
+  n_blocks <- length(x) - n_size + 1
+  
+  # Create a list of overlapping blocks
+  blocks <- lapply(1:n_blocks, function(i) x[i:(i + n_size - 1)])
+  
+  # Preallocate empty matrix to store blocks
+  boot_matrix <- matrix(
+    data = NA_real_,
+    nrow = n_sim,
+    ncol = n_ahead
+  )
+  
+  for (i in 1:n_sim) {
+    # Select enough blocks to cover n_ahead
+    n_blocks_needed <- ceiling(n_ahead / n_size)
+    
+    sampled_blocks <- sample(blocks, size = n_blocks_needed, replace = TRUE)
+    boot_series <- unlist(sampled_blocks)[1:n_ahead]
+    
+    boot_matrix[i, ] <- boot_series
+  }
+  
+  return(boot_matrix)
+}
+
