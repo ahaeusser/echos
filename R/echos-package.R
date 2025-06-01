@@ -9,7 +9,7 @@
 #' @importFrom graphics lines par abline matplot polygon
 #' @importFrom grDevices adjustcolor colorRampPalette
 #' @importFrom utils tail
-#' @importFrom distributional dist_normal
+#' @importFrom distributional dist_sample
 #' @import Rcpp
 #' @import RcppArmadillo
 #' @import tsibble
