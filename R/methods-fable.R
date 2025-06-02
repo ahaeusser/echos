@@ -114,7 +114,8 @@ model_sum.ESN <- function(x){
 #' 
 #' @param object An object of class \code{ESN}.
 #' @param new_data Forecast horizon (n-step ahead forecast).
-#' @param times Number of simulated future sample paths.
+#' @param normal Logical value. If \code{TRUE}, dist_normal() is used, otherwise dist_sample().
+#' @param n_sim Integer value. The number of future sample path generated during simulation.
 #' @param specials Currently not in use.
 #' @param xreg A \code{tsibble} containing exogenous variables.
 #' @param ... Currently not in use.
@@ -133,33 +134,35 @@ model_sum.ESN <- function(x){
 
 forecast.ESN <- function(object,
                          new_data,
-                         times,
+                         normal = TRUE,
+                         n_sim = 200,
                          specials = NULL,
                          xreg = NULL,
                          ...) {
   
-  # Forecast models
+  # Forecast model
   model_fcst <- forecast_esn(
     object = object[["model"]],
     n_ahead = NROW(new_data),
-    n_sim = times
+    n_sim = n_sim
   )
   
-  # point <- model_fcst[["point"]]
-  # std <- model_fcst[["std"]]
-  # 
-  # # Return forecast
-  # dist_normal(
-  #   mu = point,
-  #   sigma = std
-  # )
-  
-  # Extract simulated future sample path
-  sim <- model_fcst[["sim"]]
-  # Split matrix row-wise into list
-  sim <- split(sim, row(sim))
-  # Create sample distribution
-  dist_sample(x = sim)
+  if (normal == TRUE) {
+    # Extract point forecasts
+    point <- model_fcst[["point"]]
+    # Extract standard deviations
+    std <- model_fcst[["std"]]
+    # Create normal distribution
+    dist_normal(mu = point, sigma = std)
+    
+  } else {
+    # Extract simulated future sample path
+    sim <- model_fcst[["sim"]]
+    # Split matrix row-wise into list
+    sim <- split(sim, row(sim))
+    # Create sample distribution
+    dist_sample(x = sim)
+  }
 }
 
 

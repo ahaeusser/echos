@@ -4,14 +4,24 @@
 \alias{forecast.ESN}
 \title{Forecast a trained ESN}
 \usage{
-\method{forecast}{ESN}(object, new_data, times, specials = NULL, xreg = NULL, ...)
+\method{forecast}{ESN}(
+  object,
+  new_data,
+  normal = TRUE,
+  n_sim = 200,
+  specials = NULL,
+  xreg = NULL,
+  ...
+)
 }
 \arguments{
 \item{object}{An object of class \code{ESN}.}
 
 \item{new_data}{Forecast horizon (n-step ahead forecast).}
 
-\item{times}{Number of simulated future sample paths.}
+\item{normal}{Logical value. If \code{TRUE}, dist_normal() is used, otherwise dist_sample().}
+
+\item{n_sim}{Integer value. The number of future sample path generated during simulation.}
 
 \item{specials}{Currently not in use.}
 

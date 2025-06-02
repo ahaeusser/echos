@@ -171,14 +171,19 @@ forecast_esn <- function(object,
     }
     
     # Convert central levels to lower/upper quantile probabilities
-    probs <- sort(unique(c(0.5 - levels/200, 0.5 + levels/200)))
-    # Estimate quantiles row-wise and adjust column names
-    interval <- rowQuantiles(x = sim, probs = probs)
+    probs <- sort(unique(c(0.5 - levels / 200, 0.5 + levels / 200)))
     
+    # Estimate quantiles row-wise
+    interval <- t(apply(sim, 1, quantile, probs = probs, na.rm = TRUE))
+    
+    # Adjust column names
     colnames(interval) <- c(
-      sprintf("lower(%02d)", levels), 
+      sprintf("lower(%02d)", levels),
       sprintf("upper(%02d)", levels)
     )
+    
+    # Estimate standard deviation row-wise
+    std <- apply(sim, 1, sd, na.rm = TRUE)
   }
   
   # Extract actual and fitted from object
@@ -193,6 +198,7 @@ forecast_esn <- function(object,
       point = point,
       interval = interval,
       sim = sim,
+      std = std,
       levels = levels,
       actual = actual,
       fitted = fitted,
