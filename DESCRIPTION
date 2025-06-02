@@ -25,7 +25,6 @@ Imports:
     tidyr,
     purrr,
     Matrix,
-    matrixStats,
     rlang,
     distributional,
     forecast
