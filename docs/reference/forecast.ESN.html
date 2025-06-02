@@ -45,7 +45,15 @@
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for class 'ESN'</span></span>
-<span><span class="fu"><a href="https://generics.r-lib.org/reference/forecast.html" class="external-link">forecast</a></span><span class="op">(</span><span class="va">object</span>, <span class="va">new_data</span>, specials <span class="op">=</span> <span class="cn">NULL</span>, xreg <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://generics.r-lib.org/reference/forecast.html" class="external-link">forecast</a></span><span class="op">(</span></span>
+<span>  <span class="va">object</span>,</span>
+<span>  <span class="va">new_data</span>,</span>
+<span>  normal <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  n_sim <span class="op">=</span> <span class="fl">200</span>,</span>
+<span>  specials <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  xreg <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -57,11 +65,19 @@
 
 
 <dt id="arg-new-data">new_data<a class="anchor" aria-label="anchor" href="#arg-new-data"></a></dt>
-<dd><p>Forecast horizon (n-step ahead forecast)</p></dd>
+<dd><p>Forecast horizon (n-step ahead forecast).</p></dd>
+
+
+<dt id="arg-normal">normal<a class="anchor" aria-label="anchor" href="#arg-normal"></a></dt>
+<dd><p>Logical value. If <code>TRUE</code>, dist_normal() is used, otherwise dist_sample().</p></dd>
+
+
+<dt id="arg-n-sim">n_sim<a class="anchor" aria-label="anchor" href="#arg-n-sim"></a></dt>
+<dd><p>Integer value. The number of future sample path generated during simulation.</p></dd>
 
 
 <dt id="arg-specials">specials<a class="anchor" aria-label="anchor" href="#arg-specials"></a></dt>
-<dd><p>Currently not in use</p></dd>
+<dd><p>Currently not in use.</p></dd>
 
 
 <dt id="arg-xreg">xreg<a class="anchor" aria-label="anchor" href="#arg-xreg"></a></dt>
