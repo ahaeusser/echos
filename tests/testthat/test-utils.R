@@ -480,3 +480,66 @@ test_that("very short series yields NULL", {
   expect_null(estimate_ndiff(c(1, 2), max_diff = 2))
 })
 
+
+test_that("moving_block() returns a numeric matrix with expected dimensions", {
+  # Create data
+  set.seed(123)
+  x <- 1:100
+  n_ahead <- 12
+  n_sim   <- 40
+  n_size  <- 10
+  
+  # Run function
+  res <- moving_block(
+    x = x,
+    n_ahead = n_ahead,
+    n_sim = n_sim,
+    n_size = n_size
+    )
+  
+  # Test cases
+  expect_true(is.matrix(res))
+  expect_type(res, "double")
+  expect_equal(dim(res), c(n_sim, n_ahead))
+})
+
+
+test_that("all bootstrapped values come from the original series", {
+  # Create data
+  set.seed(456)
+  x <- c(10, 20, 30, 40, 50)
+  
+  # Run function
+  res <- moving_block(
+    x = x,
+    n_ahead = 8,
+    n_sim = 5,
+    n_size = 3
+    )
+  
+  # Test case
+  expect_true(all(res %in% x))
+})
+
+
+test_that("non‑numeric input triggers an informative error", {
+  expect_error(
+    moving_block(
+      x = letters[1:5],
+      n_ahead = 5, 
+      n_sim = 10, 
+      n_size = 2),
+    "numeric")
+})
+
+test_that("block size larger than input length triggers an informative error", {
+  expect_error(
+    moving_block(
+      x = 1:3,
+      n_ahead = 5,
+      n_sim = 10,
+      n_size = 4),
+    "Block size")
+})
+
+
