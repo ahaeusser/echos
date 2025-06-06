@@ -1,5 +1,4 @@
 
-# Define the test cases
 test_that("create_lags returns correct lagged variables", {
   
   # Test case 1: Basic test with one lag --------------------------------------
@@ -56,8 +55,6 @@ test_that("create_lags returns correct lagged variables", {
 })
 
 
-
-# Define the test cases
 test_that("create_revolved returns correct revolved variables", {
   
   # Test case 1: Basic test with one lag and one step ahead -------------------
@@ -117,8 +114,6 @@ test_that("create_revolved returns correct revolved variables", {
 })
 
 
-
-# Define the test cases
 test_that("create_win returns matrix with correct dimensions", {
   # Set a random seed for reproducibility
   set.seed(123)
@@ -146,36 +141,71 @@ test_that("create_win returns matrix with correct dimensions", {
 })
 
 
-
-# Define the test cases
-test_that("create_wres returns correct reservoir weight matrix", {
+test_that("matrix dimensions, type and values are correct", {
+  m <- random_matrix(10, 10, density = 0.5)
   
-  # Test case 1: Basic test with small states and density ---------------------
-  n_states1 <- 5
-  rho1 <- 0.9
-  density1 <- 0.3
-  scale_runif1 <- c(-1, 1)
-  symmetric1 <- FALSE
-  output1 <- create_wres(n_states1, rho1, density1, scale_runif1, symmetric1)
+  # correct dimensions & integer mode
+  expect_equal(dim(m), c(10, 10))
+  expect_true(is.integer(m))
   
-  # Check the dimensions of the output matrix
-  expect_equal(dim(output1), c(n_states1, n_states1))
+  # only 0 / 1 values
+  expect_true(all(m %in% c(0L, 1L)))
   
-  # Test case 2: Large states and density with symmetric matrix ---------------
-  n_states2 <- 10
-  rho2 <- 0.95
-  density2 <- 0.6
-  scale_runif2 <- c(0, 0.5)
-  symmetric2 <- TRUE
-  output2 <- create_wres(n_states2, rho2, density2, scale_runif2, symmetric2)
-  
-  # Check the dimensions of the output matrix
-  expect_equal(dim(output2), c(n_states2, n_states2))
+  # correct number of ones (rounded)
+  expected_nnz <- 50
+  expect_equal(sum(m), expected_nnz)
 })
 
 
+test_that("density edge cases (0 and 1) work", {
+  m0 <- random_matrix(4, 4, density = 0)
+  expect_equal(sum(m0), 0)
+  
+  m1 <- random_matrix(4, 4, density = 1)
+  expect_equal(sum(m1), 16)          # 4 × 4
+  expect_true(all(m1 == 1L))
+})
 
-# Define the test cases
+
+test_that("large matrices respect density within tolerance", {
+  # Deterministic but we only check the count, not positions
+  set.seed(42)
+  n_row <- 100; n_col <- 80; dens <- 0.27
+  m <- random_matrix(n_row, n_col, dens)
+  
+  expect_equal(sum(m), round(n_row * n_col * dens))
+})
+
+
+test_that("invalid inputs trigger errors", {
+  expect_error(random_matrix(0, 5))
+  expect_error(random_matrix(-3, 5))
+  expect_error(random_matrix(5.7, 5))
+  
+  expect_error(random_matrix(5, 0))
+  expect_error(random_matrix(5, -2))
+  expect_error(random_matrix(5, 4.2))
+  
+  expect_error(random_matrix(5, 5, density = -0.1))
+  expect_error(random_matrix(5, 5, density = 1.1))
+  expect_error(random_matrix(5, 5, density = "high"))
+})
+
+
+test_that("create_wres returns correct reservoir weight matrix", {
+  
+  # Basic test
+  n_states <- 5
+  rho <- 0.9
+  density <- 0.3
+  scale_runif <- c(-1, 1)
+  output <- create_wres(n_states, rho, density, scale_runif)
+  
+  # Check the dimensions of the output matrix
+  expect_equal(dim(output), c(n_states, n_states))
+})
+
+
 test_that("paste_names returns correct names", {
   
   # Test case 1: Basic test with single character x and multiple n ------------
@@ -207,8 +237,6 @@ test_that("paste_names returns correct names", {
 })
 
 
-
-# Define the test cases
 test_that("diff_vec returns correct vector with differences", {
   
   # Test case 1: Basic test with small vector and n_diff = 1 ------------------
@@ -234,8 +262,6 @@ test_that("diff_vec returns correct vector with differences", {
 })
 
 
-
-# Define the test cases
 test_that("inv_diff_vec returns correct inverse differenced vector", {
   
   # Test case 1: Basic test with n_diff = 1
@@ -264,8 +290,6 @@ test_that("inv_diff_vec returns correct inverse differenced vector", {
 })
 
 
-
-# Define the test cases
 test_that("scale_vec returns correct scaled vector and old range", {
   
   # Test case 1: Basic test with default new_range ----------------------------
@@ -288,8 +312,6 @@ test_that("scale_vec returns correct scaled vector and old range", {
 })
 
 
-
-# Define the test cases
 test_that("scale_vec returns correct scaled vector and old range", {
   
   # Test case 1: Basic test with default new_range ----------------------------
@@ -309,3 +331,152 @@ test_that("scale_vec returns correct scaled vector and old range", {
   expect_equal(rescale_vec(ys2, old_range2, new_range2), expected_output2)
   
 })
+
+
+test_that("test_kpss() returns list with expected fields", {
+  set.seed(1)
+  res <- test_kpss(rnorm(40), type = "mu", alpha = 0.05)
+  
+  # class / type
+  expect_type(res, "list")
+  
+  # required names present (order not important)
+  expect_named(
+    res,
+    expected = c("stat", "crit", "reject", "alpha", "type"),
+    ignore.order = TRUE
+  )
+  
+  # individual element checks
+  expect_type(res$stat,  "double")
+  expect_type(res$crit,  "double")
+  expect_type(res$reject,"logical")
+  expect_equal(res$alpha, 0.05)
+  expect_match(res$type, "mu|tau")
+})
+
+
+test_that("stationary white-noise series is (usually) NOT rejected", {
+  # Create data (stationary white noise process, i.i.d. N(0, 1))
+  set.seed(123)
+  wn  <- rnorm(200)
+  
+  # Run KPSS test
+  res <- test_kpss(wn, type = "mu", alpha = 0.05)
+  
+  expect_lt(res$stat, res$crit)  # statistic below critical value
+  expect_false(res$reject)       # do not reject stationarity
+})
+
+
+test_that("random walk is rejected as non-stationary", {
+  # Create data (non-stationary random walk)
+  set.seed(456)
+  rw  <- cumsum(rnorm(200))
+  
+  # Run KPSS test
+  res <- test_kpss(rw, type = "mu", alpha = 0.05)
+  
+  expect_gt(res$stat, res$crit)  # statistic above critical value
+  expect_true(res$reject)        # reject stationarity
+})
+
+
+test_that("random walk with trend is rejected by the tau test", {
+  # Create data (random walk with trend)
+  set.seed(789)
+  rw_trend <- 0.5 * (1:300) + cumsum(rnorm(300))
+  
+  # Run KPSS test
+  res <- test_kpss(rw_trend, type = "tau", alpha = 0.025)
+  
+  expect_true(res$reject)
+})
+
+
+test_that("critical values change with type and alpha", {
+  # Create data (random normal)
+  dummy <- rnorm(50)
+  
+  # Run KPSS tests
+  c_mu_10   <- test_kpss(dummy, type = "mu",  alpha = 0.10)$crit
+  c_mu_005  <- test_kpss(dummy, type = "mu",  alpha = 0.05)$crit
+  c_tau_10  <- test_kpss(dummy, type = "tau", alpha = 0.10)$crit
+  
+  expect_lt(c_mu_10,  c_mu_005)   # tighter alpha, larger critical value
+  expect_gt(c_mu_10,  c_tau_10)   # mu critical values larger tau at same alpha
+})
+
+
+test_that("invalid inputs trigger informative errors", {
+  bad_y   <- list(1, 2, 3)
+  short_y <- c(1, 2)
+  
+  expect_error(test_kpss(bad_y), "is.numeric")             # non-numeric y
+  expect_error(test_kpss(short_y), "length")               # too few obs
+  expect_error(test_kpss(rnorm(10), type = "foo"), "arg")  # bad type
+  expect_error(test_kpss(rnorm(10), alpha = 0.2), "arg")   # bad alpha
+})
+
+
+test_that("stationary AR(1) series returns 0 differences", {
+  # Create data (stationary AR(1) process)
+  set.seed(42)
+  y <- stats::arima.sim(model = list(ar = 0.5), n = 100)
+  
+  # Test case
+  n_diff <- estimate_ndiff(y, max_diff = 2, alpha = 0.05, type = "mu")
+  
+  expect_type(n_diff, "integer")
+  expect_equal(n_diff, 0L)
+})
+
+
+test_that("random walk requires exactly one difference", {
+  # Create data (random walk)
+  set.seed(42)
+  y <- cumsum(rnorm(100))
+  
+  # Test case
+  n_diff <- estimate_ndiff(y, max_diff = 2, alpha = 0.05, type = "mu")
+  expect_equal(n_diff, 1L)
+})
+
+
+test_that("I(2) series is handled correctly and max_diff is honoured", {
+  # Create data (I(2) process)
+  set.seed(42)
+  y_I2 <- cumsum(cumsum(rnorm(100)))
+  
+  # Test case 1: If max_diff = 2, it should find 2
+  expect_equal(estimate_ndiff(y_I2, max_diff = 2, alpha = 0.05, type = "mu"), 2L)
+  
+  # Test case 2: If max_diff = 1, we expect NULL (did not reach stationarity)
+  expect_null(estimate_ndiff(y_I2, max_diff = 1, alpha = 0.05, type = "mu"))
+})
+
+
+test_that("trend-stationary series behaves differently under mu vs tau", {
+  # Create data (strong deterministic trend)
+  set.seed(42)
+  n  <- 200
+  t  <- seq_len(n)
+  y  <- 0.8 * t + rnorm(n, sd = 0.1)
+  
+  # Detrended test
+  nd_tau <- estimate_ndiff(y, type = "tau", alpha = 0.05)
+  # Demean-only test
+  nd_mu  <- estimate_ndiff(y, type = "mu",  alpha = 0.05)
+  
+  # Test case 1: tau treats deterministic trend as OK
+  expect_equal(nd_tau, 0L)
+  
+  # Test case 2: mu needs a difference to remove trend
+  expect_equal(nd_mu,  1L)
+})
+
+
+test_that("very short series yields NULL", {
+  expect_null(estimate_ndiff(c(1, 2), max_diff = 2))
+})
+
