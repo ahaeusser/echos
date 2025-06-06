@@ -1,22 +1,34 @@
 
 test_that("forecast_esn function works correctly", {
   
-  # Create test data
+  # Define arguments
   n_ahead <- 18
+  n_sim <- 200
+  levels <- c(80, 95)
+  
+  # Prepare data
   n_obs <- length(AirPassengers)
   n_train <- n_obs - n_ahead
   ytrain <- AirPassengers[(1:n_train)]
   ytest <- AirPassengers[((n_train+1):n_obs)]
   
-  # Test the function call
+  # Train and forecast ESN model
   esn_model <- train_esn(ytrain)
-  esn_fcst <- forecast_esn(esn_model)
   
-  # Test if the function output is of class "esn"
+  esn_fcst <- forecast_esn(
+    object = esn_model,
+    n_ahead = n_ahead,
+    n_sim = n_sim,
+    levels = levels
+  )
+  
+  # Test if the function output is of class "forecast_esn"
   expect_true(class(esn_fcst) == "forecast_esn")
+  expect_true(is.forecast_esn(esn_fcst))
   
-  # Test if the residuals vector has the same length as the input vector
+  # Test object lengths and dimensions
   expect_equal(length(esn_fcst$point), n_ahead)
-  
-  # Add more tests as needed...
+  expect_equal(length(esn_fcst$std), n_ahead)
+  expect_equal(dim(esn_fcst$sim), c(n_ahead, n_sim))
+  expect_equal(dim(esn_fcst$interval), c(n_ahead, 2*length(esn_fcst$levels)))
 })
