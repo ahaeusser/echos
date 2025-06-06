@@ -1,10 +1,8 @@
 
 #' @importFrom purrr map map_dfr
 #' @importFrom tidyr pivot_longer
-#' @importFrom Matrix rsparsematrix
-#' @importFrom forecast ndiffs
 #' @importFrom rlang is_empty .data abort
-#' @importFrom stats complete.cases diffinv na.omit runif quantile sd
+#' @importFrom stats complete.cases diffinv na.omit runif quantile sd lm residuals
 #' @importFrom graphics lines par abline matplot polygon
 #' @importFrom grDevices adjustcolor colorRampPalette
 #' @importFrom utils tail

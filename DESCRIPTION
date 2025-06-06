@@ -24,10 +24,8 @@ Imports:
     dplyr,
     tidyr,
     purrr,
-    Matrix,
     rlang,
-    distributional,
-    forecast
+    distributional
 LinkingTo:
     Rcpp,
     RcppArmadillo
