@@ -79,11 +79,9 @@ train_esn <- function(y,
   # Number of initial observations to drop
   n_initial <- floor(n_total * 0.05)
   
+  # Number of differences required to achieve stationarity
   if (is.null(n_diff)) {
-    n_diff <- ndiffs(y)
-    if (n_diff > 1) {
-      n_diff <- 1
-    }
+    n_diff <- estimate_ndiff(y)
   }
   
   # Train model ===============================================================
@@ -137,13 +135,12 @@ train_esn <- function(y,
     scale_runif = c(-scale_win, scale_win)
   )
   
-  # Create random weight matrix for each reservoir
+  # Create random weight matrix
   wres <- create_wres(
     n_states = n_states,
     rho = rho,
     density = density,
-    scale_runif = c(-scale_wres, scale_wres),
-    symmetric = FALSE
+    scale_runif = c(-scale_wres, scale_wres)
   )
   
   # Run reservoirs (create internal states)
