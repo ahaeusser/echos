@@ -116,6 +116,53 @@ create_win <- function(n_inputs,
 
 
 
+#' @title Create a random binary matrix with a given density
+#' 
+#' @description Create a random binary matrix with a given density.
+#'
+#' @param n_row Positive integer. The number of rows.
+#' @param n_col Positive integer. The number of columns.
+#' @param density Numeric value. The density is the proportion of non-zero elements. A number between zero and one. 
+#'
+#' @return m Integer matrix.
+#' @noRd
+
+random_matrix <- function(n_row,
+                          n_col,
+                          density = 0.5) {
+  
+  # Argument handling ---------------------------------------------------------
+  if (!is.numeric(n_row) || n_row <= 0 || n_row %% 1 != 0)
+    stop("n_row must be a positive integer")
+  if (!is.numeric(n_col) || n_col <= 0 || n_col %% 1 != 0)
+    stop("n_col must be a positive integer")
+  if (!is.numeric(density) || density < 0 || density > 1)
+    stop("density must be a number between 0 and 1")
+  
+  n_row <- as.integer(n_row)
+  n_col <- as.integer(n_col)
+  
+  # Determine the number of non-zero elements (nnz) ---------------------------
+  n_total <- n_row * n_col
+  nnz     <- round(n_total * density)
+  nnz     <- max(0L, min(nnz, n_total))
+  
+  # Create matrix -------------------------------------------------------------
+  m <- matrix(
+    data = 0L,
+    nrow = n_row,
+    ncol = n_col
+  )
+  
+  if (nnz > 0) {
+    idx <- sample.int(n_total, nnz, replace = FALSE)
+    m[idx] <- 1L
+  }
+  return(m)
+}
+
+
+
 #' @title Create the reservoir weight matrix
 #' 
 #' @description Create the random reservoir weight matrix (scaled to spectral 
@@ -125,7 +172,6 @@ create_win <- function(n_inputs,
 #' @param rho Numeric value. The spectral radius for scaling the weight matrix.
 #' @param density Numeric value. The parameter defines the connectivity of the reservoir weight matrix (dense or sparse).
 #' @param scale_runif Numeric vector. The lower and upper bound of the uniform distribution.
-#' @param symmetric Logical value. If \code{TRUE}, the matrix is symmetric.
 #' 
 #' @return wres Numeric matrix. The final reservoir weight matrix.
 #' @noRd
@@ -133,8 +179,7 @@ create_win <- function(n_inputs,
 create_wres <- function(n_states,
                         rho,
                         density,
-                        scale_runif,
-                        symmetric = FALSE) {
+                        scale_runif) {
   
   # Create initial random weight matrix for the reservoir
   wres <- matrix(
@@ -147,18 +192,16 @@ create_wres <- function(n_states,
     )
   
   # Create a random sparse pattern matrix with defined density
-  wsparse <- rsparsematrix(
-    nrow = n_states,
-    ncol = n_states,
-    density = density,
-    rand.x = NULL,
-    symmetric = symmetric
-    )
+  wsparse <- random_matrix(
+    n_row = n_states,
+    n_col = n_states,
+    density = density
+  )
   
   wres <- as.matrix(wres * wsparse)
   
   # Calculate the absolute, maximum eigenvalue of the reservoir weight matrix
-  eig <- eigen(wres, symmetric = symmetric, only.values = TRUE)$values
+  eig <- eigen(wres, symmetric = FALSE, only.values = TRUE)$values
   max_abs_eig <- max(abs(eig))
   
   # Rescale the reservoir weight matrix to spectral radius rho
@@ -384,4 +427,150 @@ moving_block <- function(x, n_ahead, n_sim, n_size) {
   
   return(boot_matrix)
 }
+
+
+
+
+#' @title KPSS unit root test
+#' 
+#' @description Performs the KPSS unit root test, where the null hypothesis is 
+#'    stationarity. The test type specifies the deterministic component either 
+#'    as constant \code{"mu"} or a constant plus linear trend \code{"tau"}.
+#'
+#' @param y Numeric vector containing the response variable.
+#' @param type Test type, where \code{"mu"} is a constant and \code{"tau"} is constant plus linear trend.
+#' @param alpha Significance level of the test. \code{alpha = c(0.10, 0.05, 0.025, 0.01)}.
+#'
+#' @return A \code{list} containing:
+#'    \itemize{
+#'       \item{\code{stat}: Numeric value. The KPSS test statistic.}
+#'       \item{\code{crit}: Numeric value. The critical value for a specific significance level \code{alpha}.}
+#'       \item{\code{reject}: Logical value. If \code{TRUE}, the null hypothesis (= stationarity) is rejected, i.e., \code{y} is non-stationary.}
+#'       \item{\code{alpha}: Numeric value. The significance level of the test.}
+#'       \item{\code{type}: Character vector. The type of the test, either \code{"mu"} with a constant or \code{"tau"} with constant plus linear trend.}
+#'       }
+#' @noRd
+
+test_kpss <- function(y,
+                      type  = c("mu", "tau"),
+                      alpha = 0.05) {
+  
+  # Argument checks -----------------------------------------------------------
+  stopifnot(is.numeric(y), length(y) > 2)
+  type  <- match.arg(type)
+  alpha <- match.arg(
+    as.character(alpha),
+    c("0.1", "0.05", "0.025", "0.01"))
+  alpha_num <- as.numeric(alpha)
+  
+  n <- length(y)
+  t <- seq_len(n)
+  
+  # Demean ("mu") or detrend ("tau") ------------------------------------------
+  
+  if (type == "mu") {
+    e <- y - mean(y)
+  } else {
+    e <- residuals(lm(y ~ t))
+  }
+  
+  # Truncation lag (Bartlett) -------------------------------------------------
+  q <- max(1L, floor(3 * sqrt(n) / 13))
+  
+  # Long-run variance  (Newey–West) -------------------------------------------
+  gamma0 <- sum(e^2) / n
+  
+  if (q > 0) {
+    
+    # Pre-allocate a numeric vector of length q
+    gammas <- numeric(q)
+    # Sample autocovariance
+    for (h in 1:q) {
+      gammas[h] <- sum(e[(h + 1):n] * e[1:(n - h)]) / n
+    }
+    
+    weights <- 1 - (1:q) / (q + 1)
+    sigma2  <- gamma0 + 2 * sum(weights * gammas)
+  } else {
+    sigma2 <- gamma0
+  }
+  
+  # KPSS test statistic -------------------------------------------------------
+  S      <- cumsum(e)
+  eta_sq <- sum(S^2) / n^2
+  stat   <- eta_sq / sigma2
+  
+  # Critical values -----------------------------------------------------------
+  crit_vals <- list(
+    mu  = c("0.1" = 0.347, "0.05" = 0.463, "0.025" = 0.574, "0.01" = 0.739),
+    tau = c("0.1" = 0.119, "0.05" = 0.146, "0.025" = 0.176, "0.01" = 0.216)
+  )
+  
+  # Extract critical value
+  crit <- crit_vals[[type]][[alpha]]
+  
+  # Decision: compare test statistic and critical value
+  reject <- stat > crit
+  
+  # Store results -------------------------------------------------------------
+  test <- list(
+    stat = stat,
+    crit = crit,
+    reject = reject,
+    alpha = alpha_num,
+    type = type
+  )
+  
+  return(test)
+}
+
+
+
+#' @title Estimate the number of differences required to achieve stationarity
+#' 
+#' @description Iteratively differences a univariate time series and applies
+#'   \code{test_kpss} at each step until the null hypothesis of stationarity 
+#'   can no longer be rejected. 
+#'
+#' @param y Numeric vector containing the response variable.
+#' @param max_diff Integer value. The maximum number of differences to check.
+#' @param type Test type, where \code{"mu"} is a constant and \code{"tau"} is constant plus linear trend.
+#' @param alpha Significance level of the test. \code{alpha = c(0.10, 0.05, 0.025, 0.01)}.
+#'
+#' @return n_diff Integer value. The number of differences required to achieve stationarity.
+#' @noRd
+
+estimate_ndiff <- function(y,
+                           max_diff = 1,
+                           alpha = 0.05,
+                           type  = c("mu", "tau")) {
+  # Argument handling
+  type <- match.arg(type)
+  
+  for (n_diff in 0:max_diff) {
+    
+    if (n_diff == 0) {
+      yd <- y
+    } else {
+      yd <- diff(y, differences = n_diff)
+    }
+    
+    # Time series too short for reliable test
+    if (length(yd) < 3L)
+      break
+    
+    # Conduct KPSS test
+    test <- test_kpss(
+      y = yd,
+      type = type,
+      alpha = alpha
+    )
+    
+    # Stationarity not rejected
+    if (!test$reject) {
+      return(n_diff)
+    }
+  }
+}
+
 
