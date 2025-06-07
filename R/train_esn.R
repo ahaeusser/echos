@@ -178,17 +178,22 @@ train_esn <- function(y,
     max = lambda[2]
   )
   
-  # Estimate models
-  model_object <- map(
-    .x = seq_len(n_models),
-    .f = ~{
-      fit_ridge(
-        x = Xt,
-        y = yt,
-        lambda = lambdas[.x]
-      )
-    }
-  )
+  # Pre-allocate an empty list to store fitted models and model metrics
+  model_object <- vector("list", n_models)
+  model_metrics <- vector("list", n_models)
+  
+  for (i in seq_len(n_models)) {
+    # Estimate models
+    model_fit <- fit_ridge(
+      x = Xt,
+      y = yt,
+      lambda = lambdas[i]
+    )
+    # Store model object
+    model_object[[i]] <- model_fit
+    # Store model metrics
+    model_metrics[[i]] <- model_fit[["metrics"]]
+  }
   
   model_names <- paste_names(
     x = "model",
@@ -197,11 +202,8 @@ train_esn <- function(y,
   
   names(model_object) <- model_names
   
-  # Extract model metrics
-  model_metrics <- map_dfr(
-    .x = seq_len(n_models),
-    .f = ~{model_object[[.x]][["metrics"]]}
-  )
+  # Row-bind into a single data frame
+  model_metrics <- do.call(rbind, model_metrics)
   
   # Order model metrics by information criterion
   model_metrics <- model_metrics %>%
