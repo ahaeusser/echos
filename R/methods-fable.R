@@ -313,13 +313,59 @@ report.ESN <- function(object, ...) {
 
 
 
+#' @title Filter ESN models
+#' 
+#' @description Filter an object of class \code{mdl_df} ("mable") to include 
+#'   ESN models only, i.e., other models like ARIMA or ETS are excluded from
+#'   the mable.
+#'
+#' @param object An object of class \code{mdl_df}.
+#'
+#' @return An object of class \code{mdl_df} in long-format.
+#' 
+#' @examples
+#' library(tsibble)
+#' library(fable)
+#' AirPassengers %>%
+#' as_tsibble() %>%
+#' model("ESN" = ESN(value)) %>%
+#' filter_esn()
+#' 
+#' @export
+
+filter_esn <- function(object) {
+  UseMethod("filter_esn")
+}
+
+
+#' @export
+filter_esn.mdl_df <- function(object) {
+  object <- object %>%
+    pivot_longer(
+      cols = mable_vars(object),
+      names_to = "model",
+      values_to = ".spec") %>%
+    mutate(ESN = NA)
+  
+  for (i in seq_len(nrow(object))) {
+    object[["ESN"]][i] <- is.esn(object[[".spec"]][[i]][["fit"]][["model"]])
+  }
+  
+  object <- object %>%
+    filter(ESN == TRUE) %>%
+    select(-ESN)
+  
+  return(object)
+}
+
+
 #' @title Return the reservoir from a trained ESN as tibble
 #' 
 #' @description Return the reservoir (internal states) from a
 #'   trained ESN as tibble. The function works only for models
 #'   of class \code{ESN}.
 #'
-#' @param object An object of class \code{ESN}.
+#' @param object An object of class \code{mdl_df}.
 #'
 #' @return A tibble containing the reservoir (internal states).
 #' 
@@ -341,46 +387,38 @@ reservoir <- function(object) {
 #' @export
 reservoir.mdl_df <- function(object) {
   
+  # Extract ESN models
   object <- object %>%
-    pivot_longer(
-      cols = mable_vars(object),
-      names_to = "model",
-      values_to = ".spec"
-    )
+    filter_esn()
   
+  # Extract key variables
   key_tbl <- object %>%
     as_tibble() %>%
     select(-c(.data$.spec))
   
-  # Extract states_train
-  object <- map(
-    .x = seq_len(nrow(key_tbl)),
-    .f = ~{
-      
-      # Extract model object
-      xmodel <- object[[".spec"]][[.x]]$fit$model
-      
-      # Check if model is of class "esn"
-      # Extract internal states and prepare as tibble
-      if (is.esn(xmodel)) {
-        xstates <- xmodel[["states_train"]] %>%
-          as_tibble() %>%
-          mutate(index = row_number()) %>%
-          pivot_longer(
-            cols = -index,
-            names_to = "state",
-            values_to = "value") %>%
-          arrange(state, index)
-        
-        xstates <- bind_cols(key_tbl[.x, ], xstates)
-      } else {
-        xstates <- NULL
-      }
-    }
-  )
+  # Pre-allocate empty list to store results
+  states <- vector("list", nrow(object))
+  
+  for (i in seq_len(nrow(object))) {
+    
+    # Extract the internal states per model
+    xstates <- object[[".spec"]][[i]][["fit"]][["model"]][["states_train"]]
+    
+    # Add index and reshape to long-format tibble
+    xstates <- xstates %>%
+      as_tibble() %>%
+      mutate(index = seq_len(nrow(xstates))) %>%
+      pivot_longer(
+        cols = -index,
+        names_to = "state",
+        values_to = "value") %>% 
+      arrange(.data$state, .data$index)
+    
+    states[[i]] <- bind_cols(key_tbl[i, ], xstates)
+  }
   
   # Flatten list row-wise
-  object <- bind_rows(object)
+  states <- bind_rows(states)
   
-  return(object)
+  return(states)
 }
