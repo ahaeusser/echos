@@ -35,6 +35,7 @@ reference:
     - tidy.ESN
     - glance.ESN
     - report.ESN
+    - filter_esn
     - reservoir
     
 - title: Datasets
