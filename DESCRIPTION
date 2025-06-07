@@ -23,7 +23,6 @@ Imports:
     tsibble,
     dplyr,
     tidyr,
-    purrr,
     rlang,
     distributional
 LinkingTo:

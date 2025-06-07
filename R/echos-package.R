@@ -1,5 +1,4 @@
 
-#' @importFrom purrr map map_dfr
 #' @importFrom tidyr pivot_longer
 #' @importFrom rlang is_empty .data abort
 #' @importFrom stats complete.cases diffinv na.omit runif quantile sd lm residuals
