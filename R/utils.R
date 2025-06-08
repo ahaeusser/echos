@@ -547,6 +547,10 @@ estimate_ndiff <- function(y,
   # Argument handling
   type <- match.arg(type)
   
+  if (length(y) < 3L) {
+    stop("y too short for reliable test") 
+  }
+  
   for (n_diff in 0:max_diff) {
     
     if (n_diff == 0) {
@@ -554,10 +558,6 @@ estimate_ndiff <- function(y,
     } else {
       yd <- diff(y, differences = n_diff)
     }
-    
-    # Time series too short for reliable test
-    if (length(yd) < 3L)
-      break
     
     # Conduct KPSS test
     test <- test_kpss(

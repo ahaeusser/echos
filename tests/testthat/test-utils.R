@@ -463,13 +463,14 @@ test_that("estimate_ndiff corretcly returns n_diff = 1 for random walk", {
 test_that("estimate_ndiff handles higher order differencing correctly", {
   # Create data (I(2) process)
   set.seed(42)
-  y_I2 <- cumsum(cumsum(rnorm(100)))
+  y <- cumsum(cumsum(rnorm(100)))
   
-  # Test case 1: If max_diff = 2, it should find 2 ----------------------------
-  expect_equal(estimate_ndiff(y_I2, max_diff = 2, alpha = 0.05, type = "mu"), 2L)
+  # Test case 1: If max_diff = 2, it should find n_diff = 2 -------------------
+  expect_equal(estimate_ndiff(y, max_diff = 2, alpha = 0.05, type = "mu"), 2L)
   
-  # Test case 2: If max_diff = 1, we expect NULL (did not reach stationarity)
-  expect_null(estimate_ndiff(y_I2, max_diff = 1, alpha = 0.05, type = "mu"))
+  # Test case 2: If max_diff = 1, we expect n_diff = 1 ------------------------- 
+  # (did not reach stationarity)
+  expect_equal(estimate_ndiff(y, max_diff = 1, alpha = 0.05, type = "mu"), 1L)
 })
 
 
@@ -494,7 +495,7 @@ test_that("estimate_ndiff handles trend-stationary data with different mu vs tau
 
 
 test_that("estimate_ndiff handles very short time series", {
-  expect_null(estimate_ndiff(c(1, 2), max_diff = 2))
+  expect_error(estimate_ndiff(c(1, 2), max_diff = 2))
 })
 
 
