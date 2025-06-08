@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods-base.R
 \name{plot.forecast_esn}
 \alias{plot.forecast_esn}
-\title{Plot forecasts and actual values of a trained ESN model.}
+\title{Plot forecasts of a trained ESN model}
 \usage{
 \method{plot}{forecast_esn}(x, test = NULL, fitted = TRUE, interval = TRUE, n_obs = NULL, ...)
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods-base.R
 \name{plot.esn}
 \alias{plot.esn}
-\title{Plot internal states of a trained ESN model.}
+\title{Plot internal states of a trained ESN model}
 \usage{
 \method{plot}{esn}(x, ...)
 }

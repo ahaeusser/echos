@@ -141,7 +141,7 @@ summary.esn <- function(object, ...) {
 }
 
 
-#' @title Plot internal states of a trained ESN model.
+#' @title Plot internal states of a trained ESN model
 #' 
 #' @description Plot internal states (i.e., the reservoir) of a trained ESN 
 #'   model as line chart.
@@ -182,7 +182,7 @@ plot.esn <- function(x,
 }
 
 
-#' @title Plot forecasts and actual values of a trained ESN model.
+#' @title Plot forecasts of a trained ESN model
 #' 
 #' @description Plot point forecasts and forecast intervals, actual values of a 
 #'   trained ESN model. Optionally, test data (out-of-sample) and fitted values
