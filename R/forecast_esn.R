@@ -120,6 +120,7 @@ forecast_esn <- function(object,
   if (is.null(n_sim)) {
     interval <- NULL
     sim <- NULL
+    std <- NULL
   } else {
     # Preallocate empty matrix to store future sample paths
     sim <- matrix(
