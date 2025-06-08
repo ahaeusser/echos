@@ -1,15 +1,15 @@
 
 #' @importFrom tidyr pivot_longer
-#' @importFrom rlang is_empty .data abort
+#' @importFrom rlang .data enquo sym
 #' @importFrom stats complete.cases diffinv na.omit runif quantile sd lm residuals
 #' @importFrom graphics lines par abline matplot polygon
 #' @importFrom grDevices adjustcolor colorRampPalette
 #' @importFrom utils tail
 #' @importFrom distributional dist_normal dist_sample
+#' @importFrom dplyr select filter mutate arrange bind_rows bind_cols
 #' @import Rcpp
 #' @import RcppArmadillo
 #' @import tsibble
-#' @rawNamespace import(dplyr, except = id)
 #' @import fabletools
 #' @useDynLib echos, .registration = TRUE
 
