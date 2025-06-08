@@ -15,7 +15,7 @@
 )
 }
 \arguments{
-\item{object}{An object of class \code{ESN}.}
+\item{object}{An object of class \code{mdl_df}, containing an ESN model.}
 
 \item{new_data}{Forecast horizon (n-step ahead forecast).}
 
@@ -30,7 +30,7 @@
 \item{...}{Currently not in use.}
 }
 \value{
-An object of class \code{fable}.
+An object of class \code{fbl_ts} ("fable").
 }
 \description{
 Forecast a trained ESN.

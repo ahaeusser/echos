@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods-fable.R
 \name{ESN}
 \alias{ESN}
-\title{Automatic train an Echo State Network}
+\title{Train an Echo State Network}
 \usage{
 ESN(formula, ...)
 }
@@ -15,8 +15,11 @@ ESN(formula, ...)
 An object of class \code{ESN}.
 }
 \description{
-This function trains an Echo State Network (ESN)
-  to a univariate time series.
+Train an Echo State Network (ESN) to a univariate time series. 
+   The function automatically manages data pre-processing, reservoir
+   generation (i.e., internal states) and model estimation and selection. 
+   The function is a wrapper for \code{train_esn()} and intended to be used 
+   in combination with \code{fabletools::model()}.
 }
 \examples{
 library(tsibble)

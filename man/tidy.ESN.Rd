@@ -7,7 +7,7 @@
 \method{tidy}{ESN}(x, ...)
 }
 \arguments{
-\item{x}{An object of class \code{ESN}.}
+\item{x}{An object of class \code{mdl_df}, containing an ESN model.}
 
 \item{...}{Currently not in use.}
 }
@@ -15,7 +15,8 @@
 Coefficients extracted from the object.
 }
 \description{
-Return the estimated coefficients from a trained ESN as tibble.
+Return the estimated coefficients from a trained ESN as 
+   \code{tibble}.
 }
 \examples{
 library(tsibble)

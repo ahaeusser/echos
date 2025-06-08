@@ -7,7 +7,7 @@
 \method{glance}{ESN}(x, ...)
 }
 \arguments{
-\item{x}{An object of class \code{ESN}.}
+\item{x}{An object of class \code{mdl_df}, containing an ESN model.}
 
 \item{...}{Currently not in use.}
 }
@@ -16,7 +16,7 @@ Summary statistics extracted from the object.
 }
 \description{
 Return summary statistics from trained ESN models during random 
-  search as tibble.
+  search as \code{tibble}.
  \itemize{
    \item{\code{model}: Model identifier.}
    \item{\code{loglik}: Log-likelihood.}

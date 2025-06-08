@@ -7,7 +7,7 @@
 \method{print}{esn}(x, ...)
 }
 \arguments{
-\item{x}{An object of class \code{esn}.}
+\item{x}{An object of class \code{esn}. The result of a call to \code{train_esn()}.}
 
 \item{...}{Currently not in use.}
 }
@@ -15,7 +15,8 @@
 Print specification of the trained ESN model.
 }
 \description{
-Print model specification of the trained ESN model.
+Provides a compact overview of the model specification in the 
+   format \code{ESN({n_states, alpha, rho}, {n_models, df})}.
 }
 \examples{
 xdata <- as.numeric(AirPassengers)

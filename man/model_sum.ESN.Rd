@@ -2,18 +2,19 @@
 % Please edit documentation in R/methods-fable.R
 \name{model_sum.ESN}
 \alias{model_sum.ESN}
-\title{Provide a succinct summary of a trained ESN}
+\title{Model specification of a trained ESN model}
 \usage{
 \method{model_sum}{ESN}(x)
 }
 \arguments{
-\item{x}{An object of class \code{ESN}.}
+\item{x}{An object of class \code{mdl_df}, containing an ESN model.}
 }
 \value{
 Model summary extracted from the object.
 }
 \description{
-Provide a succinct summary of a trained ESN.
+Provides a compact overview of the model specification in the 
+   format \code{ESN({n_states, alpha, rho}, {n_models, df})}.
 }
 \examples{
 library(tsibble)

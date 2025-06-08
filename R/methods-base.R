@@ -44,9 +44,10 @@ is.forecast_esn <- function(object) {
 
 #' @title Print model specification of the trained ESN model
 #' 
-#' @description Print model specification of the trained ESN model.
+#' @description Provides a compact overview of the model specification in the 
+#'    format \code{ESN({n_states, alpha, rho}, {n_models, df})}.
 #'
-#' @param x An object of class \code{esn}.
+#' @param x An object of class \code{esn}. The result of a call to \code{train_esn()}.
 #' @param ... Currently not in use.
 #'
 #' @return Print specification of the trained ESN model.
@@ -68,7 +69,7 @@ print.esn <- function(x, ...) {
 #' 
 #' @description Provide a detailed summary of the trained ESN model.
 #'
-#' @param object An object of class \code{esn}.
+#' @param object An object of class \code{esn}. The result of a call to \code{train_esn()}.
 #' @param ... Currently not in use.
 #'
 #' @return Print detailed model summary.
@@ -145,8 +146,8 @@ summary.esn <- function(object, ...) {
 #' @description Plot internal states (i.e., the reservoir) of a trained ESN 
 #'   model as line chart.
 #'
-#' @param x An object of class \code{esn}.
-#' @param ... Currently not in use.
+#' @param x An object of class \code{esn}. The result of a call to \code{train_esn()}.
+#' @param ... Further arguments passed to \code{matplot()}.
 #'
 #' @return Line chart of internal states.
 #' 
@@ -160,13 +161,12 @@ summary.esn <- function(object, ...) {
 plot.esn <- function(x,
                      ...) {
   
+  if (!is.esn(x))
+    stop("x must be an object of class esn")
+  
   # Extract reservoir and model specification from object
   states_train <- x[["states_train"]]
   model_spec <- x[["method"]][["model_spec"]]
-  
-  # # Save the current par settings, then immediately ensure they get restored
-  # old_par <- par(no.readonly = TRUE)
-  # on.exit(par(old_par))
   
   # Plot internal states as line chart
   matplot(
@@ -182,13 +182,13 @@ plot.esn <- function(x,
 }
 
 
-#' @title Plot point forecasts and actual values of a trained ESN model.
+#' @title Plot forecasts and actual values of a trained ESN model.
 #' 
-#' @description Plot point forecasts, actual and fitted values of a trained ESN 
-#'   model as line chart. Optionally, test data (out-of-sample) can be added to 
-#'   the plot.
+#' @description Plot point forecasts and forecast intervals, actual values of a 
+#'   trained ESN model. Optionally, test data (out-of-sample) and fitted values
+#'   can be added to the plot.
 #'
-#' @param x An object of class \code{forecast_esn}.
+#' @param x An object of class \code{forecast_esn}. The result of a call to \code{forecast_esn()}.
 #' @param test Numeric vector. Test data, i.e., out-of-sample actual values.
 #' @param fitted Logical value. If \code{TRUE}, fitted values are added.
 #' @param interval Logical value. If \code{TRUE}, forecast intervals are added.
@@ -213,6 +213,9 @@ plot.forecast_esn <- function(x,
                               ...) {
   
   # Extract data --------------------------------------------------------------
+  
+  if (!is.forecast_esn(x))
+    stop("x must be an object of class forecast_esn")
   
   model_spec <- x[["model_spec"]]   # Model specification
   n_ahead <- x[["n_ahead"]]         # Forecast horizon

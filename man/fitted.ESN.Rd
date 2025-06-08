@@ -7,7 +7,7 @@
 \method{fitted}{ESN}(object, ...)
 }
 \arguments{
-\item{object}{An object of class \code{ESN}.}
+\item{object}{An object of class \code{mdl_df}, containing an ESN model.}
 
 \item{...}{Currently not in use.}
 }
@@ -15,7 +15,7 @@
 Fitted values extracted from the object.
 }
 \description{
-Extract fitted values from a trained ESN.
+Extract fitted values from a trained ESN as \code{tsibble}.
 }
 \examples{
 library(tsibble)

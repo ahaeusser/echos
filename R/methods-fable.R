@@ -19,11 +19,11 @@ auto_esn <- function(.data,
   n_outputs <- length(tsibble::measured_vars(.data))
 
   if (n_outputs > 1) {
-    abort("Only univariate responses are supported by ESN.")
+    stop("Only univariate responses are supported by ESN.")
   }
 
   if(any(is.na(.data))){
-    abort("ESN does not support missing values.")
+    stop("ESN does not support missing values.")
   }
   
   # Train model ===============================================================
@@ -52,10 +52,13 @@ specials_esn <- new_specials()
 
 
 
-#' @title Automatic train an Echo State Network
+#' @title Train an Echo State Network
 #' 
-#' @description This function trains an Echo State Network (ESN)
-#'   to a univariate time series.
+#' @description Train an Echo State Network (ESN) to a univariate time series. 
+#'    The function automatically manages data pre-processing, reservoir
+#'    generation (i.e., internal states) and model estimation and selection. 
+#'    The function is a wrapper for \code{train_esn()} and intended to be used 
+#'    in combination with \code{fabletools::model()}.
 #'
 #' @param formula Model specification (currently not in use).
 #' @param ... Further arguments passed to \code{train_esn()}.
@@ -85,11 +88,12 @@ ESN <- function(formula, ...){
 
 
 
-#' @title Provide a succinct summary of a trained ESN
+#' @title Model specification of a trained ESN model
 #' 
-#' @description Provide a succinct summary of a trained ESN.
+#' @description Provides a compact overview of the model specification in the 
+#'    format \code{ESN({n_states, alpha, rho}, {n_models, df})}.
 #'
-#' @param x An object of class \code{ESN}.
+#' @param x An object of class \code{mdl_df}, containing an ESN model.
 #'
 #' @return Model summary extracted from the object.
 #' 
@@ -112,7 +116,7 @@ model_sum.ESN <- function(x){
 #' 
 #' @description Forecast a trained ESN.
 #' 
-#' @param object An object of class \code{ESN}.
+#' @param object An object of class \code{mdl_df}, containing an ESN model.
 #' @param new_data Forecast horizon (n-step ahead forecast).
 #' @param normal Logical value. If \code{TRUE}, dist_normal() is used, otherwise dist_sample().
 #' @param n_sim Integer value. The number of future sample path generated during simulation.
@@ -120,7 +124,7 @@ model_sum.ESN <- function(x){
 #' @param xreg A \code{tsibble} containing exogenous variables.
 #' @param ... Currently not in use.
 #' 
-#' @return An object of class \code{fable}.
+#' @return An object of class \code{fbl_ts} ("fable").
 #' 
 #' @examples
 #' library(tsibble)
@@ -169,9 +173,9 @@ forecast.ESN <- function(object,
 
 #' @title Extract fitted values from a trained ESN
 #' 
-#' @description Extract fitted values from a trained ESN.
+#' @description Extract fitted values from a trained ESN as \code{tsibble}.
 #'
-#' @param object An object of class \code{ESN}.
+#' @param object An object of class \code{mdl_df}, containing an ESN model.
 #' @param ... Currently not in use.
 #'
 #' @return Fitted values extracted from the object.
@@ -194,9 +198,9 @@ fitted.ESN <- function(object, ...){
 
 #' @title Extract residuals from a trained ESN
 #' 
-#' @description Extract residuals from a trained ESN.
+#' @description Extract residuals from a trained ESN as \code{tsibble}.
 #'
-#' @param object An object of class \code{ESN}.
+#' @param object An object of class \code{mdl_df}, containing an ESN model.
 #' @param ... Currently not in use.
 #'
 #' @return Residuals extracted from the object.
@@ -219,9 +223,10 @@ residuals.ESN <- function(object, ...){
 
 #' @title Estimated coefficients
 #' 
-#' @description Return the estimated coefficients from a trained ESN as tibble.
+#' @description Return the estimated coefficients from a trained ESN as 
+#'    \code{tibble}.
 #'
-#' @param x An object of class \code{ESN}.
+#' @param x An object of class \code{mdl_df}, containing an ESN model.
 #' @param ... Currently not in use.
 #'
 #' @return Coefficients extracted from the object.
@@ -252,7 +257,7 @@ tidy.ESN <- function(x, ...) {
 #' @title Summary of trained models during random search
 #' 
 #' @description Return summary statistics from trained ESN models during random 
-#'   search as tibble.
+#'   search as \code{tibble}.
 #'  \itemize{
 #'    \item{\code{model}: Model identifier.}
 #'    \item{\code{loglik}: Log-likelihood.}
@@ -267,7 +272,7 @@ tidy.ESN <- function(x, ...) {
 #'    \item{\code{mae}: Mean Absolute Error.}
 #'       }
 #'
-#' @param x An object of class \code{ESN}.
+#' @param x An object of class \code{mdl_df}, containing an ESN model.
 #' @param ... Currently not in use.
 #'
 #' @return Summary statistics extracted from the object.
@@ -290,9 +295,10 @@ glance.ESN <- function(x, ...) {
 
 #' @title Provide a detailed summary of the trained ESN model
 #' 
-#' @description Provide a detailed summary of the trained ESN model.
+#' @description Provide a detailed summary of the trained ESN model. The 
+#'    function is a wrapper for \code{summary.esn()}.
 #'
-#' @param object An object of class \code{ESN}.
+#' @param object An object of class \code{mdl_df}, containing an ESN model.
 #' @param ... Currently not in use.
 #'
 #' @return Print detailed model summary.
@@ -319,7 +325,7 @@ report.ESN <- function(object, ...) {
 #'   ESN models only, i.e., other models like ARIMA or ETS are excluded from
 #'   the mable.
 #'
-#' @param object An object of class \code{mdl_df}.
+#' @param object An object of class \code{mdl_df}, containing an ESN model.
 #'
 #' @return An object of class \code{mdl_df} in long-format.
 #' 
@@ -365,7 +371,7 @@ filter_esn.mdl_df <- function(object) {
 #'   trained ESN as tibble. The function works only for models
 #'   of class \code{ESN}.
 #'
-#' @param object An object of class \code{mdl_df}.
+#' @param object An object of class \code{mdl_df}, containing an ESN model.
 #'
 #' @return A tibble containing the reservoir (internal states).
 #' 

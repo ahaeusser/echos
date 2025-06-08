@@ -7,7 +7,7 @@
 \method{report}{ESN}(object, ...)
 }
 \arguments{
-\item{object}{An object of class \code{ESN}.}
+\item{object}{An object of class \code{mdl_df}, containing an ESN model.}
 
 \item{...}{Currently not in use.}
 }
@@ -15,7 +15,8 @@
 Print detailed model summary.
 }
 \description{
-Provide a detailed summary of the trained ESN model.
+Provide a detailed summary of the trained ESN model. The 
+   function is a wrapper for \code{summary.esn()}.
 }
 \examples{
 library(tsibble)

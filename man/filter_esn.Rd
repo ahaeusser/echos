@@ -7,7 +7,7 @@
 filter_esn(object)
 }
 \arguments{
-\item{object}{An object of class \code{mdl_df}.}
+\item{object}{An object of class \code{mdl_df}, containing an ESN model.}
 }
 \value{
 An object of class \code{mdl_df} in long-format.

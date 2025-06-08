@@ -7,9 +7,9 @@
 \method{plot}{esn}(x, ...)
 }
 \arguments{
-\item{x}{An object of class \code{esn}.}
+\item{x}{An object of class \code{esn}. The result of a call to \code{train_esn()}.}
 
-\item{...}{Currently not in use.}
+\item{...}{Further arguments passed to \code{matplot()}.}
 }
 \value{
 Line chart of internal states.

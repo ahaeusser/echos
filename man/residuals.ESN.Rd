@@ -7,7 +7,7 @@
 \method{residuals}{ESN}(object, ...)
 }
 \arguments{
-\item{object}{An object of class \code{ESN}.}
+\item{object}{An object of class \code{mdl_df}, containing an ESN model.}
 
 \item{...}{Currently not in use.}
 }
@@ -15,7 +15,7 @@
 Residuals extracted from the object.
 }
 \description{
-Extract residuals from a trained ESN.
+Extract residuals from a trained ESN as \code{tsibble}.
 }
 \examples{
 library(tsibble)

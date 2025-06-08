@@ -58,11 +58,11 @@ train_esn <- function(y,
   if (is.vector(y) & is.numeric(y)) {
     n_outputs <- 1
   } else {
-    abort("train_esn() requires a numeric vector as input.")
+    stop("train_esn() requires a numeric vector as input.")
   }
   
   if(any(is.na(y))){
-    abort("train_esn() does not support missing values.")
+    stop("train_esn() does not support missing values.")
   }
   
   # Number of observations

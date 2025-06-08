@@ -7,7 +7,7 @@
 \method{summary}{esn}(object, ...)
 }
 \arguments{
-\item{object}{An object of class \code{esn}.}
+\item{object}{An object of class \code{esn}. The result of a call to \code{train_esn()}.}
 
 \item{...}{Currently not in use.}
 }
