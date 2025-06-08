@@ -571,6 +571,7 @@ estimate_ndiff <- function(y,
       return(n_diff)
     }
   }
+  return(max_diff)
 }
 
 
