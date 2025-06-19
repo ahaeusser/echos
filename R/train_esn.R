@@ -84,6 +84,9 @@ train_esn <- function(y,
     n_diff <- estimate_ndiff(y)
   }
   
+  # Set seed for reproducibility
+  set.seed(n_seed)
+  
   # Train model ===============================================================
   
   # Pre-processing ============================================================
@@ -124,9 +127,6 @@ train_esn <- function(y,
   )
   
   # Create hidden layer (reservoir) ===========================================
-  
-  # Set seed for reproducibility
-  set.seed(n_seed)
   
   # Create random weight matrices for the input variables
   win <- create_win(
@@ -169,8 +169,6 @@ train_esn <- function(y,
   # Adjust response and design matrix for initial throw-off and lag-length
   Xt <- Xt[((n_initial + 1):nrow(Xt)), , drop = FALSE]
   yt <- y[((n_initial + 1 + (n_total - n_train)):n_total), , drop = FALSE]
-  
-  set.seed(n_seed)
   
   lambdas <- runif(
     n = n_models,
