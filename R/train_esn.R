@@ -44,7 +44,7 @@ train_esn <- function(y,
                       n_initial = NULL,
                       n_seed = 42,
                       alpha = 1,
-                      rho = 0.95,
+                      rho = 1,
                       density = 0.5,
                       lambda = c(1e-4, 2),
                       scale_win = 0.5,
@@ -211,6 +211,10 @@ train_esn <- function(y,
       model = model_names,
       .before = "loglik") %>%
     arrange(!!sym(inf_crit))
+  
+  # Alternative base R code
+  # model_metrics <- cbind(model = model_names, model_metrics)
+  # model_metrics <- model_metrics[ order(model_metrics[[inf_crit]]) , ]
   
   # Identify best model, lambda and degrees of freedom (extract first row)
   model_best <- model_metrics[["model"]][1]

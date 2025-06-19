@@ -14,7 +14,7 @@ train_esn(
   n_initial = NULL,
   n_seed = 42,
   alpha = 1,
-  rho = 0.95,
+  rho = 1,
   density = 0.5,
   lambda = c(1e-04, 2),
   scale_win = 0.5,
