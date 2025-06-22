@@ -27,7 +27,7 @@ train_esn(
 
 \item{lags}{Integer vector with the lag(s) associated with the input variable.}
 
-\item{inf_crit}{Character value. The information criterion used for variable selection \code{inf_crit = c("aic", "aicc", "bic")}.}
+\item{inf_crit}{Character value. The information criterion used for variable selection \code{inf_crit = c("aic", "aicc", "bic", "hqc")}.}
 
 \item{n_diff}{Integer vector. The nth-differences of the response variable.}
 
