@@ -60,7 +60,7 @@
 <span>  n_initial <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  n_seed <span class="op">=</span> <span class="fl">42</span>,</span>
 <span>  alpha <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  rho <span class="op">=</span> <span class="fl">0.95</span>,</span>
+<span>  rho <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  density <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>  lambda <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1e-04</span>, <span class="fl">2</span><span class="op">)</span>,</span>
 <span>  scale_win <span class="op">=</span> <span class="fl">0.5</span>,</span>
@@ -82,7 +82,7 @@
 
 
 <dt id="arg-inf-crit">inf_crit<a class="anchor" aria-label="anchor" href="#arg-inf-crit"></a></dt>
-<dd><p>Character value. The information criterion used for variable selection <code>inf_crit = c("aic", "aicc", "bic")</code>.</p></dd>
+<dd><p>Character value. The information criterion used for variable selection <code>inf_crit = c("aic", "aicc", "bic", "hqc")</code>.</p></dd>
 
 
 <dt id="arg-n-diff">n_diff<a class="anchor" aria-label="anchor" href="#arg-n-diff"></a></dt>
@@ -156,7 +156,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> --- Reservoir generation ---------------------------------------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> n_states     = 57</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> alpha        = 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> rho          = 0.95</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> rho          = 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> density      = 0.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> scale_inputs = [-0.5, 0.5]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> scale_win    = [-0.5, 0.5]</span>
@@ -164,8 +164,8 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> --- Model selection --------------------------------------------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> n_models     = 114</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> df           = 16.27</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> lambda       = 0.0148</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> df           = 16.68</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> lambda       = 0.0457</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
