@@ -61,6 +61,7 @@
 <span>  n_seed <span class="op">=</span> <span class="fl">42</span>,</span>
 <span>  alpha <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  rho <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  tau <span class="op">=</span> <span class="fl">0.4</span>,</span>
 <span>  density <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>  lambda <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1e-04</span>, <span class="fl">2</span><span class="op">)</span>,</span>
 <span>  scale_win <span class="op">=</span> <span class="fl">0.5</span>,</span>
@@ -90,15 +91,15 @@
 
 
 <dt id="arg-n-states">n_states<a class="anchor" aria-label="anchor" href="#arg-n-states"></a></dt>
-<dd><p>Integer value. The number of internal states per reservoir.</p></dd>
+<dd><p>Integer value. The number of internal states of the reservoir. If <code>n_states = NULL</code>, the reservoir size is determined by <code>tau*n_total</code>, where <code>n_total</code> is the time series length.</p></dd>
 
 
 <dt id="arg-n-models">n_models<a class="anchor" aria-label="anchor" href="#arg-n-models"></a></dt>
-<dd><p>Integer value. The maximum number of (random) models to train for model selection.</p></dd>
+<dd><p>Integer value. The maximum number of (random) models to train for model selection. If <code>n_models = NULL</code>, the number of models is defined as <code>n_states*2</code>.</p></dd>
 
 
 <dt id="arg-n-initial">n_initial<a class="anchor" aria-label="anchor" href="#arg-n-initial"></a></dt>
-<dd><p>Integer value. The number of observations of internal states for initial drop out (throw-off).</p></dd>
+<dd><p>Integer value. The number of observations of internal states for initial drop out (throw-off). If <code>n_initial = NULL</code>, the throw-off is defined as <code>n_total*0.05</code>, where <code>n_total</code> is the time series length.</p></dd>
 
 
 <dt id="arg-n-seed">n_seed<a class="anchor" aria-label="anchor" href="#arg-n-seed"></a></dt>
@@ -111,6 +112,10 @@
 
 <dt id="arg-rho">rho<a class="anchor" aria-label="anchor" href="#arg-rho"></a></dt>
 <dd><p>Numeric value. The spectral radius for scaling the reservoir weight matrix.</p></dd>
+
+
+<dt id="arg-tau">tau<a class="anchor" aria-label="anchor" href="#arg-tau"></a></dt>
+<dd><p>Numeric value. The reservoir scaling parameter to determine the reservoir size based on the time series length.</p></dd>
 
 
 <dt id="arg-density">density<a class="anchor" aria-label="anchor" href="#arg-density"></a></dt>
@@ -177,7 +182,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>
