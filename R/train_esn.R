@@ -9,12 +9,13 @@
 #' @param lags Integer vector with the lag(s) associated with the input variable.
 #' @param inf_crit Character value. The information criterion used for variable selection \code{inf_crit = c("aic", "aicc", "bic", "hqc")}.
 #' @param n_diff Integer vector. The nth-differences of the response variable.
-#' @param n_models Integer value. The maximum number of (random) models to train for model selection.
-#' @param n_states Integer value. The number of internal states per reservoir.
-#' @param n_initial Integer value. The number of observations of internal states for initial drop out (throw-off).
+#' @param n_models Integer value. The maximum number of (random) models to train for model selection. If \code{n_models = NULL}, the number of models is defined as \code{n_states*2}.
+#' @param n_states Integer value. The number of internal states of the reservoir. If \code{n_states = NULL}, the reservoir size is determined by \code{tau*n_total}, where \code{n_total} is the time series length.
+#' @param n_initial Integer value. The number of observations of internal states for initial drop out (throw-off). If \code{n_initial = NULL}, the throw-off is defined as \code{n_total*0.05}, where \code{n_total} is the time series length.
 #' @param n_seed Integer value. The seed for the random number generator (for reproducibility).
 #' @param alpha Numeric value. The leakage rate (smoothing parameter) applied to the reservoir.
 #' @param rho Numeric value. The spectral radius for scaling the reservoir weight matrix.
+#' @param tau Numeric value. The reservoir scaling parameter to determine the reservoir size based on the time series length.
 #' @param density Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).
 #' @param lambda Numeric vector. Lower and upper bound of lambda sequence for ridge regression.
 #' @param scale_win Numeric value. The lower and upper bound of the uniform distribution for scaling the input weight matrix.
@@ -45,6 +46,7 @@ train_esn <- function(y,
                       n_seed = 42,
                       alpha = 1,
                       rho = 1,
+                      tau = 0.4,
                       density = 0.5,
                       lambda = c(1e-4, 2),
                       scale_win = 0.5,
@@ -69,7 +71,7 @@ train_esn <- function(y,
   n_total <- length(y)
   
   if (is.null(n_states)) {
-    n_states <- min(floor(n_total * 0.4), 200)
+    n_states <- min(floor(n_total * tau), 200)
   }
   
   if (is.null(n_models)) {

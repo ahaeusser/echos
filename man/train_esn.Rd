@@ -15,6 +15,7 @@ train_esn(
   n_seed = 42,
   alpha = 1,
   rho = 1,
+  tau = 0.4,
   density = 0.5,
   lambda = c(1e-04, 2),
   scale_win = 0.5,
@@ -31,17 +32,19 @@ train_esn(
 
 \item{n_diff}{Integer vector. The nth-differences of the response variable.}
 
-\item{n_states}{Integer value. The number of internal states per reservoir.}
+\item{n_states}{Integer value. The number of internal states of the reservoir. If \code{n_states = NULL}, the reservoir size is determined by \code{tau*n_total}, where \code{n_total} is the time series length.}
 
-\item{n_models}{Integer value. The maximum number of (random) models to train for model selection.}
+\item{n_models}{Integer value. The maximum number of (random) models to train for model selection. If \code{n_models = NULL}, the number of models is defined as \code{n_states*2}.}
 
-\item{n_initial}{Integer value. The number of observations of internal states for initial drop out (throw-off).}
+\item{n_initial}{Integer value. The number of observations of internal states for initial drop out (throw-off). If \code{n_initial = NULL}, the throw-off is defined as \code{n_total*0.05}, where \code{n_total} is the time series length.}
 
 \item{n_seed}{Integer value. The seed for the random number generator (for reproducibility).}
 
 \item{alpha}{Numeric value. The leakage rate (smoothing parameter) applied to the reservoir.}
 
 \item{rho}{Numeric value. The spectral radius for scaling the reservoir weight matrix.}
+
+\item{tau}{Numeric value. The reservoir scaling parameter to determine the reservoir size based on the time series length.}
 
 \item{density}{Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).}
 
