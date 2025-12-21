@@ -27,3 +27,16 @@ model("ESN" = ESN(value)) \%>\%
 report()
 
 }
+\seealso{
+Other tidy functions: 
+\code{\link{ESN}()},
+\code{\link{filter_esn}()},
+\code{\link{fitted.ESN}()},
+\code{\link{forecast.ESN}()},
+\code{\link{glance.ESN}()},
+\code{\link{model_sum.ESN}()},
+\code{\link{reservoir}()},
+\code{\link{residuals.ESN}()},
+\code{\link{tidy.ESN}()}
+}
+\concept{tidy functions}

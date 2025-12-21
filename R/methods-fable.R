@@ -65,6 +65,8 @@ specials_esn <- new_specials()
 #'
 #' @return An object of class \code{ESN}.
 #' 
+#' @family tidy functions
+#' 
 #' @examples
 #' library(tsibble)
 #' library(fable)
@@ -96,6 +98,8 @@ ESN <- function(formula, ...){
 #' @param x An object of class \code{mdl_df}, containing an ESN model.
 #'
 #' @return Model summary extracted from the object.
+#' 
+#' @family tidy functions
 #' 
 #' @examples
 #' library(tsibble)
@@ -130,6 +134,8 @@ model_sum.ESN <- function(x){
 #' @param ... Currently not in use.
 #' 
 #' @return An object of class \code{fbl_ts} ("fable").
+#' 
+#' @family tidy functions
 #' 
 #' @examples
 #' library(tsibble)
@@ -185,6 +191,8 @@ forecast.ESN <- function(object,
 #'
 #' @return Fitted values extracted from the object.
 #' 
+#' @family tidy functions
+#' 
 #' @examples
 #' library(tsibble)
 #' library(fable)
@@ -209,6 +217,8 @@ fitted.ESN <- function(object, ...){
 #' @param ... Currently not in use.
 #'
 #' @return Residuals extracted from the object.
+#' 
+#' @family tidy functions
 #' 
 #' @examples
 #' library(tsibble)
@@ -235,6 +245,8 @@ residuals.ESN <- function(object, ...){
 #' @param ... Currently not in use.
 #'
 #' @return Coefficients extracted from the object.
+#' 
+#' @family tidy functions
 #' 
 #' @examples
 #' library(tsibble)
@@ -282,6 +294,8 @@ tidy.ESN <- function(x, ...) {
 #'
 #' @return Summary statistics extracted from the object.
 #' 
+#' @family tidy functions
+#' 
 #' @examples
 #' library(tsibble)
 #' library(fable)
@@ -308,6 +322,8 @@ glance.ESN <- function(x, ...) {
 #'
 #' @return Print detailed model summary.
 #' 
+#' @family tidy functions
+#' 
 #' @examples
 #' library(tsibble)
 #' library(fable)
@@ -333,6 +349,8 @@ report.ESN <- function(object, ...) {
 #' @param object An object of class \code{mdl_df}, containing an ESN model.
 #'
 #' @return An object of class \code{mdl_df} in long-format.
+#' 
+#' @family tidy functions
 #' 
 #' @examples
 #' library(tsibble)
@@ -379,6 +397,8 @@ filter_esn.mdl_df <- function(object) {
 #' @param object An object of class \code{mdl_df}, containing an ESN model.
 #'
 #' @return A tibble containing the reservoir (internal states).
+#' 
+#' @family tidy functions
 #' 
 #' @examples
 #' library(tsibble)

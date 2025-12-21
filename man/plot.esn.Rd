@@ -24,3 +24,14 @@ xmodel <- train_esn(y = xdata)
 plot(xmodel)
 
 }
+\seealso{
+Other base functions: 
+\code{\link{forecast_esn}()},
+\code{\link{is.esn}()},
+\code{\link{is.forecast_esn}()},
+\code{\link{plot.forecast_esn}()},
+\code{\link{print.esn}()},
+\code{\link{summary.esn}()},
+\code{\link{train_esn}()}
+}
+\concept{base functions}

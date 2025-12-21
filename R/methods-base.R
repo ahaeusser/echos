@@ -7,6 +7,8 @@
 #' 
 #' @return Logical value. If \code{TRUE}, the object is of class "esn".
 #' 
+#' @family base functions
+#' 
 #' @examples
 #' xdata <- as.numeric(AirPassengers)
 #' xmodel <- train_esn(y = xdata)
@@ -27,6 +29,8 @@ is.esn <- function(object) {
 #' @param object object to be tested.
 #' 
 #' @return Logical value. If \code{TRUE}, the object is of class "forecast_esn".
+#' 
+#' @family base functions
 #' 
 #' @examples
 #' xdata <- as.numeric(AirPassengers)
@@ -52,6 +56,8 @@ is.forecast_esn <- function(object) {
 #'
 #' @return Print specification of the trained ESN model.
 #' 
+#' @family base functions
+#' 
 #' @examples
 #' xdata <- as.numeric(AirPassengers)
 #' xmodel <- train_esn(y = xdata)
@@ -73,6 +79,8 @@ print.esn <- function(x, ...) {
 #' @param ... Currently not in use.
 #'
 #' @return Print detailed model summary.
+#' 
+#' @family base functions
 #' 
 #' @examples
 #' xdata <- as.numeric(AirPassengers)
@@ -151,6 +159,8 @@ summary.esn <- function(object, ...) {
 #'
 #' @return Line chart of internal states.
 #' 
+#' @family base functions
+#' 
 #' @examples
 #' xdata <- as.numeric(AirPassengers)
 #' xmodel <- train_esn(y = xdata)
@@ -196,6 +206,8 @@ plot.esn <- function(x,
 #' @param ... Currently not in use.
 #'
 #' @return Line chart of point forecast and actual values.
+#' 
+#' @family base functions
 #' 
 #' @examples
 #' xdata <- as.numeric(AirPassengers)

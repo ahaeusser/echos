@@ -75,4 +75,24 @@ Train an Echo State Network (ESN) to a univariate time series.
 xdata <- as.numeric(AirPassengers)
 xmodel <- train_esn(y = xdata)
 summary(xmodel)
+
 }
+\references{
+\itemize{
+      \item{Jaeger, H. (2001). The “echo state” approach to analysing and training recurrent neural networks with an erratum note. Bonn, Germany: German National Research Center for Information Technology GMD Technical Report, 148(34):13.}
+      \item{Jaeger, H. (2002). Tutorial on training recurrent neural networks, covering BPPT, RTRL, EKF and the "echo state network" approach.}
+      \item{Lukosevicius, M. (2012). A practical guide to applying echo state networks. In Neural Networks: Tricks of the Trade: Second Edition, pages 659–686. Springer.}
+      \item{Lukosevicius, M. and Jaeger, H. (2009). Reservoir computing approaches to recurrent neural network training. Computer Science Review, 3(3):127–149.}
+   }
+}
+\seealso{
+Other base functions: 
+\code{\link{forecast_esn}()},
+\code{\link{is.esn}()},
+\code{\link{is.forecast_esn}()},
+\code{\link{plot.esn}()},
+\code{\link{plot.forecast_esn}()},
+\code{\link{print.esn}()},
+\code{\link{summary.esn}()}
+}
+\concept{base functions}

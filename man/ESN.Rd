@@ -29,3 +29,16 @@ as_tsibble() \%>\%
 model("ESN" = ESN(value))
 
 }
+\seealso{
+Other tidy functions: 
+\code{\link{filter_esn}()},
+\code{\link{fitted.ESN}()},
+\code{\link{forecast.ESN}()},
+\code{\link{glance.ESN}()},
+\code{\link{model_sum.ESN}()},
+\code{\link{report.ESN}()},
+\code{\link{reservoir}()},
+\code{\link{residuals.ESN}()},
+\code{\link{tidy.ESN}()}
+}
+\concept{tidy functions}

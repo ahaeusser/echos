@@ -34,3 +34,14 @@ xfcst <- forecast_esn(xmodel, n_ahead = 12)
 plot(xfcst)
 
 }
+\seealso{
+Other base functions: 
+\code{\link{forecast_esn}()},
+\code{\link{is.esn}()},
+\code{\link{is.forecast_esn}()},
+\code{\link{plot.esn}()},
+\code{\link{print.esn}()},
+\code{\link{summary.esn}()},
+\code{\link{train_esn}()}
+}
+\concept{base functions}
