@@ -1,3 +1,11 @@
+# echos 1.0.3
+
+## New features
+* Added reservoir scaling parameter `tau` to `train_esn()`, enabling dynamic control of reservoir size.
+
+## Improvements
+* Improved documentation
+
 # echos 1.0.2
 
 ## New features
