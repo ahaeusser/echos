@@ -46,6 +46,19 @@ glance(x, ...)
 
 Summary statistics extracted from the object.
 
+## See also
+
+Other tidy functions:
+[`ESN()`](https://ahaeusser.github.io/echos/reference/ESN.md),
+[`filter_esn()`](https://ahaeusser.github.io/echos/reference/filter_esn.md),
+[`fitted.ESN()`](https://ahaeusser.github.io/echos/reference/fitted.ESN.md),
+[`forecast.ESN()`](https://ahaeusser.github.io/echos/reference/forecast.ESN.md),
+[`model_sum.ESN()`](https://ahaeusser.github.io/echos/reference/model_sum.ESN.md),
+[`report.ESN()`](https://ahaeusser.github.io/echos/reference/report.ESN.md),
+[`reservoir()`](https://ahaeusser.github.io/echos/reference/reservoir.md),
+[`residuals.ESN()`](https://ahaeusser.github.io/echos/reference/residuals.ESN.md),
+[`tidy.ESN()`](https://ahaeusser.github.io/echos/reference/tidy.ESN.md)
+
 ## Examples
 
 ``` r

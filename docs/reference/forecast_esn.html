@@ -97,6 +97,25 @@
 <li><p><code>n_ahead</code>: Integer value. The number of periods for forecasting (forecast horizon).</p></li>
 <li><p><code>model_spec</code>: Character value. The model specification as string.</p></li>
 </ul></div>
+    <div class="section level2">
+    <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
+
+<ul><li><p>Jaeger, H. (2001). The “echo state” approach to analysing and training recurrent neural networks with an erratum note. Bonn, Germany: German National Research Center for Information Technology GMD Technical Report, 148(34):13.</p></li>
+<li><p>Jaeger, H. (2002). Tutorial on training recurrent neural networks, covering BPPT, RTRL, EKF and the "echo state network" approach.</p></li>
+<li><p>Lukosevicius, M. (2012). A practical guide to applying echo state networks. In Neural Networks: Tricks of the Trade: Second Edition, pages 659–686. Springer.</p></li>
+<li><p>Lukosevicius, M. and Jaeger, H. (2009). Reservoir computing approaches to recurrent neural network training. Computer Science Review, 3(3):127–149.</p></li>
+</ul></div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p>Other base functions:
+<code><a href="is.esn.html">is.esn()</a></code>,
+<code><a href="is.forecast_esn.html">is.forecast_esn()</a></code>,
+<code><a href="plot.esn.html">plot.esn()</a></code>,
+<code><a href="plot.forecast_esn.html">plot.forecast_esn()</a></code>,
+<code><a href="print.esn.html">print.esn()</a></code>,
+<code><a href="summary.esn.html">summary.esn()</a></code>,
+<code><a href="train_esn.html">train_esn()</a></code></p></div>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
@@ -105,6 +124,7 @@
 <span class="r-in"><span><span class="va">xfcst</span> <span class="op">&lt;-</span> <span class="fu">forecast_esn</span><span class="op">(</span><span class="va">xmodel</span>, n_ahead <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">xfcst</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="forecast_esn-1.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

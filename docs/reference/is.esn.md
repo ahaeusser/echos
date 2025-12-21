@@ -18,6 +18,17 @@ is.esn(object)
 
 Logical value. If `TRUE`, the object is of class "esn".
 
+## See also
+
+Other base functions:
+[`forecast_esn()`](https://ahaeusser.github.io/echos/reference/forecast_esn.md),
+[`is.forecast_esn()`](https://ahaeusser.github.io/echos/reference/is.forecast_esn.md),
+[`plot.esn()`](https://ahaeusser.github.io/echos/reference/plot.esn.md),
+[`plot.forecast_esn()`](https://ahaeusser.github.io/echos/reference/plot.forecast_esn.md),
+[`print.esn()`](https://ahaeusser.github.io/echos/reference/print.esn.md),
+[`summary.esn()`](https://ahaeusser.github.io/echos/reference/summary.esn.md),
+[`train_esn()`](https://ahaeusser.github.io/echos/reference/train_esn.md)
+
 ## Examples
 
 ``` r

@@ -26,6 +26,17 @@ plot(x, ...)
 
 Line chart of internal states.
 
+## See also
+
+Other base functions:
+[`forecast_esn()`](https://ahaeusser.github.io/echos/reference/forecast_esn.md),
+[`is.esn()`](https://ahaeusser.github.io/echos/reference/is.esn.md),
+[`is.forecast_esn()`](https://ahaeusser.github.io/echos/reference/is.forecast_esn.md),
+[`plot.forecast_esn()`](https://ahaeusser.github.io/echos/reference/plot.forecast_esn.md),
+[`print.esn()`](https://ahaeusser.github.io/echos/reference/print.esn.md),
+[`summary.esn()`](https://ahaeusser.github.io/echos/reference/summary.esn.md),
+[`train_esn()`](https://ahaeusser.github.io/echos/reference/train_esn.md)
+
 ## Examples
 
 ``` r

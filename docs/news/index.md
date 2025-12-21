@@ -1,5 +1,17 @@
 # Changelog
 
+## echos 1.0.3
+
+### New features
+
+- Added reservoir scaling parameter `tau` to
+  [`train_esn()`](https://ahaeusser.github.io/echos/reference/train_esn.md),
+  enabling dynamic control of reservoir size.
+
+### Improvements
+
+- Improved documentation
+
 ## echos 1.0.2
 
 CRAN release: 2025-06-23

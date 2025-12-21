@@ -65,6 +65,35 @@ A `list` containing:
 
 - `model_spec`: Character value. The model specification as string.
 
+## References
+
+- Jaeger, H. (2001). The “echo state” approach to analysing and training
+  recurrent neural networks with an erratum note. Bonn, Germany: German
+  National Research Center for Information Technology GMD Technical
+  Report, 148(34):13.
+
+- Jaeger, H. (2002). Tutorial on training recurrent neural networks,
+  covering BPPT, RTRL, EKF and the "echo state network" approach.
+
+- Lukosevicius, M. (2012). A practical guide to applying echo state
+  networks. In Neural Networks: Tricks of the Trade: Second Edition,
+  pages 659–686. Springer.
+
+- Lukosevicius, M. and Jaeger, H. (2009). Reservoir computing approaches
+  to recurrent neural network training. Computer Science Review,
+  3(3):127–149.
+
+## See also
+
+Other base functions:
+[`is.esn()`](https://ahaeusser.github.io/echos/reference/is.esn.md),
+[`is.forecast_esn()`](https://ahaeusser.github.io/echos/reference/is.forecast_esn.md),
+[`plot.esn()`](https://ahaeusser.github.io/echos/reference/plot.esn.md),
+[`plot.forecast_esn()`](https://ahaeusser.github.io/echos/reference/plot.forecast_esn.md),
+[`print.esn()`](https://ahaeusser.github.io/echos/reference/print.esn.md),
+[`summary.esn()`](https://ahaeusser.github.io/echos/reference/summary.esn.md),
+[`train_esn()`](https://ahaeusser.github.io/echos/reference/train_esn.md)
+
 ## Examples
 
 ``` r
@@ -72,4 +101,5 @@ xdata <- as.numeric(AirPassengers)
 xmodel <- train_esn(y = xdata)
 xfcst <- forecast_esn(xmodel, n_ahead = 12)
 plot(xfcst)
+
 ```
