@@ -19,7 +19,7 @@
 
 \item{new_data}{Forecast horizon (n-step ahead forecast).}
 
-\item{normal}{Logical value. If \code{TRUE}, dist_normal() is used, otherwise dist_sample().}
+\item{normal}{Logical value. If \code{TRUE}, \code{dist_normal()} is used, otherwise \code{dist_sample()}.}
 
 \item{n_sim}{Integer value. The number of future sample path generated during simulation.}
 

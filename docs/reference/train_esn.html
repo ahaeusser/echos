@@ -107,35 +107,35 @@
 
 
 <dt id="arg-alpha">alpha<a class="anchor" aria-label="anchor" href="#arg-alpha"></a></dt>
-<dd><p>Numeric value. The leakage rate (smoothing parameter) applied to the reservoir.</p></dd>
+<dd><p>Numeric value. The leakage rate (smoothing parameter) applied to the reservoir (value greater than 0 and less than or equal to 1).</p></dd>
 
 
 <dt id="arg-rho">rho<a class="anchor" aria-label="anchor" href="#arg-rho"></a></dt>
-<dd><p>Numeric value. The spectral radius for scaling the reservoir weight matrix.</p></dd>
+<dd><p>Numeric value. The spectral radius for scaling the reservoir weight matrix (value often between 0 and 1, but values above 1 are possible).</p></dd>
 
 
 <dt id="arg-tau">tau<a class="anchor" aria-label="anchor" href="#arg-tau"></a></dt>
-<dd><p>Numeric value. The reservoir scaling parameter to determine the reservoir size based on the time series length.</p></dd>
+<dd><p>Numeric value. The reservoir scaling parameter to determine the reservoir size based on the time series length (value greater than 0 and less than or equal to 1).</p></dd>
 
 
 <dt id="arg-density">density<a class="anchor" aria-label="anchor" href="#arg-density"></a></dt>
-<dd><p>Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).</p></dd>
+<dd><p>Numeric value. The connectivity of the reservoir weight matrix (dense or sparse) (value greater than 0 and less than or equal to 1).</p></dd>
 
 
 <dt id="arg-lambda">lambda<a class="anchor" aria-label="anchor" href="#arg-lambda"></a></dt>
-<dd><p>Numeric vector. Lower and upper bound of lambda sequence for ridge regression.</p></dd>
+<dd><p>Numeric vector. Lower and upper bound of lambda sequence for ridge regression (numeric vector of length 2 with both values greater than 0 and <code>lambda[1]</code> &lt; <code>lambda[2]</code>).</p></dd>
 
 
 <dt id="arg-scale-win">scale_win<a class="anchor" aria-label="anchor" href="#arg-scale-win"></a></dt>
-<dd><p>Numeric value. The lower and upper bound of the uniform distribution for scaling the input weight matrix.</p></dd>
+<dd><p>Numeric value. The lower and upper bound of the uniform distribution for scaling the input weight matrix (value greater than 0, weights are sampled from U(-<code>scale_win</code>, <code>scale_win</code>)).</p></dd>
 
 
 <dt id="arg-scale-wres">scale_wres<a class="anchor" aria-label="anchor" href="#arg-scale-wres"></a></dt>
-<dd><p>Numeric value. The lower and upper bound of the uniform distribution for scaling the reservoir weight matrix.</p></dd>
+<dd><p>Numeric value. The lower and upper bound of the uniform distribution for scaling the reservoir weight matrix (value greater than 0, weights are sampled from U(-<code>scale_res</code>, <code>scale_res</code>) before applying <code>rho</code> and <code>density</code>).</p></dd>
 
 
 <dt id="arg-scale-inputs">scale_inputs<a class="anchor" aria-label="anchor" href="#arg-scale-inputs"></a></dt>
-<dd><p>Numeric vector. The lower and upper bound for scaling the time series data.</p></dd>
+<dd><p>Numeric vector. The lower and upper bound for scaling the time series data (numeric vector of length 2 with <code>scale_inputs[1]</code> &lt; <code>scale_inputs[2]</code> (often symmetric, e.g., <code>c(-0.5, 0.5)</code> or <code>c(-1, 1)</code>).</p></dd>
 
 </dl></div>
     <div class="section level2">

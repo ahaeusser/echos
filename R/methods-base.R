@@ -1,11 +1,11 @@
 
 #' @title Checks if object is of class "esn"
 #'
-#' @description Returns \code{TRUE} if the object is of class "esn".
+#' @description Returns \code{TRUE} if the object is of class \code{esn}.
 #'
 #' @param object object to be tested.
 #' 
-#' @return Logical value. If \code{TRUE}, the object is of class "esn".
+#' @return Logical value. If \code{TRUE}, the object is of class \code{esn}.
 #' 
 #' @family base functions
 #' 
@@ -24,11 +24,11 @@ is.esn <- function(object) {
 
 #' @title Checks if object is of class "forecast_esn"
 #'
-#' @description Returns \code{TRUE} if the object is of class "forecast_esn".
+#' @description Returns \code{TRUE} if the object is of class \code{forecast_esn}.
 #'
 #' @param object object to be tested.
 #' 
-#' @return Logical value. If \code{TRUE}, the object is of class "forecast_esn".
+#' @return Logical value. If \code{TRUE}, the object is of class \code{forecast_esn}.
 #' 
 #' @family base functions
 #' 

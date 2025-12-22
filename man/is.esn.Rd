@@ -10,10 +10,10 @@ is.esn(object)
 \item{object}{object to be tested.}
 }
 \value{
-Logical value. If \code{TRUE}, the object is of class "esn".
+Logical value. If \code{TRUE}, the object is of class \code{esn}.
 }
 \description{
-Returns \code{TRUE} if the object is of class "esn".
+Returns \code{TRUE} if the object is of class \code{esn}.
 }
 \examples{
 xdata <- as.numeric(AirPassengers)

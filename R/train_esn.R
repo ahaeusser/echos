@@ -13,14 +13,14 @@
 #' @param n_states Integer value. The number of internal states of the reservoir. If \code{n_states = NULL}, the reservoir size is determined by \code{tau*n_total}, where \code{n_total} is the time series length.
 #' @param n_initial Integer value. The number of observations of internal states for initial drop out (throw-off). If \code{n_initial = NULL}, the throw-off is defined as \code{n_total*0.05}, where \code{n_total} is the time series length.
 #' @param n_seed Integer value. The seed for the random number generator (for reproducibility).
-#' @param alpha Numeric value. The leakage rate (smoothing parameter) applied to the reservoir.
-#' @param rho Numeric value. The spectral radius for scaling the reservoir weight matrix.
-#' @param tau Numeric value. The reservoir scaling parameter to determine the reservoir size based on the time series length.
-#' @param density Numeric value. The connectivity of the reservoir weight matrix (dense or sparse).
-#' @param lambda Numeric vector. Lower and upper bound of lambda sequence for ridge regression.
-#' @param scale_win Numeric value. The lower and upper bound of the uniform distribution for scaling the input weight matrix.
-#' @param scale_wres Numeric value. The lower and upper bound of the uniform distribution for scaling the reservoir weight matrix.
-#' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data.
+#' @param alpha Numeric value. The leakage rate (smoothing parameter) applied to the reservoir (value greater than 0 and less than or equal to 1).
+#' @param rho Numeric value. The spectral radius for scaling the reservoir weight matrix (value often between 0 and 1, but values above 1 are possible).
+#' @param tau Numeric value. The reservoir scaling parameter to determine the reservoir size based on the time series length (value greater than 0 and less than or equal to 1).
+#' @param density Numeric value. The connectivity of the reservoir weight matrix (dense or sparse) (value greater than 0 and less than or equal to 1).
+#' @param lambda Numeric vector. Lower and upper bound of lambda sequence for ridge regression (numeric vector of length 2 with both values greater than 0 and \code{lambda[1]} < \code{lambda[2]}).
+#' @param scale_win Numeric value. The lower and upper bound of the uniform distribution for scaling the input weight matrix (value greater than 0, weights are sampled from U(-\code{scale_win}, \code{scale_win})).
+#' @param scale_wres Numeric value. The lower and upper bound of the uniform distribution for scaling the reservoir weight matrix (value greater than 0, weights are sampled from U(-\code{scale_res}, \code{scale_res}) before applying \code{rho} and \code{density}).
+#' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data (numeric vector of length 2 with \code{scale_inputs[1]} < \code{scale_inputs[2]} (often symmetric, e.g., \code{c(-0.5, 0.5)} or \code{c(-1, 1)}).
 #' 
 #' @return A \code{list} containing:
 #'    \itemize{

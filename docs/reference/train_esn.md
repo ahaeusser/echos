@@ -72,42 +72,49 @@ train_esn(
 - alpha:
 
   Numeric value. The leakage rate (smoothing parameter) applied to the
-  reservoir.
+  reservoir (value greater than 0 and less than or equal to 1).
 
 - rho:
 
   Numeric value. The spectral radius for scaling the reservoir weight
-  matrix.
+  matrix (value often between 0 and 1, but values above 1 are possible).
 
 - tau:
 
   Numeric value. The reservoir scaling parameter to determine the
-  reservoir size based on the time series length.
+  reservoir size based on the time series length (value greater than 0
+  and less than or equal to 1).
 
 - density:
 
   Numeric value. The connectivity of the reservoir weight matrix (dense
-  or sparse).
+  or sparse) (value greater than 0 and less than or equal to 1).
 
 - lambda:
 
   Numeric vector. Lower and upper bound of lambda sequence for ridge
-  regression.
+  regression (numeric vector of length 2 with both values greater than 0
+  and `lambda[1]` \< `lambda[2]`).
 
 - scale_win:
 
   Numeric value. The lower and upper bound of the uniform distribution
-  for scaling the input weight matrix.
+  for scaling the input weight matrix (value greater than 0, weights are
+  sampled from U(-`scale_win`, `scale_win`)).
 
 - scale_wres:
 
   Numeric value. The lower and upper bound of the uniform distribution
-  for scaling the reservoir weight matrix.
+  for scaling the reservoir weight matrix (value greater than 0, weights
+  are sampled from U(-`scale_res`, `scale_res`) before applying `rho`
+  and `density`).
 
 - scale_inputs:
 
   Numeric vector. The lower and upper bound for scaling the time series
-  data.
+  data (numeric vector of length 2 with `scale_inputs[1]` \<
+  `scale_inputs[2]` (often symmetric, e.g., `c(-0.5, 0.5)` or
+  `c(-1, 1)`).
 
 ## Value
 

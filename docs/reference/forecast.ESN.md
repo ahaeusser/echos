@@ -36,8 +36,8 @@ forecast(
 
 - normal:
 
-  Logical value. If `TRUE`, dist_normal() is used, otherwise
-  dist_sample().
+  Logical value. If `TRUE`, `dist_normal()` is used, otherwise
+  `dist_sample()`.
 
 - n_sim:
 

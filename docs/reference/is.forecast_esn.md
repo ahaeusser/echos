@@ -1,6 +1,6 @@
 # Checks if object is of class "forecast_esn"
 
-Returns `TRUE` if the object is of class "forecast_esn".
+Returns `TRUE` if the object is of class `forecast_esn`.
 
 ## Usage
 
@@ -16,7 +16,7 @@ is.forecast_esn(object)
 
 ## Value
 
-Logical value. If `TRUE`, the object is of class "forecast_esn".
+Logical value. If `TRUE`, the object is of class `forecast_esn`.
 
 ## See also
 

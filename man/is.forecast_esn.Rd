@@ -10,10 +10,10 @@ is.forecast_esn(object)
 \item{object}{object to be tested.}
 }
 \value{
-Logical value. If \code{TRUE}, the object is of class "forecast_esn".
+Logical value. If \code{TRUE}, the object is of class \code{forecast_esn}.
 }
 \description{
-Returns \code{TRUE} if the object is of class "forecast_esn".
+Returns \code{TRUE} if the object is of class \code{forecast_esn}.
 }
 \examples{
 xdata <- as.numeric(AirPassengers)

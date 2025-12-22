@@ -127,7 +127,7 @@ model_sum.ESN <- function(x){
 #' 
 #' @param object An object of class \code{mdl_df}, containing an ESN model.
 #' @param new_data Forecast horizon (n-step ahead forecast).
-#' @param normal Logical value. If \code{TRUE}, dist_normal() is used, otherwise dist_sample().
+#' @param normal Logical value. If \code{TRUE}, \code{dist_normal()} is used, otherwise \code{dist_sample()}.
 #' @param n_sim Integer value. The number of future sample path generated during simulation.
 #' @param specials Currently not in use.
 #' @param xreg A \code{tsibble} containing exogenous variables.

@@ -1,6 +1,6 @@
 # Checks if object is of class "esn"
 
-Returns `TRUE` if the object is of class "esn".
+Returns `TRUE` if the object is of class `esn`.
 
 ## Usage
 
@@ -16,7 +16,7 @@ is.esn(object)
 
 ## Value
 
-Logical value. If `TRUE`, the object is of class "esn".
+Logical value. If `TRUE`, the object is of class `esn`.
 
 ## See also
 
