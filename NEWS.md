@@ -2,6 +2,7 @@
 
 ## New features
 * Added reservoir scaling parameter `tau` to `train_esn()`, enabling dynamic control of reservoir size.
+* Added `tune_esn()` to tune hyperparameters `alpha`, `rho` and `tau` using rolling forecasts.
 
 ## Improvements
 * Improved documentation
