@@ -1,0 +1,176 @@
+
+#' @title Tune Hyperparameters of an Echo State Network
+#'
+#' @description Tune hyperparameters of an Echo State Network (ESN) based on 
+#'    rolling out-of-sample forecast accuracy. The input series is split into 
+#'    \code{n_split} expanding-window train/test sets with test size 
+#'    \code{n_ahead}. For each split and each hyperparameter combination 
+#'    (\code{alpha, rho, tau}) an ESN is trained via \code{train_esn()} and 
+#'    forecasts are generated via \code{forecast_esn()}.
+#'
+#' @param y Numeric vector containing the response variable.
+#' @param n_ahead Integer value. The number of periods for forecasting (i.e. forecast horizon).
+#' @param n_split Integer value. The number of rolling train/test splits.
+#' @param alpha Numeric vector. The candidate leakage rates (smoothing parameters).
+#' @param rho Numeric vector. The candidate spectral radii.
+#' @param tau Numeric vector. The candidate reservoir scaling values.
+#' @param min_train Integer value. Minimum training sample size for the first split.
+#' @param ... Further arguments passed to \code{train_esn()}.
+#'    
+#' @return A \code{tibble} with one row per hyperparameter combination and split.
+#'    The tibble contains the following columns:
+#'    \itemize{
+#'      \item{\code{alpha}: Numeric value. Leakage rate of the reservoir (smoothing parameter).}
+#'      \item{\code{rho}: Numeric value. Spectral radius used to scale the reservoir weight matrix.}
+#'      \item{\code{tau}: Numeric value. Reservoir scaling parameter used to determine reservoir size.}
+#'      \item{\code{split}: Integer value. Index of the rolling train/test split.}
+#'      \item{\code{train_start}: Integer value. Start index of the training window.}
+#'      \item{\code{train_end}: Integer value. End index of the training window.}
+#'      \item{\code{test_start}: Integer value. Start index of the test window.}
+#'      \item{\code{test_end}: Integer value. End index of the test window.}
+#'      \item{\code{mse}: Numeric value. Mean squared error on the test window (out-of-sample).}
+#'      \item{\code{mae}: Numeric value. Mean absolute error on the test window (out-of-sample).}
+#'    }
+#'
+#' @family base functions
+#'
+#' @examples
+#' xdata <- as.numeric(AirPassengers)
+#' pars <- tune_esn(
+#'   y = xdata,
+#'   n_ahead = 12,
+#'   n_split = 5,
+#'   alpha = c(0.2, 0.5, 1),
+#'   rho   = c(0.5, 1.0),
+#'   tau   = c(0.2, 0.4),
+#'   inf_crit = "bic"
+#' )
+#'
+#' @export
+
+tune_esn <- function(y,
+                     n_ahead = 12,
+                     n_split = 5,
+                     alpha = seq(0.1, 1, by = 0.1),
+                     rho = seq(0.1, 1, by = 0.1),
+                     tau = c(0.1, 0.2, 0.4),
+                     min_train = NULL,
+                     ...) {
+  
+  # Argument handling =========================================================
+  
+  # Check input data
+  if (!(is.vector(y) & is.numeric(y))) {
+    stop("tune_esn() requires a numeric vector as input.")
+  }
+  
+  if (any(is.na(y))) {
+    stop("tune_esn() does not support missing values.")
+  }
+  
+  # Number of observations
+  n_total <- length(y)
+  
+  # Check defaults
+  if (is.null(min_train)) {
+    min_train <- max(30L, 2L * n_ahead)
+  }
+  
+  if (n_ahead < 1) {
+    stop("n_ahead must be >= 1.")
+  }
+  
+  if (n_split < 1) {
+    stop("n_split must be >= 1.")
+  }
+  
+  if (n_total < (min_train + n_ahead)) {
+    stop("Time series too short for given min_train and n_ahead.")
+  }
+  
+  # Create splits =============================================================
+  
+  # Expanding-window splits ending at the end of the series
+  # Each split uses a test window of length n_ahead
+  train_end_last <- n_total - n_ahead
+  
+  train_ends <- train_end_last - (n_split - 1):0 * n_ahead
+  train_ends <- sort(train_ends)
+  
+  # Enforce minimum training size
+  train_ends <- train_ends[train_ends >= min_train]
+  if (length(train_ends) == 0) {
+    stop("No feasible splits. Reduce n_split/n_ahead or min_train.")
+  }
+  
+  splits <- tibble(
+    split = seq_along(train_ends),
+    train_start = 1L,
+    train_end = as.integer(train_ends),
+    test_start = as.integer(train_ends + 1L),
+    test_end = as.integer(train_ends + n_ahead)
+  )
+  
+  # Hyperparameter grid =======================================================
+  
+  grid <- expand_grid(
+    alpha = alpha,
+    rho = rho,
+    tau = tau,
+    split = splits[["split"]]
+  )
+  
+  grid <- left_join(
+    x = grid,
+    y = splits,
+    by = "split") %>%
+    mutate(
+      mse = NA_real_, 
+      mae = NA_real_
+      )
+  
+  n_steps <- nrow(grid)
+  
+  # Tune =====================================================================
+  
+  for (i in seq_len(n_steps)) {
+    
+    alpha <- grid[["alpha"]][i]
+    rho <- grid[["rho"]][i]
+    tau <- grid[["tau"]][i]
+    
+    train_start <- grid[["train_start"]][i]
+    train_end <- grid[["train_end"]][i]
+    test_start <- grid[["test_start"]][i]
+    test_end <- grid[["test_end"]][i]
+    
+    # Prepare train and test data
+    ytrain <- y[(train_start:train_end)]
+    ytest <- y[((test_start):test_end)]
+    
+    # Train ESN model
+    model_fit <- train_esn(
+      y = ytrain,
+      alpha = alpha,
+      rho = rho,
+      tau = tau,
+      ...
+    )
+    
+    # Forecast ESN model
+    model_fcst <- forecast_esn(
+      object = model_fit,
+      n_ahead = n_ahead,
+      n_sim = NULL
+    )
+    
+    error <- ytest - model_fcst[["point"]]
+    mse <- mean(error^2)
+    mae <- mean(abs(error))
+    
+    grid[["mae"]][i] <- mae
+    grid[["mse"]][i] <- mse
+  }
+  
+  return(grid)
+}
