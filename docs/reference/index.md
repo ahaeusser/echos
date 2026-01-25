@@ -6,6 +6,10 @@ Functions and methods for basic time series forecasting
 
 - [`train_esn()`](https://ahaeusser.github.io/echos/reference/train_esn.md)
   : Train an Echo State Network
+- [`forecast_esn()`](https://ahaeusser.github.io/echos/reference/forecast_esn.md)
+  : Forecast an Echo State Network
+- [`tune_esn()`](https://ahaeusser.github.io/echos/reference/tune_esn.md)
+  : Tune Hyperparameters of an Echo State Network
 - [`print(`*`<esn>`*`)`](https://ahaeusser.github.io/echos/reference/print.esn.md)
   : Print model specification of the trained ESN model
 - [`summary(`*`<esn>`*`)`](https://ahaeusser.github.io/echos/reference/summary.esn.md)
@@ -14,8 +18,6 @@ Functions and methods for basic time series forecasting
   Checks if object is of class "esn"
 - [`plot(`*`<esn>`*`)`](https://ahaeusser.github.io/echos/reference/plot.esn.md)
   : Plot internal states of a trained ESN model
-- [`forecast_esn()`](https://ahaeusser.github.io/echos/reference/forecast_esn.md)
-  : Forecast an Echo State Network
 - [`is.forecast_esn()`](https://ahaeusser.github.io/echos/reference/is.forecast_esn.md)
   : Checks if object is of class "forecast_esn"
 - [`plot(`*`<forecast_esn>`*`)`](https://ahaeusser.github.io/echos/reference/plot.forecast_esn.md)

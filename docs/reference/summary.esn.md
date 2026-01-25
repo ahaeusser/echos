@@ -33,7 +33,8 @@ Other base functions:
 [`plot.esn()`](https://ahaeusser.github.io/echos/reference/plot.esn.md),
 [`plot.forecast_esn()`](https://ahaeusser.github.io/echos/reference/plot.forecast_esn.md),
 [`print.esn()`](https://ahaeusser.github.io/echos/reference/print.esn.md),
-[`train_esn()`](https://ahaeusser.github.io/echos/reference/train_esn.md)
+[`train_esn()`](https://ahaeusser.github.io/echos/reference/train_esn.md),
+[`tune_esn()`](https://ahaeusser.github.io/echos/reference/tune_esn.md)
 
 ## Examples
 

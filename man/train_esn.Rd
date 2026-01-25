@@ -93,6 +93,7 @@ Other base functions:
 \code{\link{plot.esn}()},
 \code{\link{plot.forecast_esn}()},
 \code{\link{print.esn}()},
-\code{\link{summary.esn}()}
+\code{\link{summary.esn}()},
+\code{\link{tune_esn}()}
 }
 \concept{base functions}

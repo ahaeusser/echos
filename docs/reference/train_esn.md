@@ -159,7 +159,8 @@ Other base functions:
 [`plot.esn()`](https://ahaeusser.github.io/echos/reference/plot.esn.md),
 [`plot.forecast_esn()`](https://ahaeusser.github.io/echos/reference/plot.forecast_esn.md),
 [`print.esn()`](https://ahaeusser.github.io/echos/reference/print.esn.md),
-[`summary.esn()`](https://ahaeusser.github.io/echos/reference/summary.esn.md)
+[`summary.esn()`](https://ahaeusser.github.io/echos/reference/summary.esn.md),
+[`tune_esn()`](https://ahaeusser.github.io/echos/reference/tune_esn.md)
 
 ## Examples
 

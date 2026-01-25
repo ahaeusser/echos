@@ -7,6 +7,10 @@
 - Added reservoir scaling parameter `tau` to
   [`train_esn()`](https://ahaeusser.github.io/echos/reference/train_esn.md),
   enabling dynamic control of reservoir size.
+- Added
+  [`tune_esn()`](https://ahaeusser.github.io/echos/reference/tune_esn.md)
+  to tune hyperparameters `alpha`, `rho` and `tau` using rolling
+  forecasts.
 
 ### Improvements
 

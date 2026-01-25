@@ -14,11 +14,12 @@ reference:
     Functions and methods for basic time series forecasting
   contents:
     - train_esn
+    - forecast_esn
+    - tune_esn
     - print.esn
     - summary.esn
     - is.esn
     - plot.esn
-    - forecast_esn
     - is.forecast_esn
     - plot.forecast_esn
     - run_reservoir
