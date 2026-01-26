@@ -5,7 +5,7 @@ articles:
   vignette_01_baseR: vignette_01_baseR.html
   vignette_02_tidyR: vignette_02_tidyR.html
   vignette_03_datasets: vignette_03_datasets.html
-last_built: 2026-01-25T14:48Z
+last_built: 2026-01-26T10:00Z
 urls:
   reference: https://ahaeusser.github.io/echos/reference
   article: https://ahaeusser.github.io/echos/articles

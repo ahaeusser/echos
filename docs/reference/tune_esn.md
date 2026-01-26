@@ -1,10 +1,10 @@
 # Tune Hyperparameters of an Echo State Network
 
-Tune hyperparameters of an Echo State Network (ESN) based on rolling
-out-of-sample forecast accuracy. The input series is split into
-`n_split` expanding-window train/test sets with test size `n_ahead`. For
-each split and each hyperparameter combination (`alpha, rho, tau`) an
-ESN is trained via
+Tune hyperparameters of an Echo State Network (ESN) based on time series
+cross-validation (i.e., rolling forecast). The input series is split
+into `n_split` expanding-window train/test sets with test size
+`n_ahead`. For each split and each hyperparameter combination
+(`alpha, rho, tau`) an ESN is trained via
 [`train_esn()`](https://ahaeusser.github.io/echos/reference/train_esn.md)
 and forecasts are generated via
 [`forecast_esn()`](https://ahaeusser.github.io/echos/reference/forecast_esn.md).
@@ -62,33 +62,17 @@ tune_esn(
 
 ## Value
 
-A `tibble` with one row per hyperparameter combination and split. The
-tibble contains the following columns:
+An object of class `"tune_esn"` (a list) with:
 
-- `alpha`: Numeric value. Leakage rate of the reservoir (smoothing
-  parameter).
+- `pars`: A `tibble` with one row per hyperparameter combination and
+  split. Columns include `alpha`, `rho`, `tau`, `split`, `train_start`,
+  `train_end`, `test_start`, `test_end`, `mse`, `mae`, and `id`.
 
-- `rho`: Numeric value. Spectral radius used to scale the reservoir
-  weight matrix.
+- `fcst`: A numeric matrix of point forecasts with
+  `nrow(fcst) == nrow(pars)` and `ncol(fcst) == n_ahead`.
 
-- `tau`: Numeric value. Reservoir scaling parameter used to determine
-  reservoir size.
-
-- `split`: Integer value. Index of the rolling train/test split.
-
-- `train_start`: Integer value. Start index of the training window.
-
-- `train_end`: Integer value. End index of the training window.
-
-- `test_start`: Integer value. Start index of the test window.
-
-- `test_end`: Integer value. End index of the test window.
-
-- `mse`: Numeric value. Mean squared error on the test window
-  (out-of-sample).
-
-- `mae`: Numeric value. Mean absolute error on the test window
-  (out-of-sample).
+- `actual`: The original input series `y` (numeric vector), returned for
+  convenience.
 
 ## See also
 
@@ -106,7 +90,7 @@ Other base functions:
 
 ``` r
 xdata <- as.numeric(AirPassengers)
-pars <- tune_esn(
+fit <- tune_esn(
   y = xdata,
   n_ahead = 12,
   n_split = 5,
@@ -115,4 +99,21 @@ pars <- tune_esn(
   tau   = c(0.2, 0.4),
   inf_crit = "bic"
 )
+
+fit$pars
+#> # A tibble: 60 × 11
+#>    alpha   rho   tau split train_start train_end test_start test_end   mse   mae
+#>    <dbl> <dbl> <dbl> <int>       <int>     <int>      <int>    <int> <dbl> <dbl>
+#>  1   0.2   0.5   0.2     1           1        84         85       96 2079.  32.4
+#>  2   0.2   0.5   0.2     2           1        96         97      108 4143.  47.5
+#>  3   0.2   0.5   0.2     3           1       108        109      120 3236.  46.5
+#>  4   0.2   0.5   0.2     4           1       120        121      132 5204.  50.6
+#>  5   0.2   0.5   0.2     5           1       132        133      144 6725.  58.9
+#>  6   0.2   0.5   0.4     1           1        84         85       96 2288.  35.2
+#>  7   0.2   0.5   0.4     2           1        96         97      108 2756.  38.0
+#>  8   0.2   0.5   0.4     3           1       108        109      120 3133.  47.2
+#>  9   0.2   0.5   0.4     4           1       120        121      132 4009.  48.1
+#> 10   0.2   0.5   0.4     5           1       132        133      144 5852.  54.9
+#> # ℹ 50 more rows
+#> # ℹ 1 more variable: id <int>
 ```
