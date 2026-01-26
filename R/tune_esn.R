@@ -2,8 +2,8 @@
 #' @title Tune Hyperparameters of an Echo State Network
 #'
 #' @description Tune hyperparameters of an Echo State Network (ESN) based on 
-#'    rolling out-of-sample forecast accuracy. The input series is split into 
-#'    \code{n_split} expanding-window train/test sets with test size 
+#'    time series cross-validation (i.e., rolling forecast). The input series is 
+#'    split into \code{n_split} expanding-window train/test sets with test size 
 #'    \code{n_ahead}. For each split and each hyperparameter combination 
 #'    (\code{alpha, rho, tau}) an ESN is trained via \code{train_esn()} and 
 #'    forecasts are generated via \code{forecast_esn()}.
@@ -16,27 +16,22 @@
 #' @param tau Numeric vector. The candidate reservoir scaling values.
 #' @param min_train Integer value. Minimum training sample size for the first split.
 #' @param ... Further arguments passed to \code{train_esn()}.
-#'    
-#' @return A \code{tibble} with one row per hyperparameter combination and split.
-#'    The tibble contains the following columns:
-#'    \itemize{
-#'      \item{\code{alpha}: Numeric value. Leakage rate of the reservoir (smoothing parameter).}
-#'      \item{\code{rho}: Numeric value. Spectral radius used to scale the reservoir weight matrix.}
-#'      \item{\code{tau}: Numeric value. Reservoir scaling parameter used to determine reservoir size.}
-#'      \item{\code{split}: Integer value. Index of the rolling train/test split.}
-#'      \item{\code{train_start}: Integer value. Start index of the training window.}
-#'      \item{\code{train_end}: Integer value. End index of the training window.}
-#'      \item{\code{test_start}: Integer value. Start index of the test window.}
-#'      \item{\code{test_end}: Integer value. End index of the test window.}
-#'      \item{\code{mse}: Numeric value. Mean squared error on the test window (out-of-sample).}
-#'      \item{\code{mae}: Numeric value. Mean absolute error on the test window (out-of-sample).}
-#'    }
+#' 
+#' @return An object of class \code{"tune_esn"} (a list) with:
+#'   \itemize{
+#'      \item \code{pars}: A \code{tibble} with one row per hyperparameter combination and split. Columns include
+#'            \code{alpha}, \code{rho}, \code{tau}, \code{split}, \code{train_start}, \code{train_end}, \code{test_start},
+#'            \code{test_end}, \code{mse}, \code{mae}, and \code{id}.
+#'      \item \code{fcst}: A numeric matrix of point forecasts with \code{nrow(fcst) == nrow(pars)} and
+#'            \code{ncol(fcst) == n_ahead}.
+#'      \item \code{actual}: The original input series \code{y} (numeric vector), returned for convenience.
+#' }
 #'
 #' @family base functions
 #'
 #' @examples
 #' xdata <- as.numeric(AirPassengers)
-#' pars <- tune_esn(
+#' fit <- tune_esn(
 #'   y = xdata,
 #'   n_ahead = 12,
 #'   n_split = 5,
@@ -45,6 +40,8 @@
 #'   tau   = c(0.2, 0.4),
 #'   inf_crit = "bic"
 #' )
+#' 
+#' fit$pars
 #'
 #' @export
 
@@ -88,8 +85,9 @@ tune_esn <- function(y,
     stop("Time series too short for given min_train and n_ahead.")
   }
   
-  # Create splits =============================================================
+  # Pre-processing ============================================================
   
+  # Create splits
   # Expanding-window splits ending at the end of the series
   # Each split uses a test window of length n_ahead
   train_end_last <- n_total - n_ahead
@@ -111,17 +109,16 @@ tune_esn <- function(y,
     test_end = as.integer(train_ends + n_ahead)
   )
   
-  # Hyperparameter grid =======================================================
-  
-  grid <- expand_grid(
+  # Hyperparameter grid
+  pars <- expand_grid(
     alpha = alpha,
     rho = rho,
     tau = tau,
     split = splits[["split"]]
   )
   
-  grid <- left_join(
-    x = grid,
+  pars <- left_join(
+    x = pars,
     y = splits,
     by = "split") %>%
     mutate(
@@ -129,20 +126,27 @@ tune_esn <- function(y,
       mae = NA_real_
       )
   
-  n_steps <- nrow(grid)
+  n_steps <- nrow(pars)
   
-  # Tune =====================================================================
+  # Empty matrix to store points forecasts
+  fcst <- matrix(
+    data = NA_real_,
+    nrow = n_steps,
+    ncol = n_ahead
+  )
+  
+  # Tune hyperparameters ======================================================
   
   for (i in seq_len(n_steps)) {
     
-    alpha <- grid[["alpha"]][i]
-    rho <- grid[["rho"]][i]
-    tau <- grid[["tau"]][i]
+    alpha <- pars[["alpha"]][i]
+    rho <- pars[["rho"]][i]
+    tau <- pars[["tau"]][i]
     
-    train_start <- grid[["train_start"]][i]
-    train_end <- grid[["train_end"]][i]
-    test_start <- grid[["test_start"]][i]
-    test_end <- grid[["test_end"]][i]
+    train_start <- pars[["train_start"]][i]
+    train_end <- pars[["train_end"]][i]
+    test_start <- pars[["test_start"]][i]
+    test_end <- pars[["test_end"]][i]
     
     # Prepare train and test data
     ytrain <- y[(train_start:train_end)]
@@ -164,13 +168,28 @@ tune_esn <- function(y,
       n_sim = NULL
     )
     
-    error <- ytest - model_fcst[["point"]]
+    point <- model_fcst[["point"]]
+    error <- ytest - point
     mse <- mean(error^2)
     mae <- mean(abs(error))
     
-    grid[["mae"]][i] <- mae
-    grid[["mse"]][i] <- mse
+    pars[["mae"]][i] <- mae
+    pars[["mse"]][i] <- mse
+    
+    fcst[i, ] <- point
   }
   
-  return(grid)
+  keys <- do.call(paste, c(pars[c("alpha","rho","tau")], sep = ","))
+  pars[["id"]] <- match(keys, unique(keys))
+  
+  # Post-processing ===========================================================
+  
+  # Output model
+  structure(
+    list(
+      pars = pars,
+      fcst = fcst, 
+      actual = y),
+    class = "tune_esn"
+  )
 }

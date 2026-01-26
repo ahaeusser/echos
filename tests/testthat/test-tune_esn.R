@@ -10,7 +10,7 @@ test_that("tune_esn function works correctly", {
   tau <- c(0.4)
   
   # Test the function call
-  esn_pars <- tune_esn(
+  fit <- tune_esn(
     y = y,
     n_ahead = n_ahead,
     n_split = n_split,
@@ -20,6 +20,10 @@ test_that("tune_esn function works correctly", {
   )
   
   # Test object lengths and dimensions
-  expect_equal(ncol(esn_pars), 10)
-  expect_equal(nrow(esn_pars), n_split * length(alpha) * length(rho) * length(tau))
+  expect_equal(ncol(fit$pars), 11)
+  expect_equal(nrow(fit$pars), n_split * length(alpha) * length(rho) * length(tau))
+  
+  expect_equal(ncol(fit$fcst), n_ahead)
+  expect_equal(nrow(fit$fcst), nrow(fit$pars))
+  
 })

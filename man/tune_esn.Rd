@@ -33,32 +33,27 @@ tune_esn(
 \item{...}{Further arguments passed to \code{train_esn()}.}
 }
 \value{
-A \code{tibble} with one row per hyperparameter combination and split.
-   The tibble contains the following columns:
-   \itemize{
-     \item{\code{alpha}: Numeric value. Leakage rate of the reservoir (smoothing parameter).}
-     \item{\code{rho}: Numeric value. Spectral radius used to scale the reservoir weight matrix.}
-     \item{\code{tau}: Numeric value. Reservoir scaling parameter used to determine reservoir size.}
-     \item{\code{split}: Integer value. Index of the rolling train/test split.}
-     \item{\code{train_start}: Integer value. Start index of the training window.}
-     \item{\code{train_end}: Integer value. End index of the training window.}
-     \item{\code{test_start}: Integer value. Start index of the test window.}
-     \item{\code{test_end}: Integer value. End index of the test window.}
-     \item{\code{mse}: Numeric value. Mean squared error on the test window (out-of-sample).}
-     \item{\code{mae}: Numeric value. Mean absolute error on the test window (out-of-sample).}
-   }
+An object of class \code{"tune_esn"} (a list) with:
+  \itemize{
+     \item \code{pars}: A \code{tibble} with one row per hyperparameter combination and split. Columns include
+           \code{alpha}, \code{rho}, \code{tau}, \code{split}, \code{train_start}, \code{train_end}, \code{test_start},
+           \code{test_end}, \code{mse}, \code{mae}, and \code{id}.
+     \item \code{fcst}: A numeric matrix of point forecasts with \code{nrow(fcst) == nrow(pars)} and
+           \code{ncol(fcst) == n_ahead}.
+     \item \code{actual}: The original input series \code{y} (numeric vector), returned for convenience.
+}
 }
 \description{
 Tune hyperparameters of an Echo State Network (ESN) based on 
-   rolling out-of-sample forecast accuracy. The input series is split into 
-   \code{n_split} expanding-window train/test sets with test size 
+   time series cross-validation (i.e., rolling forecast). The input series is 
+   split into \code{n_split} expanding-window train/test sets with test size 
    \code{n_ahead}. For each split and each hyperparameter combination 
    (\code{alpha, rho, tau}) an ESN is trained via \code{train_esn()} and 
    forecasts are generated via \code{forecast_esn()}.
 }
 \examples{
 xdata <- as.numeric(AirPassengers)
-pars <- tune_esn(
+fit <- tune_esn(
   y = xdata,
   n_ahead = 12,
   n_split = 5,
@@ -67,6 +62,8 @@ pars <- tune_esn(
   tau   = c(0.2, 0.4),
   inf_crit = "bic"
 )
+
+fit$pars
 
 }
 \seealso{
