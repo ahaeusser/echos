@@ -17,7 +17,7 @@
 
 \item{n_obs}{Integer value. If \code{NULL}, all in-sample values are shown, otherwise only the last \code{n_obs}.}
 
-\item{...}{Currently not in use.}
+\item{...}{Further arguments passed to \code{plot()}.}
 }
 \value{
 Line chart of point forecast and actual values.
@@ -39,9 +39,12 @@ Other base functions:
 \code{\link{forecast_esn}()},
 \code{\link{is.esn}()},
 \code{\link{is.forecast_esn}()},
+\code{\link{is.tune_esn}()},
 \code{\link{plot.esn}()},
+\code{\link{plot.tune_esn}()},
 \code{\link{print.esn}()},
 \code{\link{summary.esn}()},
+\code{\link{summary.tune_esn}()},
 \code{\link{train_esn}()},
 \code{\link{tune_esn}()}
 }

@@ -1,7 +1,7 @@
 
 #' @importFrom tidyr pivot_longer expand_grid
 #' @importFrom rlang .data enquo sym
-#' @importFrom stats complete.cases diffinv na.omit runif quantile sd lm residuals
+#' @importFrom stats complete.cases diffinv na.omit runif quantile sd lm residuals aggregate
 #' @importFrom graphics lines par abline matplot polygon
 #' @importFrom grDevices adjustcolor colorRampPalette
 #' @importFrom utils tail

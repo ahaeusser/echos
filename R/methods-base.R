@@ -21,7 +21,6 @@ is.esn <- function(object) {
 }
 
 
-
 #' @title Checks if object is of class "forecast_esn"
 #'
 #' @description Returns \code{TRUE} if the object is of class \code{forecast_esn}.
@@ -44,6 +43,35 @@ is.forecast_esn <- function(object) {
   inherits(object, "forecast_esn")
 }
 
+
+#' @title Checks if object is of class "tune_esn"
+#'
+#' @description Returns \code{TRUE} if the object is of class \code{tune_esn}.
+#'
+#' @param object object to be tested.
+#' 
+#' @return Logical value. If \code{TRUE}, the object is of class \code{tune_esn}.
+#' 
+#' @family base functions
+#' 
+#' @examples
+#' xdata <- as.numeric(AirPassengers)
+#' fit <- tune_esn(
+#'   y = xdata,
+#'   n_ahead = 12,
+#'   n_split = 5,
+#'   alpha = c(0.2, 0.5, 1),
+#'   rho   = c(0.5, 1.0),
+#'   tau   = c(0.2, 0.4),
+#'   inf_crit = "bic"
+#' )
+#' is.tune_esn(fit)
+#' 
+#' @export
+
+is.tune_esn <- function(object) {
+  inherits(object, "tune_esn")
+}
 
 
 #' @title Print model specification of the trained ESN model
@@ -149,6 +177,60 @@ summary.esn <- function(object, ...) {
 }
 
 
+
+#' @title Provide a summary of the hyperparameter tuning
+#' 
+#' @description Provide a summary of the tuned hyperparameters \code{alpha}, 
+#'   \code{rho} and \code{tau}.
+#'
+#' @param object An object of class \code{tune_esn}. The result of a call to \code{tune_esn()}.
+#' @param ... Currently not in use.
+#'
+#' @return Print detailed model summary.
+#' 
+#' @family base functions
+#' 
+#' @examples
+#' xdata <- as.numeric(AirPassengers)
+#' fit <- tune_esn(
+#'   y = xdata,
+#'   n_ahead = 12,
+#'   n_split = 5,
+#'   alpha = c(0.2, 0.5, 1),
+#'   rho   = c(0.5, 1.0),
+#'   tau   = c(0.2, 0.4),
+#'   inf_crit = "bic"
+#' )
+#' 
+#' summary(fit)
+#' 
+#' @export
+
+summary.tune_esn <- function(object, 
+                             metric = "mse", 
+                             ...) {
+  
+  if (!is.tune_esn(object))
+    stop("x must be an object of class tune_esn")
+  
+  pars <- object[["pars"]]
+  
+  # Calculate mean
+  xpars <- aggregate(
+    x   = pars[[metric]],
+    by  = list(id = pars$id),
+    FUN = mean,
+    na.rm = TRUE
+  )
+  
+  names(xpars)[2] <- "mean"
+  best_id <- which.min(xpars$mean)
+  pars <- pars[pars$id == best_id, ]
+  return(pars)
+}
+
+
+
 #' @title Plot internal states of a trained ESN model
 #' 
 #' @description Plot internal states (i.e., the reservoir) of a trained ESN 
@@ -203,7 +285,7 @@ plot.esn <- function(x,
 #' @param fitted Logical value. If \code{TRUE}, fitted values are added.
 #' @param interval Logical value. If \code{TRUE}, forecast intervals are added.
 #' @param n_obs Integer value. If \code{NULL}, all in-sample values are shown, otherwise only the last \code{n_obs}.
-#' @param ... Currently not in use.
+#' @param ... Further arguments passed to \code{plot()}.
 #'
 #' @return Line chart of point forecast and actual values.
 #' 
@@ -306,7 +388,8 @@ plot.forecast_esn <- function(x,
     main = model_spec,
     ylim = c(ymin, ymax),
     xlab = "Index",
-    ylab = "Value"
+    ylab = "Value",
+    ...
   )
   
   # Add test data
@@ -374,5 +457,100 @@ plot.forecast_esn <- function(x,
     y = xpoint, 
     col = "steelblue",
     lwd = 2
+  )
+}
+
+
+
+
+#' @title Plot forecasts from a tuned ESN object
+#' 
+#' @description Plot actual values and the point forecasts from the best 
+#'   hyperparameter combination selected via \code{tune.esn()} using the 
+#'   selected accuracy metric. Forecasts are shown as separate line segments 
+#'   for each test split, with vertical dashed lines marking the starts of test 
+#'   windows.
+#'
+#' @param x An object of class \code{tune_esn}. The result of a call to \code{tune_esn()}.
+#' @param metric Character scalar giving the metric used to select the best hyperparameter combination. Typically one of \code{"mse"} or \code{"mae"}.
+#' @param ... Further arguments passed to \code{plot()}.
+#'
+#' @return Line chart of point forecast and actual values.
+#' 
+#' @family base functions
+#' 
+#' @examples
+#' xdata <- as.numeric(AirPassengers)
+#' fit <- tune_esn(
+#'   y = xdata,
+#'   n_ahead = 12,
+#'   n_split = 5,
+#'   alpha = c(0.2, 0.5, 1),
+#'   rho   = c(0.5, 1.0),
+#'   tau   = c(0.2, 0.4),
+#'   inf_crit = "bic"
+#' )
+#' 
+#' plot(fit)
+#' 
+#' @export
+
+plot.tune_esn <- function(x,
+                          metric = "mse",
+                          ...) {
+  
+  if (!is.tune_esn(x))
+    stop("x must be an object of class tune_esn")
+  
+  # Pre-processing ============================================================
+  
+  # Extract objects
+  pars <- x[["pars"]]
+  fcst <- x[["fcst"]]
+  actual <- x[["actual"]]
+  
+  # Select optimal hyperparameter combination
+  best_pars <- summary(x, metric = metric)
+  best_id <- unique(best_pars[["id"]])
+  idx <- which(pars$id == best_id)
+  
+  # Number of observations
+  nobs <- length(actual)
+  
+  # Establish limits of y-axis
+  ymin <- min(actual, as.numeric(fcst[idx, , drop = FALSE]), na.rm = TRUE)
+  ymax <- max(actual, as.numeric(fcst[idx, , drop = FALSE]), na.rm = TRUE)
+  
+  # Create base plot ============================================================
+  
+  plot(
+    x = seq_len(nobs),
+    y = actual,
+    type = "l",
+    main = "Time Series Cross-Validation",
+    ylim = c(ymin, ymax),
+    xlab = "Index",
+    ylab = "Value",
+    ...
+  )
+  
+  # Add line for point forecasts (each split as its own segment)
+  for (j in seq_along(idx)) {
+    i <- idx[j]
+    ts <- best_pars[["test_start"]][j]:best_pars[["test_end"]][j]
+    h <- length(ts)
+    lines(
+      x = ts, 
+      y = fcst[i, seq_len(h)], 
+      col = "steelblue", 
+      lwd = 2
+    )
+  }
+  
+  # Vertical lines at test window starts
+  abline(
+    v = unique(best_pars[["test_start"]]),
+    col = "black", 
+    lty = "dashed"
   )
 }

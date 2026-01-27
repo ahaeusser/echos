@@ -61,10 +61,13 @@ plot(xfcst)
 Other base functions: 
 \code{\link{is.esn}()},
 \code{\link{is.forecast_esn}()},
+\code{\link{is.tune_esn}()},
 \code{\link{plot.esn}()},
 \code{\link{plot.forecast_esn}()},
+\code{\link{plot.tune_esn}()},
 \code{\link{print.esn}()},
 \code{\link{summary.esn}()},
+\code{\link{summary.tune_esn}()},
 \code{\link{train_esn}()},
 \code{\link{tune_esn}()}
 }

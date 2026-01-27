@@ -1,5 +1,5 @@
 
-#' @title Tune Hyperparameters of an Echo State Network
+#' @title Tune hyperparameters of an Echo State Network
 #'
 #' @description Tune hyperparameters of an Echo State Network (ESN) based on 
 #'    time series cross-validation (i.e., rolling forecast). The input series is 

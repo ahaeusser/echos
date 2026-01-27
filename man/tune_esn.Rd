@@ -2,7 +2,7 @@
 % Please edit documentation in R/tune_esn.R
 \name{tune_esn}
 \alias{tune_esn}
-\title{Tune Hyperparameters of an Echo State Network}
+\title{Tune hyperparameters of an Echo State Network}
 \usage{
 tune_esn(
   y,
@@ -71,10 +71,13 @@ Other base functions:
 \code{\link{forecast_esn}()},
 \code{\link{is.esn}()},
 \code{\link{is.forecast_esn}()},
+\code{\link{is.tune_esn}()},
 \code{\link{plot.esn}()},
 \code{\link{plot.forecast_esn}()},
+\code{\link{plot.tune_esn}()},
 \code{\link{print.esn}()},
 \code{\link{summary.esn}()},
+\code{\link{summary.tune_esn}()},
 \code{\link{train_esn}()}
 }
 \concept{base functions}
