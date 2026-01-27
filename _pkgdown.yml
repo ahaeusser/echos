@@ -18,10 +18,13 @@ reference:
     - tune_esn
     - print.esn
     - summary.esn
+    - summary.tune_esn
     - is.esn
-    - plot.esn
     - is.forecast_esn
+    - is.tune_esn
+    - plot.esn
     - plot.forecast_esn
+    - plot.tune_esn
     - run_reservoir
     
 - title: Tidy functions

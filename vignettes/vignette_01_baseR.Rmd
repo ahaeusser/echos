@@ -91,3 +91,29 @@ xfcst$interval
 # Plot forecast and test data
 plot(xfcst, test = xtest)
 ```
+
+
+## Hyperparameter tuning
+
+We first convert the built-in `AirPassengers` series to a numeric vector and call `tune_esn()` to evaluate a grid of candidate values. Here, `n_ahead = 12` produces 12-step-ahead forecasts, and `n_split = 5` creates five rolling train/test splits. For each split and each hyperparameter combination, the model is fitted on the training window and evaluated on the subsequent test window.
+
+`summary(xfit)` reports the best hyperparameter set according to the default accuracy metric (MSE unless you specify `metric = "mae"`), along with the corresponding performance. `plot(xfit)` visualizes the actual data together with the point forecasts from the selected “best” configuration. Forecasts are drawn as separate line segments over each test window, and vertical dashed lines indicate where each test window begins, making it easy to see how performance varies across splits.
+
+```{r tuning, fig.alt = "Time series cross-validation"}
+# Prepare data
+xdata <- as.numeric(AirPassengers)
+
+# Tune hyperparameters via time series cross-validation
+xfit <- tune_esn(
+  y = xdata,
+  n_ahead = 12,
+  n_split = 5,
+  alpha = seq(0.1, 1.0, 0.1),
+  rho   = c(1.0),
+  tau   = c(0.4)
+)
+
+# Summarize and visualize optimal hyperparameter configuration
+summary(xfit)
+plot(xfit)
+```

@@ -32,11 +32,13 @@
 <url><loc>https://ahaeusser.github.io/echos/reference/inv_diff_vec.html</loc></url>
 <url><loc>https://ahaeusser.github.io/echos/reference/is.esn.html</loc></url>
 <url><loc>https://ahaeusser.github.io/echos/reference/is.forecast_esn.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/is.tune_esn.html</loc></url>
 <url><loc>https://ahaeusser.github.io/echos/reference/m4_data.html</loc></url>
 <url><loc>https://ahaeusser.github.io/echos/reference/m4_monthly.html</loc></url>
 <url><loc>https://ahaeusser.github.io/echos/reference/model_sum.ESN.html</loc></url>
 <url><loc>https://ahaeusser.github.io/echos/reference/plot.esn.html</loc></url>
 <url><loc>https://ahaeusser.github.io/echos/reference/plot.forecast_esn.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/plot.tune_esn.html</loc></url>
 <url><loc>https://ahaeusser.github.io/echos/reference/predict_esn.html</loc></url>
 <url><loc>https://ahaeusser.github.io/echos/reference/print.esn.html</loc></url>
 <url><loc>https://ahaeusser.github.io/echos/reference/random_const.html</loc></url>
@@ -52,6 +54,7 @@
 <url><loc>https://ahaeusser.github.io/echos/reference/simulate_esn.html</loc></url>
 <url><loc>https://ahaeusser.github.io/echos/reference/spot_price.html</loc></url>
 <url><loc>https://ahaeusser.github.io/echos/reference/summary.esn.html</loc></url>
+<url><loc>https://ahaeusser.github.io/echos/reference/summary.tune_esn.html</loc></url>
 <url><loc>https://ahaeusser.github.io/echos/reference/synthetic_data.html</loc></url>
 <url><loc>https://ahaeusser.github.io/echos/reference/tidy.ESN.html</loc></url>
 <url><loc>https://ahaeusser.github.io/echos/reference/train_esn.html</loc></url>

@@ -60,9 +60,9 @@ is.forecast_esn <- function(object) {
 #'   y = xdata,
 #'   n_ahead = 12,
 #'   n_split = 5,
-#'   alpha = c(0.2, 0.5, 1),
-#'   rho   = c(0.5, 1.0),
-#'   tau   = c(0.2, 0.4),
+#'   alpha = c(0.5, 1),
+#'   rho   = c(1.0),
+#'   tau   = c(0.4),
 #'   inf_crit = "bic"
 #' )
 #' is.tune_esn(fit)
@@ -184,6 +184,7 @@ summary.esn <- function(object, ...) {
 #'   \code{rho} and \code{tau}.
 #'
 #' @param object An object of class \code{tune_esn}. The result of a call to \code{tune_esn()}.
+#' @param metric Character value. The metric used to select the best hyperparameter combination (\code{metric = c("mse", "mae")}.
 #' @param ... Currently not in use.
 #'
 #' @return Print detailed model summary.
@@ -196,9 +197,9 @@ summary.esn <- function(object, ...) {
 #'   y = xdata,
 #'   n_ahead = 12,
 #'   n_split = 5,
-#'   alpha = c(0.2, 0.5, 1),
-#'   rho   = c(0.5, 1.0),
-#'   tau   = c(0.2, 0.4),
+#'   alpha = c(0.5, 1),
+#'   rho   = c(1.0),
+#'   tau   = c(0.4),
 #'   inf_crit = "bic"
 #' )
 #' 
@@ -472,7 +473,7 @@ plot.forecast_esn <- function(x,
 #'   windows.
 #'
 #' @param x An object of class \code{tune_esn}. The result of a call to \code{tune_esn()}.
-#' @param metric Character scalar giving the metric used to select the best hyperparameter combination. Typically one of \code{"mse"} or \code{"mae"}.
+#' @param metric Character value. The metric used to select the best hyperparameter combination (\code{metric = c("mse", "mae")}.
 #' @param ... Further arguments passed to \code{plot()}.
 #'
 #' @return Line chart of point forecast and actual values.
@@ -485,9 +486,9 @@ plot.forecast_esn <- function(x,
 #'   y = xdata,
 #'   n_ahead = 12,
 #'   n_split = 5,
-#'   alpha = c(0.2, 0.5, 1),
-#'   rho   = c(0.5, 1.0),
-#'   tau   = c(0.2, 0.4),
+#'   alpha = c(0.5, 1),
+#'   rho   = c(1.0),
+#'   tau   = c(0.4),
 #'   inf_crit = "bic"
 #' )
 #' 

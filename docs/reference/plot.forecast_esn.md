@@ -37,7 +37,8 @@ plot(x, test = NULL, fitted = TRUE, interval = TRUE, n_obs = NULL, ...)
 
 - ...:
 
-  Currently not in use.
+  Further arguments passed to
+  [`plot()`](https://rdrr.io/r/graphics/plot.default.html).
 
 ## Value
 
@@ -49,9 +50,12 @@ Other base functions:
 [`forecast_esn()`](https://ahaeusser.github.io/echos/reference/forecast_esn.md),
 [`is.esn()`](https://ahaeusser.github.io/echos/reference/is.esn.md),
 [`is.forecast_esn()`](https://ahaeusser.github.io/echos/reference/is.forecast_esn.md),
+[`is.tune_esn()`](https://ahaeusser.github.io/echos/reference/is.tune_esn.md),
 [`plot.esn()`](https://ahaeusser.github.io/echos/reference/plot.esn.md),
+[`plot.tune_esn()`](https://ahaeusser.github.io/echos/reference/plot.tune_esn.md),
 [`print.esn()`](https://ahaeusser.github.io/echos/reference/print.esn.md),
 [`summary.esn()`](https://ahaeusser.github.io/echos/reference/summary.esn.md),
+[`summary.tune_esn()`](https://ahaeusser.github.io/echos/reference/summary.tune_esn.md),
 [`train_esn()`](https://ahaeusser.github.io/echos/reference/train_esn.md),
 [`tune_esn()`](https://ahaeusser.github.io/echos/reference/tune_esn.md)
 

@@ -35,9 +35,9 @@
 #'   y = xdata,
 #'   n_ahead = 12,
 #'   n_split = 5,
-#'   alpha = c(0.2, 0.5, 1),
-#'   rho   = c(0.5, 1.0),
-#'   tau   = c(0.2, 0.4),
+#'   alpha = c(0.5, 1),
+#'   rho   = c(1.0),
+#'   tau   = c(0.4),
 #'   inf_crit = "bic"
 #' )
 #' 

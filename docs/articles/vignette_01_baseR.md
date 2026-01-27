@@ -141,3 +141,53 @@ plot(xfcst, test = xtest)
 
 ![Plot forecast and test
 data](vignette_01_baseR_files/figure-html/forecast-1.png)
+
+## Hyperparameter tuning
+
+We first convert the built-in `AirPassengers` series to a numeric vector
+and call
+[`tune_esn()`](https://ahaeusser.github.io/echos/reference/tune_esn.md)
+to evaluate a grid of candidate values. Here, `n_ahead = 12` produces
+12-step-ahead forecasts, and `n_split = 5` creates five rolling
+train/test splits. For each split and each hyperparameter combination,
+the model is fitted on the training window and evaluated on the
+subsequent test window.
+
+`summary(xfit)` reports the best hyperparameter set according to the
+default accuracy metric (MSE unless you specify `metric = "mae"`), along
+with the corresponding performance. `plot(xfit)` visualizes the actual
+data together with the point forecasts from the selected “best”
+configuration. Forecasts are drawn as separate line segments over each
+test window, and vertical dashed lines indicate where each test window
+begins, making it easy to see how performance varies across splits.
+
+``` r
+# Prepare data
+xdata <- as.numeric(AirPassengers)
+
+# Tune hyperparameters via time series cross-validation
+xfit <- tune_esn(
+  y = xdata,
+  n_ahead = 12,
+  n_split = 5,
+  alpha = seq(0.1, 1.0, 0.1),
+  rho   = c(1.0),
+  tau   = c(0.4)
+)
+
+# Summarize and visualize optimal hyperparameter configuration
+summary(xfit)
+#> # A tibble: 5 × 11
+#>   alpha   rho   tau split train_start train_end test_start test_end   mse   mae
+#>   <dbl> <dbl> <dbl> <int>       <int>     <int>      <int>    <int> <dbl> <dbl>
+#> 1     1     1   0.4     1           1        84         85       96  471.  19.5
+#> 2     1     1   0.4     2           1        96         97      108  376.  14.2
+#> 3     1     1   0.4     3           1       108        109      120  526.  19.0
+#> 4     1     1   0.4     4           1       120        121      132  547.  20.2
+#> 5     1     1   0.4     5           1       132        133      144  396.  17.0
+#> # ℹ 1 more variable: id <int>
+plot(xfit)
+```
+
+![Time series
+cross-validation](vignette_01_baseR_files/figure-html/tuning-1.png)

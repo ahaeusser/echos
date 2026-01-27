@@ -42,7 +42,8 @@
 <div class="section level3">
 <h3 id="new-features-1-0-3">New features<a class="anchor" aria-label="anchor" href="#new-features-1-0-3"></a></h3>
 <ul><li>Added reservoir scaling parameter <code>tau</code> to <code><a href="../reference/train_esn.html">train_esn()</a></code>, enabling dynamic control of reservoir size.</li>
-<li>Added <code><a href="../reference/tune_esn.html">tune_esn()</a></code> to tune hyperparameters <code>alpha</code>, <code>rho</code> and <code>tau</code> using rolling forecasts.</li>
+<li>Added <code><a href="../reference/tune_esn.html">tune_esn()</a></code> to tune hyperparameters <code>alpha</code>, <code>rho</code> and <code>tau</code> via time series cross-validation (i.e., rolling forecasts).</li>
+<li>Added S3 methods <code><a href="../reference/summary.tune_esn.html">summary.tune_esn()</a></code> and <code><a href="../reference/plot.tune_esn.html">plot.tune_esn()</a></code> to summarize and visualize results from hyperparameter tuning.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="improvements-1-0-3">Improvements<a class="anchor" aria-label="anchor" href="#improvements-1-0-3"></a></h3>

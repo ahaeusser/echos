@@ -9,8 +9,13 @@
   enabling dynamic control of reservoir size.
 - Added
   [`tune_esn()`](https://ahaeusser.github.io/echos/reference/tune_esn.md)
-  to tune hyperparameters `alpha`, `rho` and `tau` using rolling
-  forecasts.
+  to tune hyperparameters `alpha`, `rho` and `tau` via time series
+  cross-validation (i.e., rolling forecasts).
+- Added S3 methods
+  [`summary.tune_esn()`](https://ahaeusser.github.io/echos/reference/summary.tune_esn.md)
+  and
+  [`plot.tune_esn()`](https://ahaeusser.github.io/echos/reference/plot.tune_esn.md)
+  to summarize and visualize results from hyperparameter tuning.
 
 ### Improvements
 

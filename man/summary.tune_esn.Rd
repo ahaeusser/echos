@@ -9,6 +9,8 @@
 \arguments{
 \item{object}{An object of class \code{tune_esn}. The result of a call to \code{tune_esn()}.}
 
+\item{metric}{Character value. The metric used to select the best hyperparameter combination (\code{metric = c("mse", "mae")}.}
+
 \item{...}{Currently not in use.}
 }
 \value{
@@ -24,9 +26,9 @@ fit <- tune_esn(
   y = xdata,
   n_ahead = 12,
   n_split = 5,
-  alpha = c(0.2, 0.5, 1),
-  rho   = c(0.5, 1.0),
-  tau   = c(0.2, 0.4),
+  alpha = c(0.5, 1),
+  rho   = c(1.0),
+  tau   = c(0.4),
   inf_crit = "bic"
 )
 

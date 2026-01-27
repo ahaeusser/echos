@@ -1,30 +1,22 @@
-# Plot internal states of a trained ESN model
+# Checks if object is of class "tune_esn"
 
-Plot internal states (i.e., the reservoir) of a trained ESN model as
-line chart.
+Returns `TRUE` if the object is of class `tune_esn`.
 
 ## Usage
 
 ``` r
-# S3 method for class 'esn'
-plot(x, ...)
+is.tune_esn(object)
 ```
 
 ## Arguments
 
-- x:
+- object:
 
-  An object of class `esn`. The result of a call to
-  [`train_esn()`](https://ahaeusser.github.io/echos/reference/train_esn.md).
-
-- ...:
-
-  Further arguments passed to
-  [`matplot()`](https://rdrr.io/r/graphics/matplot.html).
+  object to be tested.
 
 ## Value
 
-Line chart of internal states.
+Logical value. If `TRUE`, the object is of class `tune_esn`.
 
 ## See also
 
@@ -32,7 +24,7 @@ Other base functions:
 [`forecast_esn()`](https://ahaeusser.github.io/echos/reference/forecast_esn.md),
 [`is.esn()`](https://ahaeusser.github.io/echos/reference/is.esn.md),
 [`is.forecast_esn()`](https://ahaeusser.github.io/echos/reference/is.forecast_esn.md),
-[`is.tune_esn()`](https://ahaeusser.github.io/echos/reference/is.tune_esn.md),
+[`plot.esn()`](https://ahaeusser.github.io/echos/reference/plot.esn.md),
 [`plot.forecast_esn()`](https://ahaeusser.github.io/echos/reference/plot.forecast_esn.md),
 [`plot.tune_esn()`](https://ahaeusser.github.io/echos/reference/plot.tune_esn.md),
 [`print.esn()`](https://ahaeusser.github.io/echos/reference/print.esn.md),
@@ -45,7 +37,15 @@ Other base functions:
 
 ``` r
 xdata <- as.numeric(AirPassengers)
-xmodel <- train_esn(y = xdata)
-plot(xmodel)
-
+fit <- tune_esn(
+  y = xdata,
+  n_ahead = 12,
+  n_split = 5,
+  alpha = c(0.5, 1),
+  rho   = c(1.0),
+  tau   = c(0.4),
+  inf_crit = "bic"
+)
+is.tune_esn(fit)
+#> [1] TRUE
 ```

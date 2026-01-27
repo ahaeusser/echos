@@ -23,10 +23,13 @@ Logical value. If `TRUE`, the object is of class `forecast_esn`.
 Other base functions:
 [`forecast_esn()`](https://ahaeusser.github.io/echos/reference/forecast_esn.md),
 [`is.esn()`](https://ahaeusser.github.io/echos/reference/is.esn.md),
+[`is.tune_esn()`](https://ahaeusser.github.io/echos/reference/is.tune_esn.md),
 [`plot.esn()`](https://ahaeusser.github.io/echos/reference/plot.esn.md),
 [`plot.forecast_esn()`](https://ahaeusser.github.io/echos/reference/plot.forecast_esn.md),
+[`plot.tune_esn()`](https://ahaeusser.github.io/echos/reference/plot.tune_esn.md),
 [`print.esn()`](https://ahaeusser.github.io/echos/reference/print.esn.md),
 [`summary.esn()`](https://ahaeusser.github.io/echos/reference/summary.esn.md),
+[`summary.tune_esn()`](https://ahaeusser.github.io/echos/reference/summary.tune_esn.md),
 [`train_esn()`](https://ahaeusser.github.io/echos/reference/train_esn.md),
 [`tune_esn()`](https://ahaeusser.github.io/echos/reference/tune_esn.md)
 

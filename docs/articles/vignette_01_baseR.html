@@ -272,6 +272,52 @@ the future. The output <code>xfcst</code> is a list of class
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">xfcst</span>, test <span class="op">=</span> <span class="va">xtest</span><span class="op">)</span></span></code></pre></div>
 <p><img src="vignette_01_baseR_files/figure-html/forecast-1.png" class="r-plt" alt="Plot forecast and test data" width="672"></p>
 </div>
+<div class="section level2">
+<h2 id="hyperparameter-tuning">Hyperparameter tuning<a class="anchor" aria-label="anchor" href="#hyperparameter-tuning"></a>
+</h2>
+<p>We first convert the built-in <code>AirPassengers</code> series to a
+numeric vector and call <code><a href="../reference/tune_esn.html">tune_esn()</a></code> to evaluate a grid of
+candidate values. Here, <code>n_ahead = 12</code> produces 12-step-ahead
+forecasts, and <code>n_split = 5</code> creates five rolling train/test
+splits. For each split and each hyperparameter combination, the model is
+fitted on the training window and evaluated on the subsequent test
+window.</p>
+<p><code>summary(xfit)</code> reports the best hyperparameter set
+according to the default accuracy metric (MSE unless you specify
+<code>metric = "mae"</code>), along with the corresponding performance.
+<code>plot(xfit)</code> visualizes the actual data together with the
+point forecasts from the selected “best” configuration. Forecasts are
+drawn as separate line segments over each test window, and vertical
+dashed lines indicate where each test window begins, making it easy to
+see how performance varies across splits.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Prepare data</span></span>
+<span><span class="va">xdata</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">AirPassengers</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Tune hyperparameters via time series cross-validation</span></span>
+<span><span class="va">xfit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tune_esn.html">tune_esn</a></span><span class="op">(</span></span>
+<span>  y <span class="op">=</span> <span class="va">xdata</span>,</span>
+<span>  n_ahead <span class="op">=</span> <span class="fl">12</span>,</span>
+<span>  n_split <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  alpha <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">1.0</span>, <span class="fl">0.1</span><span class="op">)</span>,</span>
+<span>  rho   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.0</span><span class="op">)</span>,</span>
+<span>  tau   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.4</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Summarize and visualize optimal hyperparameter configuration</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">xfit</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 11</span></span></span>
+<span><span class="co">#&gt;   alpha   rho   tau split train_start train_end test_start test_end   mse   mae</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>     1     1   0.4     1           1        84         85       96  471.  19.5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>     1     1   0.4     2           1        96         97      108  376.  14.2</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>     1     1   0.4     3           1       108        109      120  526.  19.0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>     1     1   0.4     4           1       120        121      132  547.  20.2</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>     1     1   0.4     5           1       132        133      144  396.  17.0</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1 more variable: id &lt;int&gt;</span></span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">xfit</span><span class="op">)</span></span></code></pre></div>
+<p><img src="vignette_01_baseR_files/figure-html/tuning-1.png" class="r-plt" alt="Time series cross-validation" width="672"></p>
+</div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
 </div>
