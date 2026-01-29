@@ -26,4 +26,6 @@ test_that("tune_esn function works correctly", {
   expect_equal(ncol(fit$fcst), n_ahead)
   expect_equal(nrow(fit$fcst), nrow(fit$pars))
   
+  expect_equal(nrow(summary(fit)), n_split)
+  
 })

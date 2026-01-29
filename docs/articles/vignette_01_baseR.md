@@ -17,16 +17,18 @@ used for testing (`n_ahead`). `xtrain` and `xtest` are numeric vectors
 containing the training and testing data.
 
 ``` r
+# Convert 'AirPassengers' dataset from ts to numeric vector
+xdata <- as.numeric(AirPassengers)
 # Forecast horizon
 n_ahead <- 12
 # Number of observations (total)
-n_obs <- length(AirPassengers)
+n_obs <- length(xdata)
 # Number of observations (training data)
 n_train <- n_obs - n_ahead
 
-# Prepare train and test data as numeric vectors
-xtrain <- AirPassengers[(1:n_train)]
-xtest <- AirPassengers[((n_train+1):n_obs)]
+# Prepare train and test data
+xtrain <- xdata[(1:n_train)]
+xtest <- xdata[((n_train+1):n_obs)]
 
 xtrain
 #>   [1] 112 118 132 129 121 135 148 148 136 119 104 118 115 126 141 135 125 149
@@ -144,27 +146,26 @@ data](vignette_01_baseR_files/figure-html/forecast-1.png)
 
 ## Hyperparameter tuning
 
-We first convert the built-in `AirPassengers` series to a numeric vector
-and call
+We now call the function
 [`tune_esn()`](https://ahaeusser.github.io/echos/reference/tune_esn.md)
-to evaluate a grid of candidate values. Here, `n_ahead = 12` produces
-12-step-ahead forecasts, and `n_split = 5` creates five rolling
-train/test splits. For each split and each hyperparameter combination,
-the model is fitted on the training window and evaluated on the
-subsequent test window.
+to evaluate a grid of hyperparameters values. In this example, we will
+test different values for the leakage rate `alpha` and conduct a time
+series cross-validation. Here, `n_ahead = 12` produces 12-step-ahead
+forecasts, and `n_split = 5` creates five rolling train/test splits. For
+each split and each hyperparameter combination, the model is fitted on
+the training window and evaluated on the subsequent test window.
 
-`summary(xfit)` reports the best hyperparameter set according to the
-default accuracy metric (MSE unless you specify `metric = "mae"`), along
-with the corresponding performance. `plot(xfit)` visualizes the actual
-data together with the point forecasts from the selected “best”
-configuration. Forecasts are drawn as separate line segments over each
-test window, and vertical dashed lines indicate where each test window
-begins, making it easy to see how performance varies across splits.
+The S3 method [`summary()`](https://rdrr.io/r/base/summary.html) reports
+the best hyperparameter set according to the default accuracy metric
+(MSE unless you specify `metric = "mae"`), along with the corresponding
+performance. [`plot()`](https://rdrr.io/r/graphics/plot.default.html)
+visualizes the actual data together with the point forecasts from the
+selected “best” configuration. Forecasts are drawn as separate line
+segments over each test window, and vertical dashed lines indicate where
+each test window begins, making it easy to see how performance varies
+across splits.
 
 ``` r
-# Prepare data
-xdata <- as.numeric(AirPassengers)
-
 # Tune hyperparameters via time series cross-validation
 xfit <- tune_esn(
   y = xdata,

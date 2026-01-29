@@ -91,16 +91,18 @@ total. The first 132 observations are used for model training
 (<code>n_ahead</code>). <code>xtrain</code> and <code>xtest</code> are
 numeric vectors containing the training and testing data.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Forecast horizon</span></span>
+<code class="sourceCode R"><span><span class="co"># Convert 'AirPassengers' dataset from ts to numeric vector</span></span>
+<span><span class="va">xdata</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">AirPassengers</span><span class="op">)</span></span>
+<span><span class="co"># Forecast horizon</span></span>
 <span><span class="va">n_ahead</span> <span class="op">&lt;-</span> <span class="fl">12</span></span>
 <span><span class="co"># Number of observations (total)</span></span>
-<span><span class="va">n_obs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">AirPassengers</span><span class="op">)</span></span>
+<span><span class="va">n_obs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">xdata</span><span class="op">)</span></span>
 <span><span class="co"># Number of observations (training data)</span></span>
 <span><span class="va">n_train</span> <span class="op">&lt;-</span> <span class="va">n_obs</span> <span class="op">-</span> <span class="va">n_ahead</span></span>
 <span></span>
-<span><span class="co"># Prepare train and test data as numeric vectors</span></span>
-<span><span class="va">xtrain</span> <span class="op">&lt;-</span> <span class="va">AirPassengers</span><span class="op">[</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">n_train</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="va">xtest</span> <span class="op">&lt;-</span> <span class="va">AirPassengers</span><span class="op">[</span><span class="op">(</span><span class="op">(</span><span class="va">n_train</span><span class="op">+</span><span class="fl">1</span><span class="op">)</span><span class="op">:</span><span class="va">n_obs</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co"># Prepare train and test data</span></span>
+<span><span class="va">xtrain</span> <span class="op">&lt;-</span> <span class="va">xdata</span><span class="op">[</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">n_train</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="va">xtest</span> <span class="op">&lt;-</span> <span class="va">xdata</span><span class="op">[</span><span class="op">(</span><span class="op">(</span><span class="va">n_train</span><span class="op">+</span><span class="fl">1</span><span class="op">)</span><span class="op">:</span><span class="va">n_obs</span><span class="op">)</span><span class="op">]</span></span>
 <span></span>
 <span><span class="va">xtrain</span></span>
 <span><span class="co">#&gt;   [1] 112 118 132 129 121 135 148 148 136 119 104 118 115 126 141 135 125 149</span></span>
@@ -275,26 +277,24 @@ the future. The output <code>xfcst</code> is a list of class
 <div class="section level2">
 <h2 id="hyperparameter-tuning">Hyperparameter tuning<a class="anchor" aria-label="anchor" href="#hyperparameter-tuning"></a>
 </h2>
-<p>We first convert the built-in <code>AirPassengers</code> series to a
-numeric vector and call <code><a href="../reference/tune_esn.html">tune_esn()</a></code> to evaluate a grid of
-candidate values. Here, <code>n_ahead = 12</code> produces 12-step-ahead
+<p>We now call the function <code><a href="../reference/tune_esn.html">tune_esn()</a></code> to evaluate a grid
+of hyperparameters values. In this example, we will test different
+values for the leakage rate <code>alpha</code> and conduct a time series
+cross-validation. Here, <code>n_ahead = 12</code> produces 12-step-ahead
 forecasts, and <code>n_split = 5</code> creates five rolling train/test
 splits. For each split and each hyperparameter combination, the model is
 fitted on the training window and evaluated on the subsequent test
 window.</p>
-<p><code>summary(xfit)</code> reports the best hyperparameter set
-according to the default accuracy metric (MSE unless you specify
+<p>The S3 method <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> reports the best hyperparameter
+set according to the default accuracy metric (MSE unless you specify
 <code>metric = "mae"</code>), along with the corresponding performance.
-<code>plot(xfit)</code> visualizes the actual data together with the
-point forecasts from the selected “best” configuration. Forecasts are
-drawn as separate line segments over each test window, and vertical
-dashed lines indicate where each test window begins, making it easy to
-see how performance varies across splits.</p>
+<code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> visualizes the actual data together with the point
+forecasts from the selected “best” configuration. Forecasts are drawn as
+separate line segments over each test window, and vertical dashed lines
+indicate where each test window begins, making it easy to see how
+performance varies across splits.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Prepare data</span></span>
-<span><span class="va">xdata</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">AirPassengers</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Tune hyperparameters via time series cross-validation</span></span>
+<code class="sourceCode R"><span><span class="co"># Tune hyperparameters via time series cross-validation</span></span>
 <span><span class="va">xfit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tune_esn.html">tune_esn</a></span><span class="op">(</span></span>
 <span>  y <span class="op">=</span> <span class="va">xdata</span>,</span>
 <span>  n_ahead <span class="op">=</span> <span class="fl">12</span>,</span>
