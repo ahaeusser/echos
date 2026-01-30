@@ -13,6 +13,7 @@ stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://
 coverage](https://codecov.io/gh/ahaeusser/echos/branch/master/graph/badge.svg)](https://app.codecov.io/gh/ahaeusser/echos?branch=master)
 [![R-CMD-check](https://github.com/ahaeusser/echos/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ahaeusser/echos/actions/workflows/R-CMD-check.yaml)
 ![](http://cranlogs.r-pkg.org/badges/echos?color=brightgreen)
+![](https://cranlogs.r-pkg.org/badges/grand-total/echos?color=brightgreen)
 <!-- badges: end -->
 
 The `echos` package provides a comprehensive set of **functions and
