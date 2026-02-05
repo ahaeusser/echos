@@ -86,3 +86,21 @@ train_frame %>%
 ```
 
 ![Plot forecast and train data](reference/figures/README-tidy-1.svg)
+
+## References
+
+- Häußer, A. (2026). *Echo State Networks for Time Series Forecasting:
+  Hyperparameter Sweep and Benchmarking.* arXiv preprint
+  arXiv:2602.03912. <https://arxiv.org/abs/2602.03912>
+- Jaeger, H. (2001). *The “echo state” approach to analysing and
+  training recurrent neural networks* (with an erratum note). Bonn,
+  Germany: German National Research Center for Information Technology
+  (GMD), Technical Report 148(34):13.
+- Jaeger, H. (2002). *Tutorial on training recurrent neural networks,
+  covering BPPT, RTRL, EKF and the “echo state network” approach.*
+- Lukosevicius, M. (2012). *A practical guide to applying echo state
+  networks.* In *Neural Networks: Tricks of the Trade* (2nd ed.),
+  pp. 659–686. Springer.
+- Lukosevicius, M., & Jaeger, H. (2009). *Reservoir computing approaches
+  to recurrent neural network training.* *Computer Science Review*,
+  3(3), 127–149.

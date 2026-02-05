@@ -67,6 +67,10 @@ A `list` containing:
 
 ## References
 
+- Häußer, A. (2026). Echo State Networks for Time Series Forecasting:
+  Hyperparameter Sweep and Benchmarking. arXiv preprint
+  arXiv:2602.03912, 2026. <https://arxiv.org/abs/2602.03912>
+
 - Jaeger, H. (2001). The “echo state” approach to analysing and training
   recurrent neural networks with an erratum note. Bonn, Germany: German
   National Research Center for Information Technology GMD Technical
