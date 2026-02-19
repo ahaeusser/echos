@@ -25,7 +25,7 @@ library(echos)
 
 ## Prepare dataset
 
-In a first example, we want to model the well-known `AirPassenger` time series (`ts` object). The dataset contains monthly totals of international airline passengers (in thousands) from January 1949 to December 1960 with 144 observations in total. The first 132 observations are used for model training (`n_train`) and last 12 observations are used for testing (`n_ahead`). `xtrain` and `xtest` are numeric vectors containing the training and testing data.
+In a first example, we want to model the well-known `AirPassengers` time series (`ts` object). The dataset contains monthly totals of international airline passengers (in thousands) from January 1949 to December 1960 with 144 observations in total. The first 132 observations are used for model training (`n_train`) and the last 12 observations are used for testing (`n_ahead`). `xtrain` and `xtest` are numeric vectors containing the training and testing data.
 
 ```{r data}
 # Convert 'AirPassengers' dataset from ts to numeric vector
@@ -70,12 +70,11 @@ From the output above, we get the following information about the trained ESN mo
 | `rho`            | Spectral radius for scaling the reservoir weight matrix                                                        |
 | `density`        | Density of the reservoir weight matrix                                                                         |
 | `scale_inputs`   | Input training data are scaled to the interval `(-0.5, 0.5)`                                                   |
-| `scale_win`      | Input weights matrix is drawn from a random uniform distribution with interval `(-0.5, 0.5)`                   |
-| `scale_wres`     | Reservoir weight matrix is drawn from a random uniform distribution with interval `(-0.5, 0.5)`                |
+| `scale_win`      | Input weight matrix is drawn from a random uniform distribution on `(-0.5, 0.5)`                   |
+| `scale_wres`     | Reservoir weight matrix is drawn from a random uniform distribution on `(-0.5, 0.5)`                |
 | `n_models`       | Number of models evaluated during the random search optimization to find the regularization parameter `lambda` |
 | `df`             | Effective degrees of freedom in the model                                                                      |
 | `lambda`         | Regularization parameter for the ridge regression estimation                                                   |
-
 
 
 ## Forecast ESN model
@@ -97,7 +96,7 @@ plot(xfcst, test = xtest)
 
 ## Hyperparameter tuning
 
-We now call the function `tune_esn()` to evaluate a grid of hyperparameters values. In this example, we will test different values for the leakage rate `alpha` and conduct a time series cross-validation. Here, `n_ahead = 12` produces 12-step-ahead forecasts, and `n_split = 5` creates five rolling train/test splits. For each split and each hyperparameter combination, the model is fitted on the training window and evaluated on the subsequent test window.
+We now call the function `tune_esn()` to evaluate a grid of hyperparameter values. In this example, we will test different values for the leakage rate `alpha` and conduct a time series cross-validation. Here, `n_ahead = 12` produces 12-step-ahead forecasts, and `n_split = 5` creates five rolling train/test splits. For each split and each hyperparameter combination, the model is fitted on the training window and evaluated on the subsequent test window.
 
 The S3 method `summary()` reports the best hyperparameter set according to the default accuracy metric (MSE unless you specify `metric = "mae"`), along with the corresponding performance. `plot()` visualizes the actual data together with the point forecasts from the selected “best” configuration. Forecasts are drawn as separate line segments over each test window, and vertical dashed lines indicate where each test window begins, making it easy to see how performance varies across splits.
 
