@@ -30,7 +30,7 @@ tune_esn(
 
 \item{min_train}{Integer value. Minimum training sample size for the first split.}
 
-\item{...}{Further arguments passed to \code{train_esn()}.}
+\item{...}{Further arguments passed to \code{train_esn()} (except \code{alpha}, \code{rho}, and \code{tau}, which are set by the tuning grid).}
 }
 \value{
 An object of class \code{"tune_esn"} (a list) with:

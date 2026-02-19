@@ -17,9 +17,9 @@ forecast_esn(
 
 \item{n_ahead}{Integer value. The number of periods for forecasting (i.e. forecast horizon).}
 
-\item{levels}{Integer vector. The levels of the forecast intervals, e.g., 80\% and 95\%.}
+\item{levels}{Numeric vector. The levels of the forecast intervals (in percent), e.g., \code{c(80, 95)}. Values must lie between 0 and 100.}
 
-\item{n_sim}{Integer value. The number of future sample path generated during simulation.}
+\item{n_sim}{Integer value. The number of simulated future paths used to compute forecast intervals via a moving block bootstrap of the (demeaned) in-sample residuals. If \code{NULL}, no intervals are computed.}
 
 \item{n_seed}{Integer value. The seed for the random number generator (for reproducibility).}
 }
@@ -29,6 +29,7 @@ A \code{list} containing:
       \item{\code{point}: Numeric vector containing the point forecasts.}
       \item{\code{interval}: Numeric matrix containing the forecast intervals.}
       \item{\code{sim}: Numeric matrix containing the simulated future sample path.}
+      \item{\code{std}: Numeric vector with standard deviations.}
       \item{\code{levels}: Integer vector. The levels of the forecast intervals.}
       \item{\code{actual}: Numeric vector containing the actual values.}
       \item{\code{fitted}: Numeric vector containing the fitted values.}

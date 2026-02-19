@@ -8,8 +8,8 @@
 #' 
 #' @param object An object of class \code{esn}. The result of a call to \code{train_esn()}.
 #' @param n_ahead Integer value. The number of periods for forecasting (i.e. forecast horizon).
-#' @param levels Integer vector. The levels of the forecast intervals, e.g., 80\% and 95\%.
-#' @param n_sim Integer value. The number of future sample path generated during simulation.
+#' @param levels Numeric vector. The levels of the forecast intervals (in percent), e.g., \code{c(80, 95)}. Values must lie between 0 and 100.
+#' @param n_sim Integer value. The number of simulated future paths used to compute forecast intervals via a moving block bootstrap of the (demeaned) in-sample residuals. If \code{NULL}, no intervals are computed.
 #' @param n_seed Integer value. The seed for the random number generator (for reproducibility).
 #' 
 #' @return A \code{list} containing:
@@ -17,6 +17,7 @@
 #'       \item{\code{point}: Numeric vector containing the point forecasts.}
 #'       \item{\code{interval}: Numeric matrix containing the forecast intervals.}
 #'       \item{\code{sim}: Numeric matrix containing the simulated future sample path.}
+#'       \item{\code{std}: Numeric vector with standard deviations.}
 #'       \item{\code{levels}: Integer vector. The levels of the forecast intervals.}
 #'       \item{\code{actual}: Numeric vector containing the actual values.}
 #'       \item{\code{fitted}: Numeric vector containing the fitted values.}
@@ -49,10 +50,17 @@ forecast_esn <- function(object,
                          n_sim = 100,
                          n_seed = 42) {
   
-  # Pre-processing ============================================================
+  # Argument handling =========================================================
   
-  if (!is.esn(object))
-    stop("object must be an object of class esn")
+  if(!is.esn(object)){
+    stop("object must be an object of class esn.")
+  }
+  
+  if (!all(levels > 0 & levels < 100)) {
+    stop("levels must contain values strictly between 0 and 100.")
+  }
+  
+  # Pre-processing ============================================================
   
   method <- object$method
   
@@ -190,7 +198,8 @@ forecast_esn <- function(object,
     }
     
     # Convert central levels to lower/upper quantile probabilities
-    probs <- sort(unique(c(0.5 - levels / 200, 0.5 + levels / 200)))
+    levels <- sort(unique(levels))
+    probs <- c(0.5 - levels/200, 0.5 + levels/200)
     
     # Estimate quantiles row-wise
     interval <- t(apply(sim, 1, quantile, probs = probs, na.rm = TRUE))

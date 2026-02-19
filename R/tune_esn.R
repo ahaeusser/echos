@@ -15,7 +15,7 @@
 #' @param rho Numeric vector. The candidate spectral radii.
 #' @param tau Numeric vector. The candidate reservoir scaling values.
 #' @param min_train Integer value. Minimum training sample size for the first split.
-#' @param ... Further arguments passed to \code{train_esn()}.
+#' @param ... Further arguments passed to \code{train_esn()} (except \code{alpha}, \code{rho}, and \code{tau}, which are set by the tuning grid).
 #' 
 #' @return An object of class \code{"tune_esn"} (a list) with:
 #'   \itemize{

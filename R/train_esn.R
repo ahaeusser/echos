@@ -5,22 +5,22 @@
 #'    The function automatically manages data pre-processing, reservoir
 #'    generation (i.e., internal states) and model estimation and selection.
 #' 
-#' @param y Numeric vector containing the response variable.
+#' @param y Numeric vector containing the response variable (no missing values).
 #' @param lags Integer vector with the lag(s) associated with the input variable.
-#' @param inf_crit Character value. The information criterion used for variable selection \code{inf_crit = c("aic", "aicc", "bic", "hqc")}.
-#' @param n_diff Integer vector. The nth-differences of the response variable.
+#' @param inf_crit Character value. Information criterion used for model selection among the \code{n_models} candidate ridge fits (different random \code{lambda} values). The candidate with the smallest criterion value is selected. One of \code{c("aic", "aicc", "bic", "hqc")}.
+#' @param n_diff Integer value. The nth-differences of the response variable. If \code{n_diff = NULL}, the number of differences required to achieve stationarity is determined automatically via a KPSS-test.
 #' @param n_models Integer value. The maximum number of (random) models to train for model selection. If \code{n_models = NULL}, the number of models is defined as \code{n_states*2}.
-#' @param n_states Integer value. The number of internal states of the reservoir. If \code{n_states = NULL}, the reservoir size is determined by \code{tau*n_total}, where \code{n_total} is the time series length.
+#' @param n_states Integer value. The number of internal states of the reservoir. If \code{n_states = NULL}, the reservoir size is determined by \code{min(floor(n_total * tau), 200)}, where \code{n_total} is the time series length.
 #' @param n_initial Integer value. The number of observations of internal states for initial drop out (throw-off). If \code{n_initial = NULL}, the throw-off is defined as \code{n_total*0.05}, where \code{n_total} is the time series length.
 #' @param n_seed Integer value. The seed for the random number generator (for reproducibility).
 #' @param alpha Numeric value. The leakage rate (smoothing parameter) applied to the reservoir (value greater than 0 and less than or equal to 1).
 #' @param rho Numeric value. The spectral radius for scaling the reservoir weight matrix (value often between 0 and 1, but values above 1 are possible).
 #' @param tau Numeric value. The reservoir scaling parameter to determine the reservoir size based on the time series length (value greater than 0 and less than or equal to 1).
 #' @param density Numeric value. The connectivity of the reservoir weight matrix (dense or sparse) (value greater than 0 and less than or equal to 1).
-#' @param lambda Numeric vector. Lower and upper bound of lambda sequence for ridge regression (numeric vector of length 2 with both values greater than 0 and \code{lambda[1]} < \code{lambda[2]}).
+#' @param lambda Numeric vector. Lower and upper bound of lambda range for ridge regression (numeric vector of length 2 with both values greater than 0 and \code{lambda[1]} < \code{lambda[2]}).
 #' @param scale_win Numeric value. The lower and upper bound of the uniform distribution for scaling the input weight matrix (value greater than 0, weights are sampled from U(-\code{scale_win}, \code{scale_win})).
-#' @param scale_wres Numeric value. The lower and upper bound of the uniform distribution for scaling the reservoir weight matrix (value greater than 0, weights are sampled from U(-\code{scale_res}, \code{scale_res}) before applying \code{rho} and \code{density}).
-#' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data (numeric vector of length 2 with \code{scale_inputs[1]} < \code{scale_inputs[2]} (often symmetric, e.g., \code{c(-0.5, 0.5)} or \code{c(-1, 1)}).
+#' @param scale_wres Numeric value. The lower and upper bound of the uniform distribution for scaling the reservoir weight matrix (value greater than 0, weights are sampled from U(-\code{scale_wres}, \code{scale_wres}) before applying \code{rho} and \code{density}).
+#' @param scale_inputs Numeric vector. The lower and upper bound for scaling the time series data (numeric vector of length 2 with \code{scale_inputs[1]} < \code{scale_inputs[2]}, often symmetric, e.g., \code{c(-0.5, 0.5)} or \code{c(-1, 1)}).
 #' 
 #' @return A \code{list} containing:
 #'    \itemize{
@@ -92,12 +92,20 @@ train_esn <- function(y,
   }
   
   # Number of initial observations to drop
-  n_initial <- floor(n_total * 0.05)
-  
+  if (is.null(n_initial)) {
+    n_initial <- floor(n_total * 0.05)
+  }
+
   # Number of differences required to achieve stationarity
   if (is.null(n_diff)) {
     n_diff <- estimate_ndiff(y)
   }
+  
+  # Check information criterion
+  inf_crit <- match.arg(
+    inf_crit, 
+    choices = c("aic", "aicc", "bic", "hqc")
+    )
   
   # Set seed for reproducibility
   set.seed(n_seed)

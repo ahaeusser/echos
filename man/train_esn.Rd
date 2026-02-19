@@ -24,15 +24,15 @@ train_esn(
 )
 }
 \arguments{
-\item{y}{Numeric vector containing the response variable.}
+\item{y}{Numeric vector containing the response variable (no missing values).}
 
 \item{lags}{Integer vector with the lag(s) associated with the input variable.}
 
-\item{inf_crit}{Character value. The information criterion used for variable selection \code{inf_crit = c("aic", "aicc", "bic", "hqc")}.}
+\item{inf_crit}{Character value. Information criterion used for model selection among the \code{n_models} candidate ridge fits (different random \code{lambda} values). The candidate with the smallest criterion value is selected. One of \code{c("aic", "aicc", "bic", "hqc")}.}
 
-\item{n_diff}{Integer vector. The nth-differences of the response variable.}
+\item{n_diff}{Integer value. The nth-differences of the response variable. If \code{n_diff = NULL}, the number of differences required to achieve stationarity is determined automatically via a KPSS-test.}
 
-\item{n_states}{Integer value. The number of internal states of the reservoir. If \code{n_states = NULL}, the reservoir size is determined by \code{tau*n_total}, where \code{n_total} is the time series length.}
+\item{n_states}{Integer value. The number of internal states of the reservoir. If \code{n_states = NULL}, the reservoir size is determined by \code{min(floor(n_total * tau), 200)}, where \code{n_total} is the time series length.}
 
 \item{n_models}{Integer value. The maximum number of (random) models to train for model selection. If \code{n_models = NULL}, the number of models is defined as \code{n_states*2}.}
 
@@ -48,13 +48,13 @@ train_esn(
 
 \item{density}{Numeric value. The connectivity of the reservoir weight matrix (dense or sparse) (value greater than 0 and less than or equal to 1).}
 
-\item{lambda}{Numeric vector. Lower and upper bound of lambda sequence for ridge regression (numeric vector of length 2 with both values greater than 0 and \code{lambda[1]} < \code{lambda[2]}).}
+\item{lambda}{Numeric vector. Lower and upper bound of lambda range for ridge regression (numeric vector of length 2 with both values greater than 0 and \code{lambda[1]} < \code{lambda[2]}).}
 
 \item{scale_win}{Numeric value. The lower and upper bound of the uniform distribution for scaling the input weight matrix (value greater than 0, weights are sampled from U(-\code{scale_win}, \code{scale_win})).}
 
-\item{scale_wres}{Numeric value. The lower and upper bound of the uniform distribution for scaling the reservoir weight matrix (value greater than 0, weights are sampled from U(-\code{scale_res}, \code{scale_res}) before applying \code{rho} and \code{density}).}
+\item{scale_wres}{Numeric value. The lower and upper bound of the uniform distribution for scaling the reservoir weight matrix (value greater than 0, weights are sampled from U(-\code{scale_wres}, \code{scale_wres}) before applying \code{rho} and \code{density}).}
 
-\item{scale_inputs}{Numeric vector. The lower and upper bound for scaling the time series data (numeric vector of length 2 with \code{scale_inputs[1]} < \code{scale_inputs[2]} (often symmetric, e.g., \code{c(-0.5, 0.5)} or \code{c(-1, 1)}).}
+\item{scale_inputs}{Numeric vector. The lower and upper bound for scaling the time series data (numeric vector of length 2 with \code{scale_inputs[1]} < \code{scale_inputs[2]}, often symmetric, e.g., \code{c(-0.5, 0.5)} or \code{c(-1, 1)}).}
 }
 \value{
 A \code{list} containing:
