@@ -5,7 +5,11 @@
 * Added `tune_esn()` to tune hyperparameters `alpha`, `rho` and `tau` via time series cross-validation (i.e., rolling forecasts).
 * Added S3 methods `summary.tune_esn()` and `plot.tune_esn()` to summarize and visualize results from hyperparameter tuning.
 
+## Bug fixes
+* Fixed `train_esn()` so `n_initial` is only auto-set when `NULL`.
+
 ## Improvements
+* Added input validation for `inf_crit` in `train_esn()`.
 * Improved documentation
 
 # echos 1.0.2
