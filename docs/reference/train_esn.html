@@ -75,7 +75,7 @@
 
 
 <dl><dt id="arg-y">y<a class="anchor" aria-label="anchor" href="#arg-y"></a></dt>
-<dd><p>Numeric vector containing the response variable.</p></dd>
+<dd><p>Numeric vector containing the response variable (no missing values).</p></dd>
 
 
 <dt id="arg-lags">lags<a class="anchor" aria-label="anchor" href="#arg-lags"></a></dt>
@@ -83,15 +83,15 @@
 
 
 <dt id="arg-inf-crit">inf_crit<a class="anchor" aria-label="anchor" href="#arg-inf-crit"></a></dt>
-<dd><p>Character value. The information criterion used for variable selection <code>inf_crit = c("aic", "aicc", "bic", "hqc")</code>.</p></dd>
+<dd><p>Character value. Information criterion used for model selection among the <code>n_models</code> candidate ridge fits (different random <code>lambda</code> values). The candidate with the smallest criterion value is selected. One of <code>c("aic", "aicc", "bic", "hqc")</code>.</p></dd>
 
 
 <dt id="arg-n-diff">n_diff<a class="anchor" aria-label="anchor" href="#arg-n-diff"></a></dt>
-<dd><p>Integer vector. The nth-differences of the response variable.</p></dd>
+<dd><p>Integer value. The nth-differences of the response variable. If <code>n_diff = NULL</code>, the number of differences required to achieve stationarity is determined automatically via a KPSS-test.</p></dd>
 
 
 <dt id="arg-n-states">n_states<a class="anchor" aria-label="anchor" href="#arg-n-states"></a></dt>
-<dd><p>Integer value. The number of internal states of the reservoir. If <code>n_states = NULL</code>, the reservoir size is determined by <code>tau*n_total</code>, where <code>n_total</code> is the time series length.</p></dd>
+<dd><p>Integer value. The number of internal states of the reservoir. If <code>n_states = NULL</code>, the reservoir size is determined by <code>min(floor(n_total * tau), 200)</code>, where <code>n_total</code> is the time series length.</p></dd>
 
 
 <dt id="arg-n-models">n_models<a class="anchor" aria-label="anchor" href="#arg-n-models"></a></dt>
@@ -123,7 +123,7 @@
 
 
 <dt id="arg-lambda">lambda<a class="anchor" aria-label="anchor" href="#arg-lambda"></a></dt>
-<dd><p>Numeric vector. Lower and upper bound of lambda sequence for ridge regression (numeric vector of length 2 with both values greater than 0 and <code>lambda[1]</code> &lt; <code>lambda[2]</code>).</p></dd>
+<dd><p>Numeric vector. Lower and upper bound of lambda range for ridge regression (numeric vector of length 2 with both values greater than 0 and <code>lambda[1]</code> &lt; <code>lambda[2]</code>).</p></dd>
 
 
 <dt id="arg-scale-win">scale_win<a class="anchor" aria-label="anchor" href="#arg-scale-win"></a></dt>
@@ -131,11 +131,11 @@
 
 
 <dt id="arg-scale-wres">scale_wres<a class="anchor" aria-label="anchor" href="#arg-scale-wres"></a></dt>
-<dd><p>Numeric value. The lower and upper bound of the uniform distribution for scaling the reservoir weight matrix (value greater than 0, weights are sampled from U(-<code>scale_res</code>, <code>scale_res</code>) before applying <code>rho</code> and <code>density</code>).</p></dd>
+<dd><p>Numeric value. The lower and upper bound of the uniform distribution for scaling the reservoir weight matrix (value greater than 0, weights are sampled from U(-<code>scale_wres</code>, <code>scale_wres</code>) before applying <code>rho</code> and <code>density</code>).</p></dd>
 
 
 <dt id="arg-scale-inputs">scale_inputs<a class="anchor" aria-label="anchor" href="#arg-scale-inputs"></a></dt>
-<dd><p>Numeric vector. The lower and upper bound for scaling the time series data (numeric vector of length 2 with <code>scale_inputs[1]</code> &lt; <code>scale_inputs[2]</code> (often symmetric, e.g., <code>c(-0.5, 0.5)</code> or <code>c(-1, 1)</code>).</p></dd>
+<dd><p>Numeric vector. The lower and upper bound for scaling the time series data (numeric vector of length 2 with <code>scale_inputs[1]</code> &lt; <code>scale_inputs[2]</code>, often symmetric, e.g., <code>c(-0.5, 0.5)</code> or <code>c(-1, 1)</code>).</p></dd>
 
 </dl></div>
     <div class="section level2">

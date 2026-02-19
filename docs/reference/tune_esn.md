@@ -58,7 +58,8 @@ tune_esn(
 - ...:
 
   Further arguments passed to
-  [`train_esn()`](https://ahaeusser.github.io/echos/reference/train_esn.md).
+  [`train_esn()`](https://ahaeusser.github.io/echos/reference/train_esn.md)
+  (except `alpha`, `rho`, and `tau`, which are set by the tuning grid).
 
 ## Value
 

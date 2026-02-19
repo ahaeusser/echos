@@ -31,13 +31,14 @@ forecast_esn(
 
 - levels:
 
-  Integer vector. The levels of the forecast intervals, e.g., 80% and
-  95%.
+  Numeric vector. The levels of the forecast intervals (in percent),
+  e.g., `c(80, 95)`. Values must lie between 0 and 100.
 
 - n_sim:
 
-  Integer value. The number of future sample path generated during
-  simulation.
+  Integer value. The number of simulated future paths used to compute
+  forecast intervals via a moving block bootstrap of the (demeaned)
+  in-sample residuals. If `NULL`, no intervals are computed.
 
 - n_seed:
 
@@ -53,6 +54,8 @@ A `list` containing:
 - `interval`: Numeric matrix containing the forecast intervals.
 
 - `sim`: Numeric matrix containing the simulated future sample path.
+
+- `std`: Numeric vector with standard deviations.
 
 - `levels`: Integer vector. The levels of the forecast intervals.
 

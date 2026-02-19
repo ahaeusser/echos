@@ -21,7 +21,7 @@ library(tsibble)
 ## M4 data
 
 The dataset `m4_data` is a `tsibble` with six monthly time series from
-the M4 Forecasting Competition. The datasets contains the following time
+the M4 Forecasting Competition. The dataset contains the following time
 series:
 
 - M21655 (Demographic), 1995 Jan - 2015 Mar

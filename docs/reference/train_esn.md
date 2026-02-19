@@ -31,7 +31,7 @@ train_esn(
 
 - y:
 
-  Numeric vector containing the response variable.
+  Numeric vector containing the response variable (no missing values).
 
 - lags:
 
@@ -39,18 +39,23 @@ train_esn(
 
 - inf_crit:
 
-  Character value. The information criterion used for variable selection
-  `inf_crit = c("aic", "aicc", "bic", "hqc")`.
+  Character value. Information criterion used for model selection among
+  the `n_models` candidate ridge fits (different random `lambda`
+  values). The candidate with the smallest criterion value is selected.
+  One of `c("aic", "aicc", "bic", "hqc")`.
 
 - n_diff:
 
-  Integer vector. The nth-differences of the response variable.
+  Integer value. The nth-differences of the response variable. If
+  `n_diff = NULL`, the number of differences required to achieve
+  stationarity is determined automatically via a KPSS-test.
 
 - n_states:
 
   Integer value. The number of internal states of the reservoir. If
-  `n_states = NULL`, the reservoir size is determined by `tau*n_total`,
-  where `n_total` is the time series length.
+  `n_states = NULL`, the reservoir size is determined by
+  `min(floor(n_total * tau), 200)`, where `n_total` is the time series
+  length.
 
 - n_models:
 
@@ -92,7 +97,7 @@ train_esn(
 
 - lambda:
 
-  Numeric vector. Lower and upper bound of lambda sequence for ridge
+  Numeric vector. Lower and upper bound of lambda range for ridge
   regression (numeric vector of length 2 with both values greater than 0
   and `lambda[1]` \< `lambda[2]`).
 
@@ -106,14 +111,14 @@ train_esn(
 
   Numeric value. The lower and upper bound of the uniform distribution
   for scaling the reservoir weight matrix (value greater than 0, weights
-  are sampled from U(-`scale_res`, `scale_res`) before applying `rho`
+  are sampled from U(-`scale_wres`, `scale_wres`) before applying `rho`
   and `density`).
 
 - scale_inputs:
 
   Numeric vector. The lower and upper bound for scaling the time series
   data (numeric vector of length 2 with `scale_inputs[1]` \<
-  `scale_inputs[2]` (often symmetric, e.g., `c(-0.5, 0.5)` or
+  `scale_inputs[2]`, often symmetric, e.g., `c(-0.5, 0.5)` or
   `c(-1, 1)`).
 
 ## Value

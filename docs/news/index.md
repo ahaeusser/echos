@@ -17,8 +17,16 @@
   [`plot.tune_esn()`](https://ahaeusser.github.io/echos/reference/plot.tune_esn.md)
   to summarize and visualize results from hyperparameter tuning.
 
+### Bug fixes
+
+- Fixed
+  [`train_esn()`](https://ahaeusser.github.io/echos/reference/train_esn.md)
+  so `n_initial` is only auto-set when `NULL`.
+
 ### Improvements
 
+- Added input validation for `inf_crit` in
+  [`train_esn()`](https://ahaeusser.github.io/echos/reference/train_esn.md).
 - Improved documentation
 
 ## echos 1.0.2

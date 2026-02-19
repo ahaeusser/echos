@@ -83,11 +83,11 @@ Häußer</h4>
 <h2 id="prepare-dataset">Prepare dataset<a class="anchor" aria-label="anchor" href="#prepare-dataset"></a>
 </h2>
 <p>In a first example, we want to model the well-known
-<code>AirPassenger</code> time series (<code>ts</code> object). The
+<code>AirPassengers</code> time series (<code>ts</code> object). The
 dataset contains monthly totals of international airline passengers (in
 thousands) from January 1949 to December 1960 with 144 observations in
 total. The first 132 observations are used for model training
-(<code>n_train</code>) and last 12 observations are used for testing
+(<code>n_train</code>) and the last 12 observations are used for testing
 (<code>n_ahead</code>). <code>xtrain</code> and <code>xtest</code> are
 numeric vectors containing the training and testing data.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
@@ -206,14 +206,14 @@ matrix</td>
 </tr>
 <tr class="odd">
 <td align="left"><code>scale_win</code></td>
-<td align="left">Input weights matrix is drawn from a random uniform
-distribution with interval <code>(-0.5, 0.5)</code>
+<td align="left">Input weight matrix is drawn from a random uniform
+distribution on <code>(-0.5, 0.5)</code>
 </td>
 </tr>
 <tr class="even">
 <td align="left"><code>scale_wres</code></td>
 <td align="left">Reservoir weight matrix is drawn from a random uniform
-distribution with interval <code>(-0.5, 0.5)</code>
+distribution on <code>(-0.5, 0.5)</code>
 </td>
 </tr>
 <tr class="odd">
@@ -257,18 +257,18 @@ the future. The output <code>xfcst</code> is a list of class
 <span><span class="co">#&gt;  [9] 497.5575 448.8337 405.7796 443.9338</span></span>
 <span><span class="va">xfcst</span><span class="op">$</span><span class="va">interval</span></span>
 <span><span class="co">#&gt;       lower(80) lower(95) upper(80) upper(95)</span></span>
-<span><span class="co">#&gt;  [1,]  401.0506  410.1288  435.6200  439.5025</span></span>
-<span><span class="co">#&gt;  [2,]  376.8707  383.7836  422.2915  427.7195</span></span>
-<span><span class="co">#&gt;  [3,]  420.4539  428.0697  470.5884  477.6391</span></span>
-<span><span class="co">#&gt;  [4,]  407.8879  417.4741  459.1989  465.2480</span></span>
-<span><span class="co">#&gt;  [5,]  434.5537  444.3180  489.6266  495.6535</span></span>
-<span><span class="co">#&gt;  [6,]  479.1714  488.8532  534.6986  544.8950</span></span>
-<span><span class="co">#&gt;  [7,]  541.6526  556.2674  603.6298  615.8202</span></span>
-<span><span class="co">#&gt;  [8,]  550.4265  568.7352  611.3039  620.8753</span></span>
-<span><span class="co">#&gt;  [9,]  460.5468  478.2108  520.0018  536.9712</span></span>
-<span><span class="co">#&gt; [10,]  415.8190  425.2954  471.0781  490.6883</span></span>
-<span><span class="co">#&gt; [11,]  371.6403  382.5814  433.4297  443.4057</span></span>
-<span><span class="co">#&gt; [12,]  406.4784  419.3160  470.5589  481.1878</span></span>
+<span><span class="co">#&gt;  [1,]  410.1288  401.0506  435.6200  439.5025</span></span>
+<span><span class="co">#&gt;  [2,]  383.7836  376.8707  422.2915  427.7195</span></span>
+<span><span class="co">#&gt;  [3,]  428.0697  420.4539  470.5884  477.6391</span></span>
+<span><span class="co">#&gt;  [4,]  417.4741  407.8879  459.1989  465.2480</span></span>
+<span><span class="co">#&gt;  [5,]  444.3180  434.5537  489.6266  495.6535</span></span>
+<span><span class="co">#&gt;  [6,]  488.8532  479.1714  534.6986  544.8950</span></span>
+<span><span class="co">#&gt;  [7,]  556.2674  541.6526  603.6298  615.8202</span></span>
+<span><span class="co">#&gt;  [8,]  568.7352  550.4265  611.3039  620.8753</span></span>
+<span><span class="co">#&gt;  [9,]  478.2108  460.5468  520.0018  536.9712</span></span>
+<span><span class="co">#&gt; [10,]  425.2954  415.8190  471.0781  490.6883</span></span>
+<span><span class="co">#&gt; [11,]  382.5814  371.6403  433.4297  443.4057</span></span>
+<span><span class="co">#&gt; [12,]  419.3160  406.4784  470.5589  481.1878</span></span>
 <span></span>
 <span><span class="co"># Plot forecast and test data</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">xfcst</span>, test <span class="op">=</span> <span class="va">xtest</span><span class="op">)</span></span></code></pre></div>
@@ -278,8 +278,8 @@ the future. The output <code>xfcst</code> is a list of class
 <h2 id="hyperparameter-tuning">Hyperparameter tuning<a class="anchor" aria-label="anchor" href="#hyperparameter-tuning"></a>
 </h2>
 <p>We now call the function <code><a href="../reference/tune_esn.html">tune_esn()</a></code> to evaluate a grid
-of hyperparameters values. In this example, we will test different
-values for the leakage rate <code>alpha</code> and conduct a time series
+of hyperparameter values. In this example, we will test different values
+for the leakage rate <code>alpha</code> and conduct a time series
 cross-validation. Here, <code>n_ahead = 12</code> produces 12-step-ahead
 forecasts, and <code>n_split = 5</code> creates five rolling train/test
 splits. For each split and each hyperparameter combination, the model is

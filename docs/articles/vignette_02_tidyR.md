@@ -55,7 +55,7 @@ p <- p + facet_wrap(
 p
 ```
 
-![Plot actual values](vignette_02_tidyR_files/figure-html/data%20-1.png)
+![Plot actual values](vignette_02_tidyR_files/figure-html/data-1.png)
 
 ## Train ESN model
 
@@ -67,7 +67,7 @@ the `fabletools` package to train an Echo State Network for the variable
 `value`. The trained models are stored as a `mable` (i.e., *model
 table*). Additionally, an
 [`ARIMA()`](https://fable.tidyverts.org/reference/ARIMA.html) model is
-trained as benchmark.
+trained as a benchmark.
 
 ``` r
 mable_frame <- train_frame %>%
@@ -89,9 +89,9 @@ mable_frame
 
 Forecasts are generated via the function
 [`forecast()`](https://generics.r-lib.org/reference/forecast.html),
-where the forecast horizon is set to `h = 18` (i.e., 18-month ahead
-forecasts). The forecasts are stored as `fable` (i.e., *forecast table*)
-and visualized along the historic training data.
+where the forecast horizon is set to `h = 18` (i.e., 18-month-ahead
+forecasts). The forecasts are stored as a `fable` (i.e., *forecast
+table*) and visualized along the historical training data.
 
 ``` r
 fable_frame <- mable_frame %>%

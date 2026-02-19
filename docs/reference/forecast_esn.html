@@ -75,11 +75,11 @@
 
 
 <dt id="arg-levels">levels<a class="anchor" aria-label="anchor" href="#arg-levels"></a></dt>
-<dd><p>Integer vector. The levels of the forecast intervals, e.g., 80% and 95%.</p></dd>
+<dd><p>Numeric vector. The levels of the forecast intervals (in percent), e.g., <code>c(80, 95)</code>. Values must lie between 0 and 100.</p></dd>
 
 
 <dt id="arg-n-sim">n_sim<a class="anchor" aria-label="anchor" href="#arg-n-sim"></a></dt>
-<dd><p>Integer value. The number of future sample path generated during simulation.</p></dd>
+<dd><p>Integer value. The number of simulated future paths used to compute forecast intervals via a moving block bootstrap of the (demeaned) in-sample residuals. If <code>NULL</code>, no intervals are computed.</p></dd>
 
 
 <dt id="arg-n-seed">n_seed<a class="anchor" aria-label="anchor" href="#arg-n-seed"></a></dt>
@@ -91,6 +91,7 @@
     <p>A <code>list</code> containing:</p><ul><li><p><code>point</code>: Numeric vector containing the point forecasts.</p></li>
 <li><p><code>interval</code>: Numeric matrix containing the forecast intervals.</p></li>
 <li><p><code>sim</code>: Numeric matrix containing the simulated future sample path.</p></li>
+<li><p><code>std</code>: Numeric vector with standard deviations.</p></li>
 <li><p><code>levels</code>: Integer vector. The levels of the forecast intervals.</p></li>
 <li><p><code>actual</code>: Numeric vector containing the actual values.</p></li>
 <li><p><code>fitted</code>: Numeric vector containing the fitted values.</p></li>

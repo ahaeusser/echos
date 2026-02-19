@@ -8,11 +8,11 @@ library(echos)
 
 ## Prepare dataset
 
-In a first example, we want to model the well-known `AirPassenger` time
+In a first example, we want to model the well-known `AirPassengers` time
 series (`ts` object). The dataset contains monthly totals of
 international airline passengers (in thousands) from January 1949 to
 December 1960 with 144 observations in total. The first 132 observations
-are used for model training (`n_train`) and last 12 observations are
+are used for model training (`n_train`) and the last 12 observations are
 used for testing (`n_ahead`). `xtrain` and `xtest` are numeric vectors
 containing the training and testing data.
 
@@ -96,8 +96,8 @@ trained ESN model:
 | `rho` | Spectral radius for scaling the reservoir weight matrix |
 | `density` | Density of the reservoir weight matrix |
 | `scale_inputs` | Input training data are scaled to the interval `(-0.5, 0.5)` |
-| `scale_win` | Input weights matrix is drawn from a random uniform distribution with interval `(-0.5, 0.5)` |
-| `scale_wres` | Reservoir weight matrix is drawn from a random uniform distribution with interval `(-0.5, 0.5)` |
+| `scale_win` | Input weight matrix is drawn from a random uniform distribution on `(-0.5, 0.5)` |
+| `scale_wres` | Reservoir weight matrix is drawn from a random uniform distribution on `(-0.5, 0.5)` |
 | `n_models` | Number of models evaluated during the random search optimization to find the regularization parameter `lambda` |
 | `df` | Effective degrees of freedom in the model |
 | `lambda` | Regularization parameter for the ridge regression estimation |
@@ -124,18 +124,18 @@ xfcst$point
 #>  [9] 497.5575 448.8337 405.7796 443.9338
 xfcst$interval
 #>       lower(80) lower(95) upper(80) upper(95)
-#>  [1,]  401.0506  410.1288  435.6200  439.5025
-#>  [2,]  376.8707  383.7836  422.2915  427.7195
-#>  [3,]  420.4539  428.0697  470.5884  477.6391
-#>  [4,]  407.8879  417.4741  459.1989  465.2480
-#>  [5,]  434.5537  444.3180  489.6266  495.6535
-#>  [6,]  479.1714  488.8532  534.6986  544.8950
-#>  [7,]  541.6526  556.2674  603.6298  615.8202
-#>  [8,]  550.4265  568.7352  611.3039  620.8753
-#>  [9,]  460.5468  478.2108  520.0018  536.9712
-#> [10,]  415.8190  425.2954  471.0781  490.6883
-#> [11,]  371.6403  382.5814  433.4297  443.4057
-#> [12,]  406.4784  419.3160  470.5589  481.1878
+#>  [1,]  410.1288  401.0506  435.6200  439.5025
+#>  [2,]  383.7836  376.8707  422.2915  427.7195
+#>  [3,]  428.0697  420.4539  470.5884  477.6391
+#>  [4,]  417.4741  407.8879  459.1989  465.2480
+#>  [5,]  444.3180  434.5537  489.6266  495.6535
+#>  [6,]  488.8532  479.1714  534.6986  544.8950
+#>  [7,]  556.2674  541.6526  603.6298  615.8202
+#>  [8,]  568.7352  550.4265  611.3039  620.8753
+#>  [9,]  478.2108  460.5468  520.0018  536.9712
+#> [10,]  425.2954  415.8190  471.0781  490.6883
+#> [11,]  382.5814  371.6403  433.4297  443.4057
+#> [12,]  419.3160  406.4784  470.5589  481.1878
 
 # Plot forecast and test data
 plot(xfcst, test = xtest)
@@ -148,7 +148,7 @@ data](vignette_01_baseR_files/figure-html/forecast-1.png)
 
 We now call the function
 [`tune_esn()`](https://ahaeusser.github.io/echos/reference/tune_esn.md)
-to evaluate a grid of hyperparameters values. In this example, we will
+to evaluate a grid of hyperparameter values. In this example, we will
 test different values for the leakage rate `alpha` and conduct a time
 series cross-validation. Here, `n_ahead = 12` produces 12-step-ahead
 forecasts, and `n_split = 5` creates five rolling train/test splits. For
