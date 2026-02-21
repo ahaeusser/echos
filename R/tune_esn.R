@@ -8,7 +8,7 @@
 #'    (\code{alpha, rho, tau}) an ESN is trained via \code{train_esn()} and 
 #'    forecasts are generated via \code{forecast_esn()}.
 #'
-#' @param y Numeric vector containing the response variable.
+#' @param y Numeric vector containing the response variable (no missing values).
 #' @param n_ahead Integer value. The number of periods for forecasting (i.e. forecast horizon).
 #' @param n_split Integer value. The number of rolling train/test splits.
 #' @param alpha Numeric vector. The candidate leakage rates (smoothing parameters).
@@ -49,8 +49,8 @@
 #'   tau   = c(0.4),
 #'   inf_crit = "bic"
 #' )
-#' 
-#' fit$pars
+#' summary(fit)
+#' plot(fit)
 #'
 #' @export
 
@@ -67,11 +67,11 @@ tune_esn <- function(y,
   
   # Check input data
   if (!(is.vector(y) & is.numeric(y))) {
-    stop("tune_esn() requires a numeric vector as input.")
+    stop("`tune_esn()` requires a numeric vector as input.")
   }
   
   if (any(is.na(y))) {
-    stop("tune_esn() does not support missing values.")
+    stop("`tune_esn()` does not support missing values.")
   }
   
   # Number of observations
@@ -91,7 +91,7 @@ tune_esn <- function(y,
   }
   
   if (n_total < (min_train + n_ahead)) {
-    stop("Time series too short for given min_train and n_ahead.")
+    stop("`y` too short for given `min_train` and `n_ahead`.")
   }
   
   # Pre-processing ============================================================

@@ -1,7 +1,7 @@
 Package: echos
 Type: Package
 Title: Echo State Networks for Time Series Modeling and Forecasting
-Version: 1.0.2
+Version: 1.0.3
 Description: Provides a lightweight implementation of functions and methods for
     fast and fully automatic time series modeling and forecasting using Echo
     State Networks (ESNs).

@@ -73,11 +73,11 @@ train_esn <- function(y,
   if (is.vector(y) & is.numeric(y)) {
     n_outputs <- 1
   } else {
-    stop("train_esn() requires a numeric vector as input.")
+    stop("`train_esn()` requires a numeric vector as input.")
   }
   
   if(any(is.na(y))){
-    stop("train_esn() does not support missing values.")
+    stop("`train_esn()` does not support missing values.")
   }
   
   # Number of observations
@@ -106,6 +106,11 @@ train_esn <- function(y,
     inf_crit, 
     choices = c("aic", "aicc", "bic", "hqc")
     )
+  
+  # Check time series length
+  if (n_total - n_diff - max(lags) - n_initial <= 0) {
+    stop("`y` is too short for given `n_diff`, `lags`, and `n_initial`.")
+  }
   
   # Set seed for reproducibility
   set.seed(n_seed)
@@ -232,10 +237,6 @@ train_esn <- function(y,
       model = model_names,
       .before = "loglik") %>%
     arrange(!!sym(inf_crit))
-  
-  # Alternative base R code
-  # model_metrics <- cbind(model = model_names, model_metrics)
-  # model_metrics <- model_metrics[ order(model_metrics[[inf_crit]]) , ]
   
   # Identify best model, lambda and degrees of freedom (extract first row)
   model_best <- model_metrics[["model"]][1]

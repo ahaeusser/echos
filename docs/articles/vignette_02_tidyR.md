@@ -117,6 +117,13 @@ fable_frame
 
 fable_frame %>%
   autoplot(train_frame, level = NULL)
+#> Warning: `autoplot.fbl_ts()` was deprecated in fabletools 0.6.0.
+#> ℹ Please use `ggtime::autoplot.fbl_ts()` instead.
+#> ℹ Graphics functions have been moved to the {ggtime} package. Please use
+#>   `library(ggtime)` instead.
+#> This warning is displayed once per session.
+#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+#> generated.
 ```
 
 ![Plot forecast and train

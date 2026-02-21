@@ -16,7 +16,7 @@ tune_esn(
 )
 }
 \arguments{
-\item{y}{Numeric vector containing the response variable.}
+\item{y}{Numeric vector containing the response variable (no missing values).}
 
 \item{n_ahead}{Integer value. The number of periods for forecasting (i.e. forecast horizon).}
 
@@ -62,8 +62,8 @@ fit <- tune_esn(
   tau   = c(0.4),
   inf_crit = "bic"
 )
-
-fit$pars
+summary(fit)
+plot(fit)
 
 }
 \references{

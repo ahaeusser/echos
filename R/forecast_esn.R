@@ -316,7 +316,6 @@ predict_esn <- function(win,
       i <- min(which(is.na(inputs[, j])))
       inputs[i, j] <- mu
     }
-    
   }
   
   return(fcst)

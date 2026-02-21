@@ -25,8 +25,10 @@
 
 ### Improvements
 
-- Added input validation for `inf_crit` in
-  [`train_esn()`](https://ahaeusser.github.io/echos/reference/train_esn.md).
+- Added input validation for `y` and `inf_crit` in
+  [`train_esn()`](https://ahaeusser.github.io/echos/reference/train_esn.md)
+  and `levels` in
+  [`forecast_esn()`](https://ahaeusser.github.io/echos/reference/forecast_esn.md).
 - Improved documentation
 
 ## echos 1.0.2

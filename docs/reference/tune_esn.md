@@ -28,7 +28,7 @@ tune_esn(
 
 - y:
 
-  Numeric vector containing the response variable.
+  Numeric vector containing the response variable (no missing values).
 
 - n_ahead:
 
@@ -125,20 +125,16 @@ fit <- tune_esn(
   tau   = c(0.4),
   inf_crit = "bic"
 )
-
-fit$pars
-#> # A tibble: 10 × 11
-#>    alpha   rho   tau split train_start train_end test_start test_end   mse   mae
-#>    <dbl> <dbl> <dbl> <int>       <int>     <int>      <int>    <int> <dbl> <dbl>
-#>  1   0.5     1   0.4     1           1        84         85       96  769.  22.3
-#>  2   0.5     1   0.4     2           1        96         97      108 1267.  28.3
-#>  3   0.5     1   0.4     3           1       108        109      120 1276.  31.0
-#>  4   0.5     1   0.4     4           1       120        121      132 1035.  24.3
-#>  5   0.5     1   0.4     5           1       132        133      144 1038.  23.9
-#>  6   1       1   0.4     1           1        84         85       96  471.  19.5
-#>  7   1       1   0.4     2           1        96         97      108  376.  14.2
-#>  8   1       1   0.4     3           1       108        109      120  526.  19.0
-#>  9   1       1   0.4     4           1       120        121      132  547.  20.2
-#> 10   1       1   0.4     5           1       132        133      144  396.  17.0
+summary(fit)
+#> # A tibble: 5 × 11
+#>   alpha   rho   tau split train_start train_end test_start test_end   mse   mae
+#>   <dbl> <dbl> <dbl> <int>       <int>     <int>      <int>    <int> <dbl> <dbl>
+#> 1     1     1   0.4     1           1        84         85       96  471.  19.5
+#> 2     1     1   0.4     2           1        96         97      108  376.  14.2
+#> 3     1     1   0.4     3           1       108        109      120  526.  19.0
+#> 4     1     1   0.4     4           1       120        121      132  547.  20.2
+#> 5     1     1   0.4     5           1       132        133      144  396.  17.0
 #> # ℹ 1 more variable: id <int>
+plot(fit)
+
 ```
