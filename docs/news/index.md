@@ -2,6 +2,8 @@
 
 ## echos 1.0.3
 
+CRAN release: 2026-02-21
+
 ### New features
 
 - Added reservoir scaling parameter `tau` to

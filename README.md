@@ -103,6 +103,11 @@ train_frame %>%
 
 <img src="man/figures/README-tidy-1.svg" alt="Plot forecast and train data" width="100%" />
 
+## Links
+
+- [CRAN](https://cran.r-project.org/package=echos)
+- [Website](https://ahaeusser.github.io/echos/)
+
 ## References
 
 - Häußer, A. (2026). *Echo State Networks for Time Series Forecasting:
