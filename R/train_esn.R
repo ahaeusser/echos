@@ -4,6 +4,36 @@
 #' @description Train an Echo State Network (ESN) to a univariate time series.
 #'    The function automatically manages data pre-processing, reservoir
 #'    generation (i.e., internal states) and model estimation and selection.
+#'    
+#' @details The implemented Echo State Network consists of an input layer, a 
+#'    randomly generated recurrent reservoir, and a linear readout layer. The 
+#'    input and reservoir weight matrices are randomly initialized and then 
+#'    kept fixed. Only the readout weights are estimated, using ridge 
+#'    regression.
+#'
+#'    Before the ESN is trained, the input series is optionally differenced 
+#'    using \code{n_diff}; if \code{n_diff = NULL}, the number of differences 
+#'    is selected automatically using a KPSS-based procedure. The transformed 
+#'    series is scaled to \code{scale_inputs}. Lagged values specified by 
+#'    \code{lags} are used as inputs to the reservoir.
+#'
+#'    If \code{n_states = NULL}, the reservoir size is set to 
+#'    \code{min(floor(n_total * tau), 200)}, where \code{n_total} is the length
+#'    of the input series. If \code{n_models = NULL}, \code{n_states * 2}
+#'    candidate readout models are estimated. For these candidate models,
+#'    regularization parameters are drawn from the interval specified by
+#'    \code{lambda}, and the best model is selected according to 
+#'    \code{inf_crit}.
+#'
+#'    The most influential ESN hyperparameters are \code{n_states},
+#'    \code{alpha}, \code{rho}, \code{density}, \code{scale_win},
+#'    \code{scale_wres}, and \code{lambda}. Larger reservoirs can represent
+#'    richer dynamics but increase runtime and overfitting risk. The leakage
+#'    rate \code{alpha} controls the speed of reservoir state updates. The
+#'    spectral radius \code{rho} affects the memory and stability of the
+#'    reservoir. The density controls the sparsity of recurrent connections.
+#'    The \code{lambda} interval controls the amount of ridge regularization
+#'    considered during readout selection.
 #' 
 #' @param y Numeric vector containing the response variable (no missing values).
 #' @param lags Integer vector with the lag(s) associated with the input variable.

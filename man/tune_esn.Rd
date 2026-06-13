@@ -22,11 +22,17 @@ tune_esn(
 
 \item{n_split}{Integer value. The number of rolling train/test splits.}
 
-\item{alpha}{Numeric vector. The candidate leakage rates (smoothing parameters).}
+\item{alpha}{Numeric vector of candidate leakage rates. Smaller values
+produce slower reservoir state updates; larger values make the reservoir
+react more strongly to recent inputs.}
 
-\item{rho}{Numeric vector. The candidate spectral radii.}
+\item{rho}{Numeric vector of candidate spectral radii. This parameter
+scales the recurrent reservoir weights and affects reservoir memory and
+stability.}
 
-\item{tau}{Numeric vector. The candidate reservoir scaling values.}
+\item{tau}{Numeric vector of candidate reservoir scaling values. Used to
+determine the reservoir size when \code{n_states = NULL} in
+\code{train_esn()}.}
 
 \item{min_train}{Integer value. Minimum training sample size for the first split.}
 
@@ -50,6 +56,27 @@ Tune hyperparameters of an Echo State Network (ESN) based on
    \code{n_ahead}. For each split and each hyperparameter combination 
    (\code{alpha, rho, tau}) an ESN is trained via \code{train_esn()} and 
    forecasts are generated via \code{forecast_esn()}.
+}
+\details{
+\code{tune_esn()} performs grid-based hyperparameter tuning using
+   expanding-window time series cross-validation. The tuning grid is formed
+   from all combinations of \code{alpha}, \code{rho}, and \code{tau}.
+   For each split, the model is trained on observations from the beginning
+   of the series up to the split-specific training endpoint and evaluated on
+   the following \code{n_ahead} observations.
+
+   For every candidate configuration and split, \code{train_esn()} is called
+   with the corresponding \code{alpha}, \code{rho}, and \code{tau}; all other
+   arguments supplied through \code{...} are passed to \code{train_esn()}.
+   Forecasts are generated with \code{forecast_esn()}, and the mean squared
+   error (\code{mse}) and mean absolute error \code{mae} are stored. The 
+   accompanying \code{summary()} and \code{plot()} methods use these stored 
+   errors to identify and display the best-performing hyperparameter 
+   configuration.
+
+   Runtime increases approximately linearly with the number of grid
+   combinations and the number of validation splits. Users should start with
+   coarse grids and increase the grid resolution only where needed.
 }
 \examples{
 xdata <- as.numeric(AirPassengers)

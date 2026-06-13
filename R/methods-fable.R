@@ -60,8 +60,19 @@ specials_esn <- new_specials()
 #'    The function is a wrapper for \code{train_esn()} and intended to be used 
 #'    in combination with \code{fabletools::model()}.
 #'
-#' @param formula Model specification (currently not in use).
-#' @param ... Further arguments passed to \code{train_esn()}.
+#' @param formula A model formula used by the \code{fabletools} model
+#'   specification interface. The left-hand side identifies the univariate
+#'   response variable to be modeled. The current implementation does not
+#'   interpret additional right-hand-side terms, because \code{echos}
+#'   currently supports univariate ESN models without exogenous regressors.
+#'   The formula interface is retained for consistency with
+#'   \code{fabletools::model()} and to allow future extensions, such as
+#'   exogenous variables or richer model specifications.
+#' @param ... Further arguments passed to \code{train_esn()}, including
+#'   ESN architecture, pre-processing, and model-selection parameters such as
+#'   \code{lags}, \code{n_diff}, \code{n_states}, \code{n_models},
+#'   \code{alpha}, \code{rho}, \code{tau}, \code{density}, \code{lambda},
+#'   \code{scale_win}, \code{scale_wres}, and \code{scale_inputs}.
 #'
 #' @return An object of class \code{ESN}.
 #' 
