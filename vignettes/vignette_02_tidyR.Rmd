@@ -82,7 +82,3 @@ fable_frame
 fable_frame %>%
   autoplot(train_frame, level = NULL)
 ```
-
-
-
-
