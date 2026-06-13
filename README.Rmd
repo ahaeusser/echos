@@ -33,8 +33,15 @@ The `echos` package provides a comprehensive set of **functions and methods** fo
 * **Base R interface:** Functions for modeling and forecasting time series using `numeric` vectors, allowing for straightforward integration with existing R workflows.
 * **Tidy interface:** A seamless integration with the [`fable`](https://github.com/tidyverts/fable) framework based on [`tsibble`](https://github.com/tidyverts/tsibble), enabling tidy time series forecasting and model evaluation. This interface leverages the [`fabletools`](https://github.com/tidyverts/fabletools) package, providing a consistent and streamlined workflow for model development, evaluation, and visualization.
 
-The package features a **lightweight implementation** that enables **fast and fully automatic** model training and forecasting using ESNs. You can quickly and easily build accurate ESN models without requiring extensive hyperparameter tuning or manual configuration.
+The package features a **lightweight implementation** that enables **fast and automatic** model training and forecasting using ESNs. You can quickly and easily build accurate ESN models without requiring extensive hyperparameter tuning or manual configuration.
 
+## Model specification
+
+`echos` implements Echo State Networks with a fixed randomly initialized reservoir and a ridge-regression readout. The input and reservoir weights are generated once and kept fixed, while only the readout layer is estimated.
+
+The main ESN hyperparameters are the reservoir size (`n_states`), leakage rate (`alpha`), spectral radius (`rho`), reservoir density (`density`), input scaling (`scale_inputs`, `scale_win`, `scale_wres`), and the ridge regularization range (`lambda`). These parameters control the memory, stability, complexity, and regularization of the model.
+
+By default, `train_esn()` automatically determines the number of differences, constructs the reservoir, evaluates candidate ridge readout models, and selects the final readout using an information criterion. For explicit grid-based tuning of `alpha`, `rho`, and `tau`, use `tune_esn()`.
 
 ## Installation
 
