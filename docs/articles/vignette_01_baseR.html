@@ -117,6 +117,27 @@ numeric vectors containing the training and testing data.</p>
 <span><span class="co">#&gt;  [1] 417 391 419 461 472 535 622 606 508 461 390 432</span></span></code></pre></div>
 </div>
 <div class="section level2">
+<h2 id="esn-architecture-and-automatic-model-selection">ESN architecture and automatic model selection<a class="anchor" aria-label="anchor" href="#esn-architecture-and-automatic-model-selection"></a>
+</h2>
+<p>An Echo State Network consists of an input layer, a recurrent
+reservoir, and a readout layer. In <code>echos</code>, the input and
+reservoir weight matrices are randomly initialized and kept fixed. Only
+the readout layer is estimated, using ridge regression.</p>
+<p>The main reservoir hyperparameters are <code>n_states</code>,
+<code>alpha</code>, <code>rho</code>, and <code>density</code>. The
+argument <code>n_states</code> controls the reservoir size. The leakage
+rate <code>alpha</code> controls how quickly reservoir states react to
+new inputs. The spectral radius <code>rho</code> scales the recurrent
+reservoir matrix and affects memory and stability. The argument
+<code>density</code> controls the sparsity of the reservoir matrix.</p>
+<p>The function <code><a href="../reference/train_esn.html">train_esn()</a></code> also performs automatic model
+selection for the ridge readout. If <code>n_models = NULL</code>, the
+function evaluates <code>n_states * 2</code> candidate readout models.
+Candidate ridge penalties are sampled from the interval specified by
+<code>lambda</code>, and the best readout model is selected using the
+information criterion specified by <code>inf_crit</code>.</p>
+</div>
+<div class="section level2">
 <h2 id="train-esn-model">Train ESN model<a class="anchor" aria-label="anchor" href="#train-esn-model"></a>
 </h2>
 <p>The function <code><a href="../reference/train_esn.html">train_esn()</a></code> is used to automatically train
@@ -278,13 +299,25 @@ the future. The output <code>xfcst</code> is a list of class
 <h2 id="hyperparameter-tuning">Hyperparameter tuning<a class="anchor" aria-label="anchor" href="#hyperparameter-tuning"></a>
 </h2>
 <p>We now call the function <code><a href="../reference/tune_esn.html">tune_esn()</a></code> to evaluate a grid
-of hyperparameter values. In this example, we will test different values
-for the leakage rate <code>alpha</code> and conduct a time series
-cross-validation. Here, <code>n_ahead = 12</code> produces 12-step-ahead
+of hyperparameter values using time series cross-validation. In this
+example, we test different values for the leakage rate
+<code>alpha</code> while keeping the spectral radius <code>rho</code>
+and the reservoir-size scaling parameter <code>tau</code> fixed. The
+leakage rate <code>alpha</code> controls how quickly the reservoir
+states react to new inputs. The spectral radius <code>rho</code> scales
+the recurrent reservoir weight matrix and affects the memory and
+stability of the reservoir. The parameter <code>tau</code> is used to
+determine the reservoir size when <code>n_states = NULL</code>.</p>
+<p>The tuning procedure uses rolling-origin evaluation with expanding
+training windows. Here, <code>n_ahead = 12</code> produces 12-step-ahead
 forecasts, and <code>n_split = 5</code> creates five rolling train/test
 splits. For each split and each hyperparameter combination, the model is
 fitted on the training window and evaluated on the subsequent test
-window.</p>
+window. The resulting object stores the validation errors, including
+mean squared error (MSE) and mean absolute error (MAE), for each
+candidate configuration and split. Runtime increases with the number of
+grid combinations and validation splits, so coarse grids are recommended
+as a starting point before moving to finer tuning ranges.</p>
 <p>The S3 method <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> reports the best hyperparameter
 set according to the default accuracy metric (MSE unless you specify
 <code>metric = "mae"</code>), along with the corresponding performance.

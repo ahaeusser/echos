@@ -147,6 +147,35 @@
 <li><p><code>method</code>: A <code>list</code> containing several objects and meta information of the trained ESN (weight matrices, hyperparameters, model metrics, etc.).</p></li>
 </ul></div>
     <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>The implemented Echo State Network consists of an input layer, a
+   randomly generated recurrent reservoir, and a linear readout layer. The
+   input and reservoir weight matrices are randomly initialized and then
+   kept fixed. Only the readout weights are estimated, using ridge
+   regression.</p>
+<p>Before the ESN is trained, the input series is optionally differenced
+   using <code>n_diff</code>; if <code>n_diff = NULL</code>, the number of differences
+   is selected automatically using a KPSS-based procedure. The transformed
+   series is scaled to <code>scale_inputs</code>. Lagged values specified by
+   <code>lags</code> are used as inputs to the reservoir.</p>
+<p>If <code>n_states = NULL</code>, the reservoir size is set to
+   <code>min(floor(n_total * tau), 200)</code>, where <code>n_total</code> is the length
+   of the input series. If <code>n_models = NULL</code>, <code>n_states * 2</code>
+   candidate readout models are estimated. For these candidate models,
+   regularization parameters are drawn from the interval specified by
+   <code>lambda</code>, and the best model is selected according to
+   <code>inf_crit</code>.</p>
+<p>The most influential ESN hyperparameters are <code>n_states</code>,
+   <code>alpha</code>, <code>rho</code>, <code>density</code>, <code>scale_win</code>,
+   <code>scale_wres</code>, and <code>lambda</code>. Larger reservoirs can represent
+   richer dynamics but increase runtime and overfitting risk. The leakage
+   rate <code>alpha</code> controls the speed of reservoir state updates. The
+   spectral radius <code>rho</code> affects the memory and stability of the
+   reservoir. The density controls the sparsity of recurrent connections.
+   The <code>lambda</code> interval controls the amount of ridge regularization
+   considered during readout selection.</p>
+    </div>
+    <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
 
 <ul><li><p>Häußer, A. (2026). Echo State Networks for Time Series Forecasting: Hyperparameter Sweep and Benchmarking. arXiv preprint arXiv:2602.03912, 2026. <a href="https://arxiv.org/abs/2602.03912" class="external-link">https://arxiv.org/abs/2602.03912</a></p></li>

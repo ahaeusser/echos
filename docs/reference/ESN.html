@@ -64,11 +64,22 @@
 
 
 <dl><dt id="arg-formula">formula<a class="anchor" aria-label="anchor" href="#arg-formula"></a></dt>
-<dd><p>Model specification (currently not in use).</p></dd>
+<dd><p>A model formula used by the <code>fabletools</code> model
+specification interface. The left-hand side identifies the univariate
+response variable to be modeled. The current implementation does not
+interpret additional right-hand-side terms, because <code>echos</code>
+currently supports univariate ESN models without exogenous regressors.
+The formula interface is retained for consistency with
+<code><a href="https://fabletools.tidyverts.org/reference/model.html" class="external-link">fabletools::model()</a></code> and to allow future extensions, such as
+exogenous variables or richer model specifications.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Further arguments passed to <code><a href="train_esn.html">train_esn()</a></code>.</p></dd>
+<dd><p>Further arguments passed to <code><a href="train_esn.html">train_esn()</a></code>, including
+ESN architecture, pre-processing, and model-selection parameters such as
+<code>lags</code>, <code>n_diff</code>, <code>n_states</code>, <code>n_models</code>,
+<code>alpha</code>, <code>rho</code>, <code>tau</code>, <code>density</code>, <code>lambda</code>,
+<code>scale_win</code>, <code>scale_wres</code>, and <code>scale_inputs</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">

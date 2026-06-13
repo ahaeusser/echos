@@ -41,15 +41,21 @@ tune_esn(
 
 - alpha:
 
-  Numeric vector. The candidate leakage rates (smoothing parameters).
+  Numeric vector of candidate leakage rates. Smaller values produce
+  slower reservoir state updates; larger values make the reservoir react
+  more strongly to recent inputs.
 
 - rho:
 
-  Numeric vector. The candidate spectral radii.
+  Numeric vector of candidate spectral radii. This parameter scales the
+  recurrent reservoir weights and affects reservoir memory and
+  stability.
 
 - tau:
 
-  Numeric vector. The candidate reservoir scaling values.
+  Numeric vector of candidate reservoir scaling values. Used to
+  determine the reservoir size when `n_states = NULL` in
+  [`train_esn()`](https://ahaeusser.github.io/echos/reference/train_esn.md).
 
 - min_train:
 
@@ -74,6 +80,33 @@ An object of class `"tune_esn"` (a list) with:
 
 - `actual`: The original input series `y` (numeric vector), returned for
   convenience.
+
+## Details
+
+`tune_esn()` performs grid-based hyperparameter tuning using
+expanding-window time series cross-validation. The tuning grid is formed
+from all combinations of `alpha`, `rho`, and `tau`. For each split, the
+model is trained on observations from the beginning of the series up to
+the split-specific training endpoint and evaluated on the following
+`n_ahead` observations.
+
+For every candidate configuration and split,
+[`train_esn()`](https://ahaeusser.github.io/echos/reference/train_esn.md)
+is called with the corresponding `alpha`, `rho`, and `tau`; all other
+arguments supplied through `...` are passed to
+[`train_esn()`](https://ahaeusser.github.io/echos/reference/train_esn.md).
+Forecasts are generated with
+[`forecast_esn()`](https://ahaeusser.github.io/echos/reference/forecast_esn.md),
+and the mean squared error (`mse`) and mean absolute error `mae` are
+stored. The accompanying
+[`summary()`](https://rdrr.io/r/base/summary.html) and
+[`plot()`](https://rdrr.io/r/graphics/plot.default.html) methods use
+these stored errors to identify and display the best-performing
+hyperparameter configuration.
+
+Runtime increases approximately linearly with the number of grid
+combinations and the number of validation splits. Users should start
+with coarse grids and increase the grid resolution only where needed.
 
 ## References
 

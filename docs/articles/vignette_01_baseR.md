@@ -43,6 +43,28 @@ xtest
 #>  [1] 417 391 419 461 472 535 622 606 508 461 390 432
 ```
 
+## ESN architecture and automatic model selection
+
+An Echo State Network consists of an input layer, a recurrent reservoir,
+and a readout layer. In `echos`, the input and reservoir weight matrices
+are randomly initialized and kept fixed. Only the readout layer is
+estimated, using ridge regression.
+
+The main reservoir hyperparameters are `n_states`, `alpha`, `rho`, and
+`density`. The argument `n_states` controls the reservoir size. The
+leakage rate `alpha` controls how quickly reservoir states react to new
+inputs. The spectral radius `rho` scales the recurrent reservoir matrix
+and affects memory and stability. The argument `density` controls the
+sparsity of the reservoir matrix.
+
+The function
+[`train_esn()`](https://ahaeusser.github.io/echos/reference/train_esn.md)
+also performs automatic model selection for the ridge readout. If
+`n_models = NULL`, the function evaluates `n_states * 2` candidate
+readout models. Candidate ridge penalties are sampled from the interval
+specified by `lambda`, and the best readout model is selected using the
+information criterion specified by `inf_crit`.
+
 ## Train ESN model
 
 The function
@@ -148,12 +170,25 @@ data](vignette_01_baseR_files/figure-html/forecast-1.png)
 
 We now call the function
 [`tune_esn()`](https://ahaeusser.github.io/echos/reference/tune_esn.md)
-to evaluate a grid of hyperparameter values. In this example, we will
-test different values for the leakage rate `alpha` and conduct a time
-series cross-validation. Here, `n_ahead = 12` produces 12-step-ahead
-forecasts, and `n_split = 5` creates five rolling train/test splits. For
-each split and each hyperparameter combination, the model is fitted on
-the training window and evaluated on the subsequent test window.
+to evaluate a grid of hyperparameter values using time series
+cross-validation. In this example, we test different values for the
+leakage rate `alpha` while keeping the spectral radius `rho` and the
+reservoir-size scaling parameter `tau` fixed. The leakage rate `alpha`
+controls how quickly the reservoir states react to new inputs. The
+spectral radius `rho` scales the recurrent reservoir weight matrix and
+affects the memory and stability of the reservoir. The parameter `tau`
+is used to determine the reservoir size when `n_states = NULL`.
+
+The tuning procedure uses rolling-origin evaluation with expanding
+training windows. Here, `n_ahead = 12` produces 12-step-ahead forecasts,
+and `n_split = 5` creates five rolling train/test splits. For each split
+and each hyperparameter combination, the model is fitted on the training
+window and evaluated on the subsequent test window. The resulting object
+stores the validation errors, including mean squared error (MSE) and
+mean absolute error (MAE), for each candidate configuration and split.
+Runtime increases with the number of grid combinations and validation
+splits, so coarse grids are recommended as a starting point before
+moving to finer tuning ranges.
 
 The S3 method [`summary()`](https://rdrr.io/r/base/summary.html) reports
 the best hyperparameter set according to the default accuracy metric

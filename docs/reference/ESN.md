@@ -18,12 +18,24 @@ ESN(formula, ...)
 
 - formula:
 
-  Model specification (currently not in use).
+  A model formula used by the `fabletools` model specification
+  interface. The left-hand side identifies the univariate response
+  variable to be modeled. The current implementation does not interpret
+  additional right-hand-side terms, because `echos` currently supports
+  univariate ESN models without exogenous regressors. The formula
+  interface is retained for consistency with
+  [`fabletools::model()`](https://fabletools.tidyverts.org/reference/model.html)
+  and to allow future extensions, such as exogenous variables or richer
+  model specifications.
 
 - ...:
 
   Further arguments passed to
-  [`train_esn()`](https://ahaeusser.github.io/echos/reference/train_esn.md).
+  [`train_esn()`](https://ahaeusser.github.io/echos/reference/train_esn.md),
+  including ESN architecture, pre-processing, and model-selection
+  parameters such as `lags`, `n_diff`, `n_states`, `n_models`, `alpha`,
+  `rho`, `tau`, `density`, `lambda`, `scale_win`, `scale_wres`, and
+  `scale_inputs`.
 
 ## Value
 

@@ -137,6 +137,36 @@ A `list` containing:
   the trained ESN (weight matrices, hyperparameters, model metrics,
   etc.).
 
+## Details
+
+The implemented Echo State Network consists of an input layer, a
+randomly generated recurrent reservoir, and a linear readout layer. The
+input and reservoir weight matrices are randomly initialized and then
+kept fixed. Only the readout weights are estimated, using ridge
+regression.
+
+Before the ESN is trained, the input series is optionally differenced
+using `n_diff`; if `n_diff = NULL`, the number of differences is
+selected automatically using a KPSS-based procedure. The transformed
+series is scaled to `scale_inputs`. Lagged values specified by `lags`
+are used as inputs to the reservoir.
+
+If `n_states = NULL`, the reservoir size is set to
+`min(floor(n_total * tau), 200)`, where `n_total` is the length of the
+input series. If `n_models = NULL`, `n_states * 2` candidate readout
+models are estimated. For these candidate models, regularization
+parameters are drawn from the interval specified by `lambda`, and the
+best model is selected according to `inf_crit`.
+
+The most influential ESN hyperparameters are `n_states`, `alpha`, `rho`,
+`density`, `scale_win`, `scale_wres`, and `lambda`. Larger reservoirs
+can represent richer dynamics but increase runtime and overfitting risk.
+The leakage rate `alpha` controls the speed of reservoir state updates.
+The spectral radius `rho` affects the memory and stability of the
+reservoir. The density controls the sparsity of recurrent connections.
+The `lambda` interval controls the amount of ridge regularization
+considered during readout selection.
+
 ## References
 
 - Häußer, A. (2026). Echo State Networks for Time Series Forecasting:

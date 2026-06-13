@@ -74,7 +74,14 @@
 <li>
 <strong>Tidy interface:</strong> A seamless integration with the <a href="https://github.com/tidyverts/fable" class="external-link"><code>fable</code></a> framework based on <a href="https://github.com/tidyverts/tsibble" class="external-link"><code>tsibble</code></a>, enabling tidy time series forecasting and model evaluation. This interface leverages the <a href="https://github.com/tidyverts/fabletools" class="external-link"><code>fabletools</code></a> package, providing a consistent and streamlined workflow for model development, evaluation, and visualization.</li>
 </ul>
-<p>The package features a <strong>lightweight implementation</strong> that enables <strong>fast and fully automatic</strong> model training and forecasting using ESNs. You can quickly and easily build accurate ESN models without requiring extensive hyperparameter tuning or manual configuration.</p>
+<p>The package features a <strong>lightweight implementation</strong> that enables <strong>fast and automatic</strong> model training and forecasting using ESNs. You can quickly and easily build accurate ESN models without requiring extensive hyperparameter tuning or manual configuration.</p>
+<div class="section level2">
+<h2 id="model-specification">Model specification<a class="anchor" aria-label="anchor" href="#model-specification"></a>
+</h2>
+<p><code>echos</code> implements Echo State Networks with a fixed randomly initialized reservoir and a ridge-regression readout. The input and reservoir weights are generated once and kept fixed, while only the readout layer is estimated.</p>
+<p>The main ESN hyperparameters are the reservoir size (<code>n_states</code>), leakage rate (<code>alpha</code>), spectral radius (<code>rho</code>), reservoir density (<code>density</code>), input scaling (<code>scale_inputs</code>, <code>scale_win</code>, <code>scale_wres</code>), and the ridge regularization range (<code>lambda</code>). These parameters control the memory, stability, complexity, and regularization of the model.</p>
+<p>By default, <code><a href="reference/train_esn.html">train_esn()</a></code> automatically determines the number of differences, constructs the reservoir, evaluates candidate ridge readout models, and selects the final readout using an information criterion. For explicit grid-based tuning of <code>alpha</code>, <code>rho</code>, and <code>tau</code>, use <code><a href="reference/tune_esn.html">tune_esn()</a></code>.</p>
+</div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>

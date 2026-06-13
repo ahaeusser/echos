@@ -16,9 +16,30 @@ methods** for modeling and forecasting univariate time series using
   evaluation, and visualization.
 
 The package features a **lightweight implementation** that enables
-**fast and fully automatic** model training and forecasting using ESNs.
-You can quickly and easily build accurate ESN models without requiring
+**fast and automatic** model training and forecasting using ESNs. You
+can quickly and easily build accurate ESN models without requiring
 extensive hyperparameter tuning or manual configuration.
+
+## Model specification
+
+`echos` implements Echo State Networks with a fixed randomly initialized
+reservoir and a ridge-regression readout. The input and reservoir
+weights are generated once and kept fixed, while only the readout layer
+is estimated.
+
+The main ESN hyperparameters are the reservoir size (`n_states`),
+leakage rate (`alpha`), spectral radius (`rho`), reservoir density
+(`density`), input scaling (`scale_inputs`, `scale_win`, `scale_wres`),
+and the ridge regularization range (`lambda`). These parameters control
+the memory, stability, complexity, and regularization of the model.
+
+By default,
+[`train_esn()`](https://ahaeusser.github.io/echos/reference/train_esn.md)
+automatically determines the number of differences, constructs the
+reservoir, evaluates candidate ridge readout models, and selects the
+final readout using an information criterion. For explicit grid-based
+tuning of `alpha`, `rho`, and `tau`, use
+[`tune_esn()`](https://ahaeusser.github.io/echos/reference/tune_esn.md).
 
 ## Installation
 
