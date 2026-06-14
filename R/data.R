@@ -1,67 +1,93 @@
 
-#' @title M4 dataset
+#' @title Monthly subset of the M4 competition data
 #'
-#' @description \code{tsibble} with six monthly time series from the M4 
-#'   Forecasting Competition. The datasets contains the following time series:
-#'   \itemize{
-#'      \item{M21655 (Demographic), 1995 Jan - 2015 Mar}
-#'      \item{M21683 (Demographic), 2000 Jan - 2023 Apr}
-#'      \item{M2717 (Macro), 1996 Jan - 2016 Nov}
-#'      \item{M28597 (Industry), 1996 Jan - 2016 Dec}
-#'      \item{M42529 (Finance), 2001 Jan - 2009 Apr}
-#'      \item{M4813 (Macro), 1994 Apr - 2006 May}
-#'   }
+#' @description
+#' A \code{tsibble} with six monthly time series from the M4 Forecasting
+#' Competition. The dataset is intended for examples, documentation, and tests
+#' in the \code{echos} package. It is not the full M4 dataset.
+#'
+#' The dataset contains the following time series:
+#' \itemize{
+#'   \item{M21655 (Demographic), 1995 Jan - 2015 Mar}
+#'   \item{M21683 (Demographic), 2000 Jan - 2023 Apr}
+#'   \item{M2717 (Macro), 1996 Jan - 2016 Nov}
+#'   \item{M28597 (Industry), 1996 Jan - 2016 Dec}
+#'   \item{M42529 (Finance), 2001 Jan - 2009 Apr}
+#'   \item{M4813 (Macro), 1994 Apr - 2006 May}
+#' }
 #'
 #' @docType data
 #'
-#' @usage data(m4_data)
+#' @usage data(m4_monthly_subset)
 #'
-#' @format A time series object of class \code{tsibble} with 1.152 rows and 4 columns:
-#'    \itemize{
-#'       \item{\code{series}: Unique identifier as \code{character} (key variable).}
-#'       \item{\code{category}: Category (e.g., Demographic, Macro) as \code{factor}.}
-#'       \item{\code{index}: Date as \code{yearmonth} (index variable).}
-#'       \item{\code{value}: Value as \code{numeric} (measurement variable).}
-#'       }
+#' @format A time series object of class \code{tsibble} with 1,152 rows and
+#' 4 columns:
+#' \itemize{
+#'   \item{\code{series}: Unique identifier as \code{character} (key variable).}
+#'   \item{\code{category}: Category, e.g. Demographic or Macro, as \code{factor}.}
+#'   \item{\code{index}: Monthly date as \code{yearmonth} (index variable).}
+#'   \item{\code{value}: Observed value as \code{numeric} (measurement variable).}
+#' }
+#'
+#' @details
+#' This dataset contains a small monthly subset of the M4 Forecasting
+#' Competition data. It is included to demonstrate the tidy forecasting
+#' interface of \code{echos} with \code{tsibble}, \code{fable}, and
+#' \code{fabletools}.
 #'
 #' @keywords datasets
 #'
 #' @source \href{https://github.com/Mcompetitions/M4-methods}{M4 Forecasting Competition}
 #'
 #' @examples
-#' data(m4_data)
-"m4_data"
+#' data(m4_monthly_subset)
+#' head(m4_monthly_subset)
+"m4_monthly_subset"
 
-#' @title Synthetic data
+
+#' @title Synthetic time series data
 #'
-#' @description \code{tibble} with ten synthetic time series. The dataset 
-#'   contains the following time series:
-#'   \itemize{
-#'      \item{Square Wave}
-#'      \item{Sawtooth Wave}
-#'      \item{Harmonic Wave}
-#'      \item{Harmonic Wave w/ Trend}
-#'      \item{Amplitude Modulated Wave}
-#'      \item{Frequency Modulated Wave}
-#'      \item{AR(1) Process}
-#'      \item{MA(2) Process}
-#'      \item{White Noise Process}
-#'      \item{Random Walk Process}
-#'   }
+#' @description
+#' A \code{tibble} with ten synthetic univariate time series. The dataset is
+#' intended for examples, documentation, and tests in the \code{echos}
+#' package. It contains deterministic wave patterns as well as stochastic
+#' benchmark processes.
+#'
+#' The dataset contains the following time series:
+#' \itemize{
+#'   \item{Square Wave}
+#'   \item{Sawtooth Wave}
+#'   \item{Harmonic Wave}
+#'   \item{Harmonic Wave w/ Trend}
+#'   \item{Amplitude Modulated Wave}
+#'   \item{Frequency Modulated Wave}
+#'   \item{AR(1) Process}
+#'   \item{MA(2) Process}
+#'   \item{White Noise Process}
+#'   \item{Random Walk Process}
+#' }
 #'
 #' @docType data
 #'
 #' @usage data(synthetic_data)
 #'
-#' @format An object of class \code{tibble} with 2.000 rows and 3 columns:
-#'    \itemize{
-#'       \item{\code{variable}: Unique identifier as \code{character} (key variable).}
-#'       \item{\code{index}: Index as \code{integer} (index variable).}
-#'       \item{\code{value}: Value as \code{numeric} (measurement variable).}
-#'       }
+#' @format An object of class \code{tibble} with 2,000 rows and 3 columns:
+#' \itemize{
+#'   \item{\code{variable}: Unique identifier of the synthetic time series as
+#'   \code{character}.}
+#'   \item{\code{index}: Time index as \code{integer}.}
+#'   \item{\code{value}: Observed value as \code{numeric}.}
+#' }
+#'
+#' @details
+#' Each synthetic series contains 200 observations. The deterministic series
+#' provide examples of common nonlinear and periodic patterns, while the
+#' stochastic series provide simple autoregressive, moving-average, white-noise,
+#' and random-walk benchmark processes.
 #'
 #' @keywords datasets
 #'
 #' @examples
 #' data(synthetic_data)
+#' head(synthetic_data)
 "synthetic_data"

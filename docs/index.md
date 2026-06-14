@@ -93,7 +93,7 @@ library(tsibble)
 library(fable)
 
 # Prepare train data
-train_frame <- m4_data %>%
+train_frame <- m4_monthly_subset %>%
   filter(series %in% c("M21655", "M2717"))
 
 # Train and forecast ESN model

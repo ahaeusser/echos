@@ -5,7 +5,7 @@ test_that("test methods-fable with one key variable", {
   n_ahead <- 18
   
   # Prepare train data
-  train_frame <- m4_data %>%
+  train_frame <- m4_monthly_subset %>%
     filter(series == "M21655")
   
   # Expected number of internal states
@@ -72,7 +72,7 @@ test_that("test methods-fable with two key variables", {
   n_ahead <- 18
   
   # Prepare train data
-  train_frame <- m4_data %>%
+  train_frame <- m4_monthly_subset %>%
     filter(series %in% c("M21655", "M2717"))
   
   # Train ESN model

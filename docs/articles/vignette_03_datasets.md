@@ -5,8 +5,8 @@
 This vignette gives you a quick tour of the **time series datasets**
 embedded in `echos`:
 
-- `m4_data`: Six monthly time series drawn from the well‑known M4
-  Forecasting Competition.
+- `m4_monthly_subset`: Six monthly time series drawn from the well‑known
+  M4 Forecasting Competition.
 - `synthetic_data`: Ten synthetic time series, useful for teaching,
   prototyping and testing.
 
@@ -20,9 +20,9 @@ library(tsibble)
 
 ## M4 data
 
-The dataset `m4_data` is a `tsibble` with six monthly time series from
-the M4 Forecasting Competition. The dataset contains the following time
-series:
+The dataset `m4_monthly_subset` is a `tsibble` with six monthly time
+series from the M4 Forecasting Competition. The dataset contains the
+following time series:
 
 - M21655 (Demographic), 1995 Jan - 2015 Mar
 - M21683 (Demographic), 2000 Jan - 2023 Apr
@@ -32,7 +32,7 @@ series:
 - M4813 (Macro), 1994 Apr - 2006 May
 
 ``` r
-m4_data
+m4_monthly_subset
 #> # A tsibble: 1,152 x 4 [1M]
 #> # Key:       series [6]
 #>    series category       index value

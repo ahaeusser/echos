@@ -28,10 +28,10 @@ library(fable)
 
 ## Prepare dataset
 
-In this example, we will use the `m4_data`. The dataset is a monthly `tsibble`, which is filtered to include only the time series `"M21655"` and `"M2717"`. The resulting object `train_frame` contains the training data and is visualized below.
+In this example, we will use the `m4_monthly_subset`. The dataset is a monthly `tsibble`, which is filtered to include only the time series `"M21655"` and `"M2717"`. The resulting object `train_frame` contains the training data and is visualized below.
 
 ```{r data, fig.alt = "Plot actual values"}
-train_frame <- m4_data %>%
+train_frame <- m4_monthly_subset %>%
   filter(series %in% c("M21655", "M2717"))
 
 train_frame

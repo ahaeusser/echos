@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 
 This vignette gives you a quick tour of the **time series datasets** embedded in `echos`:
 
-* `m4_data`: Six monthly time series drawn from the well‑known M4 Forecasting Competition.
+* `m4_monthly_subset`: Six monthly time series drawn from the well‑known M4 Forecasting Competition.
 * `synthetic_data`: Ten synthetic time series, useful for teaching, prototyping and testing.
 
 
@@ -36,7 +36,7 @@ library(tsibble)
 
 ## M4 data
 
-The dataset `m4_data` is a `tsibble` with six monthly time series from the M4 Forecasting Competition. The dataset contains the following time series:
+The dataset `m4_monthly_subset` is a `tsibble` with six monthly time series from the M4 Forecasting Competition. The dataset contains the following time series:
 
 * M21655 (Demographic), 1995 Jan - 2015 Mar
 * M21683 (Demographic), 2000 Jan - 2023 Apr
@@ -46,14 +46,14 @@ The dataset `m4_data` is a `tsibble` with six monthly time series from the M4 Fo
 * M4813 (Macro), 1994 Apr - 2006 May
 
 ```{r m4-data}
-m4_data
+m4_monthly_subset
 ```
 
 ```{r m4-plot, fig.width = 7, fig.height = 7, echo = FALSE, fig.alt = "M4 Dataset"}
 p <- ggplot()
 
 p <- p + geom_line(
-  data = m4_data,
+  data = m4_monthly_subset,
   aes(
     x = index,
     y = value

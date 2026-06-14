@@ -46,5 +46,5 @@ reference:
   desc: >
     Datasets
   contents:
-    - m4_data
+    - m4_monthly_subset
     - synthetic_data

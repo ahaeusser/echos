@@ -61,7 +61,7 @@ framework”)
 
 Datasets
 
-- [`m4_data`](https://ahaeusser.github.io/echos/reference/m4_data.md) :
-  M4 dataset
+- [`m4_monthly_subset`](https://ahaeusser.github.io/echos/reference/m4_monthly_subset.md)
+  : Monthly subset of the M4 competition data
 - [`synthetic_data`](https://ahaeusser.github.io/echos/reference/synthetic_data.md)
-  : Synthetic data
+  : Synthetic time series data

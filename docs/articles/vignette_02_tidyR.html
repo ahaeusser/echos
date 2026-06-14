@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">echos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -85,13 +85,13 @@ Häußer</h4>
 <div class="section level2">
 <h2 id="prepare-dataset">Prepare dataset<a class="anchor" aria-label="anchor" href="#prepare-dataset"></a>
 </h2>
-<p>In this example, we will use the <code>m4_data</code>. The dataset is
-a monthly <code>tsibble</code>, which is filtered to include only the
-time series <code>"M21655"</code> and <code>"M2717"</code>. The
+<p>In this example, we will use the <code>m4_monthly_subset</code>. The
+dataset is a monthly <code>tsibble</code>, which is filtered to include
+only the time series <code>"M21655"</code> and <code>"M2717"</code>. The
 resulting object <code>train_frame</code> contains the training data and
 is visualized below.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">train_frame</span> <span class="op">&lt;-</span> <span class="va">m4_data</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<code class="sourceCode R"><span><span class="va">train_frame</span> <span class="op">&lt;-</span> <span class="va">m4_monthly_subset</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">series</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"M21655"</span>, <span class="st">"M2717"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">train_frame</span></span>

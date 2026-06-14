@@ -69,7 +69,7 @@ Tune hyperparameters of an Echo State Network (ESN) based on
    with the corresponding \code{alpha}, \code{rho}, and \code{tau}; all other
    arguments supplied through \code{...} are passed to \code{train_esn()}.
    Forecasts are generated with \code{forecast_esn()}, and the mean squared
-   error (\code{mse}) and mean absolute error \code{mae} are stored. The 
+   error (\code{mse}) and mean absolute error (\code{mae}) are stored. The 
    accompanying \code{summary()} and \code{plot()} methods use these stored 
    errors to identify and display the best-performing hyperparameter 
    configuration.

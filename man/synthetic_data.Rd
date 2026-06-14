@@ -3,35 +3,47 @@
 \docType{data}
 \name{synthetic_data}
 \alias{synthetic_data}
-\title{Synthetic data}
+\title{Synthetic time series data}
 \format{
-An object of class \code{tibble} with 2.000 rows and 3 columns:
-   \itemize{
-      \item{\code{variable}: Unique identifier as \code{character} (key variable).}
-      \item{\code{index}: Index as \code{integer} (index variable).}
-      \item{\code{value}: Value as \code{numeric} (measurement variable).}
-      }
+An object of class \code{tibble} with 2,000 rows and 3 columns:
+\itemize{
+  \item{\code{variable}: Unique identifier of the synthetic time series as
+  \code{character}.}
+  \item{\code{index}: Time index as \code{integer}.}
+  \item{\code{value}: Observed value as \code{numeric}.}
+}
 }
 \usage{
 data(synthetic_data)
 }
 \description{
-\code{tibble} with ten synthetic time series. The dataset 
-  contains the following time series:
-  \itemize{
-     \item{Square Wave}
-     \item{Sawtooth Wave}
-     \item{Harmonic Wave}
-     \item{Harmonic Wave w/ Trend}
-     \item{Amplitude Modulated Wave}
-     \item{Frequency Modulated Wave}
-     \item{AR(1) Process}
-     \item{MA(2) Process}
-     \item{White Noise Process}
-     \item{Random Walk Process}
-  }
+A \code{tibble} with ten synthetic univariate time series. The dataset is
+intended for examples, documentation, and tests in the \code{echos}
+package. It contains deterministic wave patterns as well as stochastic
+benchmark processes.
+
+The dataset contains the following time series:
+\itemize{
+  \item{Square Wave}
+  \item{Sawtooth Wave}
+  \item{Harmonic Wave}
+  \item{Harmonic Wave w/ Trend}
+  \item{Amplitude Modulated Wave}
+  \item{Frequency Modulated Wave}
+  \item{AR(1) Process}
+  \item{MA(2) Process}
+  \item{White Noise Process}
+  \item{Random Walk Process}
+}
+}
+\details{
+Each synthetic series contains 200 observations. The deterministic series
+provide examples of common nonlinear and periodic patterns, while the
+stochastic series provide simple autoregressive, moving-average, white-noise,
+and random-walk benchmark processes.
 }
 \examples{
 data(synthetic_data)
+head(synthetic_data)
 }
 \keyword{datasets}

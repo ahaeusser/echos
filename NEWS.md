@@ -1,3 +1,10 @@
+# echos 1.0.4
+
+## Improvements
+* Improved documentation, vignettes and README to better describe the ESN architecture, key hyperparameters, model selection procedure, tuning workflow, and datasets.
+* Clarified the role of the `formula` argument in `ESN()` for the `fabletools` model interface.
+* Renamed `m4_data` to `m4_monthly_subset` to make clear that the dataset contains a monthly subset of the M4 Forecasting Competition data.
+
 # echos 1.0.3
 
 ## New features

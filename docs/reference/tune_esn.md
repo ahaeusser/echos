@@ -97,7 +97,7 @@ arguments supplied through `...` are passed to
 [`train_esn()`](https://ahaeusser.github.io/echos/reference/train_esn.md).
 Forecasts are generated with
 [`forecast_esn()`](https://ahaeusser.github.io/echos/reference/forecast_esn.md),
-and the mean squared error (`mse`) and mean absolute error `mae` are
+and the mean squared error (`mse`) and mean absolute error (`mae`) are
 stored. The accompanying
 [`summary()`](https://rdrr.io/r/base/summary.html) and
 [`plot()`](https://rdrr.io/r/graphics/plot.default.html) methods use

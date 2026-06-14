@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">echos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -80,8 +80,8 @@ Häußer</h4>
 datasets</strong> embedded in <code>echos</code>:</p>
 <ul>
 <li>
-<code>m4_data</code>: Six monthly time series drawn from the
-well‑known M4 Forecasting Competition.</li>
+<code>m4_monthly_subset</code>: Six monthly time series drawn from
+the well‑known M4 Forecasting Competition.</li>
 <li>
 <code>synthetic_data</code>: Ten synthetic time series, useful for
 teaching, prototyping and testing.</li>
@@ -98,9 +98,9 @@ teaching, prototyping and testing.</li>
 <div class="section level2">
 <h2 id="m4-data">M4 data<a class="anchor" aria-label="anchor" href="#m4-data"></a>
 </h2>
-<p>The dataset <code>m4_data</code> is a <code>tsibble</code> with six
-monthly time series from the M4 Forecasting Competition. The dataset
-contains the following time series:</p>
+<p>The dataset <code>m4_monthly_subset</code> is a <code>tsibble</code>
+with six monthly time series from the M4 Forecasting Competition. The
+dataset contains the following time series:</p>
 <ul>
 <li>M21655 (Demographic), 1995 Jan - 2015 Mar</li>
 <li>M21683 (Demographic), 2000 Jan - 2023 Apr</li>
@@ -110,7 +110,7 @@ contains the following time series:</p>
 <li>M4813 (Macro), 1994 Apr - 2006 May</li>
 </ul>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">m4_data</span></span>
+<code class="sourceCode R"><span><span class="va">m4_monthly_subset</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tsibble: 1,152 x 4 [1M]</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># Key:       series [6]</span></span></span>
 <span><span class="co">#&gt;    series category       index value</span></span>
