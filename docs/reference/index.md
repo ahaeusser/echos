@@ -65,3 +65,11 @@ Datasets
   : Monthly subset of the M4 competition data
 - [`synthetic_data`](https://ahaeusser.github.io/echos/reference/synthetic_data.md)
   : Synthetic time series data
+
+## Deprecated
+
+Deprecated dataset name retained for backward compatibility
+
+- [`m4_data`](https://ahaeusser.github.io/echos/reference/m4_data.md) :
+
+  Deprecated name for `m4_monthly_subset`

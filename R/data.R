@@ -45,6 +45,29 @@
 "m4_monthly_subset"
 
 
+#' @title Deprecated name for \code{m4_monthly_subset}
+#'
+#' @description
+#' \code{m4_data} has been renamed to \code{m4_monthly_subset}. The old name is
+#' retained for backward compatibility with earlier versions of \code{echos},
+#' but users should prefer \code{m4_monthly_subset} in new code.
+#'
+#' @docType data
+#'
+#' @usage data(m4_data)
+#'
+#' @format See \code{\link{m4_monthly_subset}}.
+#'
+#' @keywords datasets
+#'
+#' @seealso \code{\link{m4_monthly_subset}}
+#'
+#' @examples
+#' data(m4_data)
+#' head(m4_data)
+"m4_data"
+
+
 #' @title Synthetic time series data
 #'
 #' @description

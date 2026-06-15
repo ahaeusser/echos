@@ -48,3 +48,9 @@ reference:
   contents:
     - m4_monthly_subset
     - synthetic_data
+    
+- title: Deprecated
+  desc: >
+    Deprecated dataset name retained for backward compatibility
+  contents:
+    - m4_data

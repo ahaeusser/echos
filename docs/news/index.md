@@ -4,15 +4,19 @@
 
 ### Improvements
 
-- Improved documentation, vignettes and README to better describe the
-  ESN architecture, key hyperparameters, model selection procedure,
-  tuning workflow, and datasets.
+- Expanded package documentation, vignettes and README to better
+  describe the ESN architecture, key hyperparameters, model selection
+  procedure and tuning workflow.
 - Clarified the role of the `formula` argument in
   [`ESN()`](https://ahaeusser.github.io/echos/reference/ESN.md) for the
   `fabletools` model interface.
-- Renamed `m4_data` to `m4_monthly_subset` to make clear that the
-  dataset contains a monthly subset of the M4 Forecasting Competition
-  data.
+
+### Datasets
+
+- Renamed `m4_data` to `m4_monthly_subset` to clarify that the dataset
+  contains a monthly subset of the M4 competition data. The old name
+  `m4_data` is retained for backward compatibility.
+- Improved documentation for `m4_monthly_subset` and `synthetic_data`.
 
 ## echos 1.0.3
 
