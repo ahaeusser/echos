@@ -1,0 +1,276 @@
+---
+title: "Rolling forecasts"
+description: >
+  Evaluate Echo State Network forecasts across multiple rolling windows
+  using the M4 monthly data and tsibble functionality.
+author: "Alexander Häußer"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Rolling forecasts}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r config, include = FALSE}
+# Change default location and time
+Sys.setlocale("LC_TIME", "C")
+
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.height = 5,
+  fig.width = 7
+)
+```
+
+## Introduction
+
+This vignette demonstrates how to evaluate Echo State Network forecasts across
+multiple rolling windows using the tidy interface of `echos`. Rolling forecast
+evaluation provides a more robust assessment than a single train-test split
+because the model is estimated and evaluated at several forecast origins.
+
+The example uses two monthly time series from `m4_monthly_subset`. Fixed
+training windows are created with `slide_tsibble()` from the `tsibble` package.
+For every series and split, an ESN is fitted and used to generate an
+18-month-ahead forecast.
+
+## Load packages
+
+```{r packages, message = FALSE, warning = FALSE}
+library(echos)
+library(tidyverse)
+library(tsibble)
+library(fable)
+```
+
+## Prepare the data
+
+The dataset is filtered to the two time series `"M21655"` and `"M2717"`.
+
+```{r data}
+selected_series <- c("M21655", "M2717")
+
+data_frame <- m4_monthly_subset %>%
+  filter(series %in% selected_series)
+
+data_frame
+```
+
+```{r data-plot, fig.alt = "Monthly observations for two M4 time series"}
+p <- ggplot()
+
+p <- p + geom_line(
+  data = data_frame,
+  aes(
+    x = index,
+    y = value),
+  linewidth = 0.5
+)
+
+p <- p + facet_wrap(
+  vars(series),
+  ncol = 1,
+  scales = "free_y"
+)
+
+p <- p + labs(
+  x = "Time",
+  y = "Value"
+)
+
+p
+```
+
+## Define the rolling forecast setup
+
+Each ESN is trained on a fixed window of 180 monthly observations. The forecast
+horizon is 18 months, corresponding to the horizon used for monthly series in
+the M4 Forecasting Competition. The forecast origin advances by one month
+between splits.
+
+Five splits are used in this example. To reduce the vignette runtime, set
+`n_splits` to a smaller value such as 3.
+
+```{r setup}
+n_train <- 180
+n_ahead <- 18
+n_step <- 1
+n_splits <- 5
+
+n_required <- n_train + n_ahead + (n_splits - 1) * n_step
+```
+
+Only the most recent observations required for the rolling evaluation are
+retained. This ensures that both series contribute the same number of
+observations and splits.
+
+```{r analysis-data}
+analysis_frame <- data_frame %>%
+  group_by_key() %>%
+  slice_tail(n = n_required) %>%
+  ungroup()
+
+analysis_frame
+```
+
+## Create rolling training windows
+
+`slide_tsibble()` creates fixed rolling windows by observation. The new
+variable `split` is added to the tsibble key and identifies the individual
+training windows.
+
+```{r rolling-windows}
+train_frame <- analysis_frame %>%
+  slide_tsibble(
+    .size = n_train,
+    .step = n_step,
+    .id = "split"
+  ) %>%
+  filter(split <= n_splits)
+
+train_frame
+```
+
+The following summary shows the start and end of every training window.
+
+```{r split-summary}
+split_frame <- train_frame %>%
+  as_tibble() %>%
+  summarise(
+    train_start = min(index),
+    train_end = max(index),
+    n = n(),
+    .by = c(series, split)
+  )
+
+split_frame
+```
+
+## Train the ESN models
+
+The combination of `series` and `split` forms the key of `train_frame`.
+Consequently, `model()` estimates one ESN for each series and rolling window.
+With two series and five splits, ten ESN models are trained.
+
+Because the ESN reservoir is initialized randomly, a seed is set to make the
+results reproducible.
+
+```{r models}
+model_frame <- train_frame %>%
+  model(
+    "ESN" = ESN(value)
+  )
+
+model_frame
+```
+
+## Generate rolling forecasts
+
+An 18-month-ahead forecast is generated for each fitted ESN.
+
+```{r forecasts}
+fable_frame <- model_frame %>%
+  forecast(h = n_ahead)
+
+fable_frame
+```
+
+## Evaluate forecast accuracy
+
+The forecasts are evaluated against the corresponding observations in
+`analysis_frame`. Accuracy measures are calculated separately for every series
+and split.
+
+```{r accuracy}
+accuracy_frame <- fable_frame %>%
+  accuracy(data = analysis_frame)
+
+accuracy_frame
+```
+
+## Visualize the rolling forecasts
+
+For each series and split, the point forecasts are compared with the observed
+values over the 18-month evaluation period.
+
+```{r forecast-data}
+forecast_frame <- fable_frame %>%
+  as_tibble() %>%
+  transmute(
+    series,
+    split,
+    index,
+    FORECAST = .mean
+  )
+
+plot_frame <- forecast_frame %>%
+  left_join(
+    analysis_frame %>%
+      as_tibble() %>%
+      select(
+        series,
+        index,
+        ACTUAL = value),
+    by = c(
+      "series",
+      "index")) %>%
+  pivot_longer(
+    cols = c(ACTUAL, FORECAST),
+    names_to = "type",
+    values_to = "value"
+    )
+
+plot_frame
+```
+
+```{r forecast-plot, fig.width = 10, fig.height = 6, fig.alt = "Rolling forecasts and actual values for two M4 monthly time series"}
+p <- ggplot()
+
+p <- p + geom_line(
+  data = plot_frame,
+  aes(
+    x = index,
+    y = value,
+    color = type),
+  linewidth = 0.6
+)
+
+p <- p + facet_grid(
+  rows = vars(series),
+  cols = vars(split),
+  scales = "free_y"
+)
+
+p <- p + scale_color_manual(
+  values = c(
+    "ACTUAL" = "grey35",
+    "FORECAST" = "steelblue"
+  )
+)
+
+p <- p + labs(
+  title = "Rolling forecasts for M4 monthly time series",
+  subtitle = "Fixed 180-month training windows and an 18-month forecast horizon",
+  x = "Time",
+  y = "Value",
+  color = NULL
+)
+
+p <- p + theme(legend.position = "top")
+
+p
+```
+
+## Summary
+
+This example combines the tidy interface of `echos` with rolling-window
+functionality from `tsibble`. The workflow consists of four main steps:
+
+1. Create multiple fixed training windows with `slide_tsibble()`.
+2. Estimate one ESN for each series and split with `model()`.
+3. Generate forecasts with `forecast()`.
+4. Evaluate the forecasts across splits with `accuracy()`.
+
+The same workflow can be extended to more series, additional forecast origins,
+or alternative models supported by the `fable` framework.
