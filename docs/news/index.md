@@ -2,6 +2,8 @@
 
 ## echos 1.0.4
 
+CRAN release: 2026-06-15
+
 ### Improvements
 
 - Expanded package documentation, vignettes and README to better

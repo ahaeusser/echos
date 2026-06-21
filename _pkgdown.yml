@@ -7,6 +7,32 @@ template:
     fg: "#202123"
     primary: "steelblue"
     
+articles:
+
+- title: Base R interface
+  desc: >
+    Modeling and forecasting workflows using numeric vectors and
+    the base R interface.
+  navbar: Base R
+  contents:
+  - vignette_100_base_airpassengers
+
+- title: Tidy R interface
+  desc: >
+    Modeling and forecasting workflows using tsibbles and the
+    fable framework.
+  navbar: Tidy R
+  contents:
+  - vignette_201_tidy_m4_monthly_models
+  - vignette_202_tidy_m4_monthly_splits
+
+- title: Data
+  desc: >
+    Datasets included with echos.
+  navbar: Data
+  contents:
+  - vignette_300_datasets
+    
 reference:
 
 - title: Base functions
