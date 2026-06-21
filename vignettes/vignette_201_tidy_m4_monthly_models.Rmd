@@ -1,14 +1,17 @@
 ---
-title: "Tidy functions"
+title: "Multiple models"
 author: "Alexander Häußer"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Tidy functions}
+  %\VignetteIndexEntry{Multiple models}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE}
+```{r config, include = FALSE}
+# Change default location and time
+Sys.setlocale("LC_TIME", "C")
+
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
