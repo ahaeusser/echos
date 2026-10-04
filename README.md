@@ -129,7 +129,7 @@ train_frame %>%
 
 ## References
 
-- Häußer, A. (2026). *Echo State Networks for Time Series Forecasting:
+- Häußer, A. (2027). *Echo State Networks for Time Series Forecasting:
   Hyperparameter Sweep and Benchmarking.* *Applied Soft Computing*,
   204, 116346. <https://doi.org/10.1016/j.asoc.2026.116346>
 - Häußer, A. (2026). *echos: An R Package for Automatic Time Series
