@@ -394,9 +394,16 @@ filter_esn.mdl_df <- function(object) {
   object <- object %>%
     filter(ESN == TRUE) %>%
     select(-ESN)
-  
+
   return(object)
 }
+
+# Alias for fabletools' mable class rename "mdl_df" -> "mbl_df"
+# 
+# TODO: After the CRAN release of fabletools >=v1.0.0, a version dependency
+# should be added and this method should be registered only for "mbl_df".
+#' @export
+filter_esn.mbl_df <- filter_esn.mdl_df
 
 
 #' @title Return the reservoir from a trained ESN as tibble
@@ -458,9 +465,16 @@ reservoir.mdl_df <- function(object) {
     
     states[[i]] <- bind_cols(key_tbl[i, ], xstates)
   }
-  
+
   # Flatten list row-wise
   states <- bind_rows(states)
-  
+
   return(states)
 }
+
+# Alias for fabletools' mable class rename "mdl_df" -> "mbl_df"
+# 
+# TODO: After the CRAN release of fabletools >=v1.0.0, a version dependency
+# should be added and this method should be registered only for "mbl_df".
+#' @export
+reservoir.mbl_df <- reservoir.mdl_df
