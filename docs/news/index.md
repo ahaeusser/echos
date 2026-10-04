@@ -1,5 +1,17 @@
 # Changelog
 
+## echos 1.0.5
+
+### Improvements
+
+- Added compatibility with the upcoming `fabletools` 1.0.0 release by
+  supporting the renamed mable class `mbl_df` in
+  [`filter_esn()`](https://ahaeusser.github.io/echos/reference/filter_esn.md)
+  and
+  [`reservoir()`](https://ahaeusser.github.io/echos/reference/reservoir.md),
+  while retaining support for `mdl_df`.
+- Improved documentation
+
 ## echos 1.0.4
 
 CRAN release: 2026-06-15

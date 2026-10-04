@@ -52,11 +52,12 @@ plot(xfcst)
 }
 \references{
 \itemize{
-      \item{Häußer, A. (2026). Echo State Networks for Time Series Forecasting: Hyperparameter Sweep and Benchmarking. arXiv preprint arXiv:2602.03912, 2026. \url{https://arxiv.org/abs/2602.03912}}
-      \item{Jaeger, H. (2001). The “echo state” approach to analysing and training recurrent neural networks with an erratum note. Bonn, Germany: German National Research Center for Information Technology GMD Technical Report, 148(34):13.}
-      \item{Jaeger, H. (2002). Tutorial on training recurrent neural networks, covering BPPT, RTRL, EKF and the "echo state network" approach.}
-      \item{Lukosevicius, M. (2012). A practical guide to applying echo state networks. In Neural Networks: Tricks of the Trade: Second Edition, pages 659–686. Springer.}
-      \item{Lukosevicius, M. and Jaeger, H. (2009). Reservoir computing approaches to recurrent neural network training. Computer Science Review, 3(3):127–149.}
+      \item{Häußer, A. (2027). Echo State Networks for Time Series Forecasting: Hyperparameter Sweep and Benchmarking. Applied Soft Computing, 204, 116346. \doi{10.1016/j.asoc.2026.116346}}
+      \item{Häußer, A. (2026). echos: An R Package for Automatic Time Series Forecasting using Echo State Networks. The R Journal, 18(3), 120–143. \doi{10.32614/RJ-2026-040}}
+      \item{Jaeger, H. (2001). The “echo state” approach to analysing and training recurrent neural networks. GMD Report 148, German National Research Center for Information Technology.}
+      \item{Jaeger, H. (2002). Tutorial on training recurrent neural networks, covering BPTT, RTRL, EKF and the "echo state network" approach. GMD Report 159, German National Research Center for Information Technology.}
+      \item{Lukosevicius, M. (2012). A practical guide to applying echo state networks. In Neural Networks: Tricks of the Trade, 2nd edition, pages 659–686. Springer. \doi{10.1007/978-3-642-35289-8_36}}
+      \item{Lukosevicius, M. and Jaeger, H. (2009). Reservoir computing approaches to recurrent neural network training. Computer Science Review, 3(3):127–149. \doi{10.1016/j.cosrev.2009.03.005}}
    }
 }
 \seealso{

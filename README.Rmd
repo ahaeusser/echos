@@ -114,8 +114,9 @@ train_frame %>%
 
 ## References
 
-- Häußer, A. (2026). *Echo State Networks for Time Series Forecasting: Hyperparameter Sweep and Benchmarking.* arXiv preprint arXiv:2602.03912. <https://arxiv.org/abs/2602.03912>
-- Jaeger, H. (2001). *The “echo state” approach to analysing and training recurrent neural networks* (with an erratum note). Bonn, Germany: German National Research Center for Information Technology (GMD), Technical Report 148(34):13.
-- Jaeger, H. (2002). *Tutorial on training recurrent neural networks, covering BPPT, RTRL, EKF and the "echo state network" approach.*
-- Lukosevicius, M. (2012). *A practical guide to applying echo state networks.* In *Neural Networks: Tricks of the Trade* (2nd ed.), pp. 659–686. Springer.
-- Lukosevicius, M., & Jaeger, H. (2009). *Reservoir computing approaches to recurrent neural network training.* *Computer Science Review*, 3(3), 127–149.
+- Häußer, A. (2027). *Echo State Networks for Time Series Forecasting: Hyperparameter Sweep and Benchmarking.* *Applied Soft Computing*, 204, 116346. https://doi.org/10.1016/j.asoc.2026.116346
+- Häußer, A. (2026). *echos: An R Package for Automatic Time Series Forecasting using Echo State Networks.* *The R Journal*, 18(3), 120–143. https://doi.org/10.32614/RJ-2026-040
+- Jaeger, H. (2001). *The “echo state” approach to analysing and training recurrent neural networks.* GMD Report 148, German National Research Center for Information Technology.
+- Jaeger, H. (2002). *Tutorial on training recurrent neural networks, covering BPTT, RTRL, EKF and the "echo state network" approach.* GMD Report 159, German National Research Center for Information Technology.
+- Lukosevicius, M. (2012). *A practical guide to applying echo state networks.* In *Neural Networks: Tricks of the Trade* (2nd ed.), pp. 659–686. Springer. https://doi.org/10.1007/978-3-642-35289-8_36
+- Lukosevicius, M., & Jaeger, H. (2009). *Reservoir computing approaches to recurrent neural network training.* *Computer Science Review*, 3(3), 127–149. https://doi.org/10.1016/j.cosrev.2009.03.005

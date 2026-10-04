@@ -1,3 +1,10 @@
+# echos 1.0.5
+
+## Improvements
+
+* Added compatibility with the upcoming `fabletools` 1.0.0 release by supporting the renamed mable class `mbl_df` in `filter_esn()` and `reservoir()`, while retaining support for `mdl_df`.
+* Improved documentation
+
 # echos 1.0.4
 
 ## Improvements
