@@ -2,11 +2,17 @@
 
 Run reservoir creates the internal states for the ESN.
 
+## Usage
+
+``` r
+run_reservoir(inputs, win, wres, alpha)
+```
+
 ## Arguments
 
-- input:
+- inputs:
 
-  Numeric matrix containing the input features
+  Numeric matrix containing the input features.
 
 - win:
 
@@ -22,4 +28,4 @@ Run reservoir creates the internal states for the ESN.
 
 ## Value
 
-states train Numeric matrix with the internal states.
+Numeric matrix with the internal states.

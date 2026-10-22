@@ -36,17 +36,17 @@ summary(fit)
 
 }
 \seealso{
-Other base functions: 
-\code{\link{forecast_esn}()},
-\code{\link{is.esn}()},
-\code{\link{is.forecast_esn}()},
-\code{\link{is.tune_esn}()},
-\code{\link{plot.esn}()},
-\code{\link{plot.forecast_esn}()},
-\code{\link{plot.tune_esn}()},
-\code{\link{print.esn}()},
-\code{\link{summary.esn}()},
-\code{\link{train_esn}()},
-\code{\link{tune_esn}()}
+Other base functions:
+\code{\link[=forecast_esn]{forecast_esn()}},
+\code{\link[=is.esn]{is.esn()}},
+\code{\link[=is.forecast_esn]{is.forecast_esn()}},
+\code{\link[=is.tune_esn]{is.tune_esn()}},
+\code{\link[=plot.esn]{plot.esn()}},
+\code{\link[=plot.forecast_esn]{plot.forecast_esn()}},
+\code{\link[=plot.tune_esn]{plot.tune_esn()}},
+\code{\link[=print.esn]{print.esn()}},
+\code{\link[=summary.esn]{summary.esn()}},
+\code{\link[=train_esn]{train_esn()}},
+\code{\link[=tune_esn]{tune_esn()}}
 }
 \concept{base functions}

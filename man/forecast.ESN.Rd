@@ -50,15 +50,15 @@ forecast(h = 18)
 
 }
 \seealso{
-Other tidy functions: 
-\code{\link{ESN}()},
-\code{\link{filter_esn}()},
-\code{\link{fitted.ESN}()},
-\code{\link{glance.ESN}()},
-\code{\link{model_sum.ESN}()},
-\code{\link{report.ESN}()},
-\code{\link{reservoir}()},
-\code{\link{residuals.ESN}()},
-\code{\link{tidy.ESN}()}
+Other tidy functions:
+\code{\link[=ESN]{ESN()}},
+\code{\link[=filter_esn]{filter_esn()}},
+\code{\link[=fitted.ESN]{fitted.ESN()}},
+\code{\link[=glance.ESN]{glance.ESN()}},
+\code{\link[=model_sum.ESN]{model_sum.ESN()}},
+\code{\link[=report.ESN]{report.ESN()}},
+\code{\link[=reservoir]{reservoir()}},
+\code{\link[=residuals.ESN]{residuals.ESN()}},
+\code{\link[=tidy.ESN]{tidy.ESN()}}
 }
 \concept{tidy functions}

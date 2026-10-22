@@ -3,6 +3,7 @@
 ## Load package
 
 ``` r
+
 library(echos)
 ```
 
@@ -17,6 +18,7 @@ used for testing (`n_ahead`). `xtrain` and `xtest` are numeric vectors
 containing the training and testing data.
 
 ``` r
+
 # Convert 'AirPassengers' dataset from ts to numeric vector
 xdata <- as.numeric(AirPassengers)
 # Forecast horizon
@@ -79,6 +81,7 @@ by using the generic S3 method
 information on the trained model.
 
 ``` r
+
 # Train ESN model
 xmodel <- train_esn(y = xtrain)
 
@@ -137,6 +140,7 @@ can use the generic S3 method
 the point forecast within `xfcst` and add the holdout test data `xtest`.
 
 ``` r
+
 # Forecast ESN model
 xfcst <- forecast_esn(xmodel, n_ahead = n_ahead)
 
@@ -201,6 +205,7 @@ each test window begins, making it easy to see how performance varies
 across splits.
 
 ``` r
+
 # Tune hyperparameters via time series cross-validation
 xfit <- tune_esn(
   y = xdata,

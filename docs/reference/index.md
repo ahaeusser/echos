@@ -28,7 +28,7 @@ Functions and methods for basic time series forecasting
   : Plot forecasts of a trained ESN model
 - [`plot(`*`<tune_esn>`*`)`](https://ahaeusser.github.io/echos/reference/plot.tune_esn.md)
   : Plot forecasts from a tuned ESN object
-- [`run_reservoir`](https://ahaeusser.github.io/echos/reference/run_reservoir.md)
+- [`run_reservoir()`](https://ahaeusser.github.io/echos/reference/run_reservoir.md)
   : Run reservoir
 
 ## Tidy functions

@@ -13,6 +13,7 @@ embedded in `echos`:
 ## Load packages
 
 ``` r
+
 library(echos)
 library(tidyverse)
 library(tsibble)
@@ -32,6 +33,7 @@ following time series:
 - M4813 (Macro), 1994 Apr - 2006 May
 
 ``` r
+
 m4_monthly_subset
 #> # A tsibble: 1,152 x 4 [1M]
 #> # Key:       series [6]
@@ -69,6 +71,7 @@ series. The dataset contains the following time series:
 - Random Walk Process
 
 ``` r
+
 synthetic_data
 #> # A tibble: 2,000 × 3
 #>    variable    index value

@@ -28,15 +28,15 @@ tidy()
 
 }
 \seealso{
-Other tidy functions: 
-\code{\link{ESN}()},
-\code{\link{filter_esn}()},
-\code{\link{fitted.ESN}()},
-\code{\link{forecast.ESN}()},
-\code{\link{glance.ESN}()},
-\code{\link{model_sum.ESN}()},
-\code{\link{report.ESN}()},
-\code{\link{reservoir}()},
-\code{\link{residuals.ESN}()}
+Other tidy functions:
+\code{\link[=ESN]{ESN()}},
+\code{\link[=filter_esn]{filter_esn()}},
+\code{\link[=fitted.ESN]{fitted.ESN()}},
+\code{\link[=forecast.ESN]{forecast.ESN()}},
+\code{\link[=glance.ESN]{glance.ESN()}},
+\code{\link[=model_sum.ESN]{model_sum.ESN()}},
+\code{\link[=report.ESN]{report.ESN()}},
+\code{\link[=reservoir]{reservoir()}},
+\code{\link[=residuals.ESN]{residuals.ESN()}}
 }
 \concept{tidy functions}

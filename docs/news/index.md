@@ -10,7 +10,10 @@
   and
   [`reservoir()`](https://ahaeusser.github.io/echos/reference/reservoir.md),
   while retaining support for `mdl_df`.
-- Improved documentation
+- Improved
+  [`run_reservoir()`](https://ahaeusser.github.io/echos/reference/run_reservoir.md)
+  documentation and package dependency declarations for CRAN
+  compatibility.
 
 ## echos 1.0.4
 

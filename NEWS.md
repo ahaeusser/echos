@@ -3,7 +3,7 @@
 ## Improvements
 
 * Added compatibility with the upcoming `fabletools` 1.0.0 release by supporting the renamed mable class `mbl_df` in `filter_esn()` and `reservoir()`, while retaining support for `mdl_df`.
-* Improved documentation
+* Improved `run_reservoir()` documentation and package dependency declarations for CRAN compatibility.
 
 # echos 1.0.4
 

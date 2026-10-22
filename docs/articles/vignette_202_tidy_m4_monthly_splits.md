@@ -17,6 +17,7 @@ and used to generate an 18-month-ahead forecast.
 ## Load packages
 
 ``` r
+
 library(echos)
 library(tidyverse)
 library(tsibble)
@@ -28,6 +29,7 @@ library(fable)
 The dataset is filtered to the two time series `"M21655"` and `"M2717"`.
 
 ``` r
+
 selected_series <- c("M21655", "M2717")
 
 data_frame <- m4_monthly_subset %>%
@@ -52,6 +54,7 @@ data_frame
 ```
 
 ``` r
+
 p <- ggplot()
 
 p <- p + geom_line(
@@ -90,6 +93,7 @@ Five splits are used in this example. To reduce the vignette runtime,
 set `n_splits` to a smaller value such as 3.
 
 ``` r
+
 n_train <- 180
 n_ahead <- 18
 n_step <- 1
@@ -103,6 +107,7 @@ are retained. This ensures that both series contribute the same number
 of observations and splits.
 
 ``` r
+
 analysis_frame <- data_frame %>%
   group_by_key() %>%
   slice_tail(n = n_required) %>%
@@ -134,6 +139,7 @@ is added to the tsibble key and identifies the individual training
 windows.
 
 ``` r
+
 train_frame <- analysis_frame %>%
   slide_tsibble(
     .size = n_train,
@@ -163,6 +169,7 @@ train_frame
 The following summary shows the start and end of every training window.
 
 ``` r
+
 split_frame <- train_frame %>%
   as_tibble() %>%
   summarise(
@@ -200,6 +207,7 @@ Because the ESN reservoir is initialized randomly, a seed is set to make
 the results reproducible.
 
 ``` r
+
 model_frame <- train_frame %>%
   model(
     "ESN" = ESN(value)
@@ -227,6 +235,7 @@ model_frame
 An 18-month-ahead forecast is generated for each fitted ESN.
 
 ``` r
+
 fable_frame <- model_frame %>%
   forecast(h = n_ahead)
 
@@ -256,6 +265,7 @@ The forecasts are evaluated against the corresponding observations in
 series and split.
 
 ``` r
+
 accuracy_frame <- fable_frame %>%
   accuracy(data = analysis_frame)
 
@@ -273,6 +283,7 @@ For each series and split, the point forecasts are compared with the
 observed values over the 18-month evaluation period.
 
 ``` r
+
 forecast_frame <- fable_frame %>%
   as_tibble() %>%
   transmute(
@@ -317,6 +328,7 @@ plot_frame
 ```
 
 ``` r
+
 p <- ggplot()
 
 p <- p + geom_line(

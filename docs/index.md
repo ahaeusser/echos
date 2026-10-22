@@ -47,6 +47,7 @@ You can install the **stable** version from
 [CRAN](https://cran.r-project.org/package=echos):
 
 ``` r
+
 install.packages("echos")
 ```
 
@@ -54,6 +55,7 @@ You can install the **development** version from
 [GitHub](https://github.com/):
 
 ``` r
+
 # install.packages("devtools")
 devtools::install_github("ahaeusser/echos")
 ```
@@ -61,6 +63,7 @@ devtools::install_github("ahaeusser/echos")
 ## Base R
 
 ``` r
+
 library(echos)
 
 # Forecast horizon
@@ -87,6 +90,7 @@ plot(xfcst, test = xtest)
 ## Tidy R
 
 ``` r
+
 library(echos)
 library(tidyverse)
 library(tsibble)

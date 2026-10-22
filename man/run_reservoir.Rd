@@ -3,8 +3,11 @@
 \name{run_reservoir}
 \alias{run_reservoir}
 \title{Run reservoir}
+\usage{
+run_reservoir(inputs, win, wres, alpha)
+}
 \arguments{
-\item{input}{Numeric matrix containing the input features}
+\item{inputs}{Numeric matrix containing the input features.}
 
 \item{win}{Numeric matrix. The input weight matrix.}
 
@@ -13,7 +16,7 @@
 \item{alpha}{Numeric value. The leakage rate (smoothing parameter).}
 }
 \value{
-states train Numeric matrix with the internal states.
+Numeric matrix with the internal states.
 }
 \description{
 Run reservoir creates the internal states for the ESN.

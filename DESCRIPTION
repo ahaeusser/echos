@@ -1,7 +1,7 @@
 Package: echos
 Type: Package
 Title: Echo State Networks for Time Series Modeling and Forecasting
-Version: 1.0.4
+Version: 1.0.5
 Description: Provides a lightweight implementation of functions and methods for
     fast and fully automatic time series modeling and forecasting using Echo
     State Networks (ESNs).
@@ -19,7 +19,6 @@ Depends:
     fabletools (>= 0.3.0)
 Imports:
     Rcpp (>= 1.0.3),
-    RcppArmadillo,
     tsibble,
     dplyr,
     tidyr,
@@ -30,7 +29,6 @@ LinkingTo:
     RcppArmadillo
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.3
 Suggests:
     knitr,
     rmarkdown,
@@ -39,3 +37,4 @@ Suggests:
     testthat (>= 3.0.0)
 VignetteBuilder: knitr
 Config/testthat/edition: 3
+Config/roxygen2/version: 8.1.1

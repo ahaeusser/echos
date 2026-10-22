@@ -3,6 +3,7 @@
 ## Load package
 
 ``` r
+
 library(echos)
 library(tidyverse)
 library(tsibble)
@@ -17,6 +18,7 @@ monthly `tsibble`, which is filtered to include only the time series
 the training data and is visualized below.
 
 ``` r
+
 train_frame <- m4_monthly_subset %>%
   filter(series %in% c("M21655", "M2717"))
 
@@ -71,6 +73,7 @@ table*). Additionally, an
 trained as a benchmark.
 
 ``` r
+
 mable_frame <- train_frame %>%
   model(
     "ESN" = ESN(value),
@@ -95,6 +98,7 @@ forecasts). The forecasts are stored as a `fable` (i.e., *forecast
 table*) and visualized along the historical training data.
 
 ``` r
+
 fable_frame <- mable_frame %>%
   forecast(h = 18)
 

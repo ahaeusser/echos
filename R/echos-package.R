@@ -8,7 +8,6 @@
 #' @importFrom distributional dist_normal dist_sample
 #' @importFrom dplyr select filter mutate arrange bind_rows bind_cols left_join
 #' @import Rcpp
-#' @import RcppArmadillo
 #' @import tsibble
 #' @import fabletools
 #' @useDynLib echos, .registration = TRUE
